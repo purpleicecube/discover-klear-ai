@@ -566,7 +566,15 @@
            (language picker + "Chat now") stay visible — that's their UI. */
         .avatar-iframe {
             position: absolute;
-            inset: 14px;
+            top: 14px;
+            left: 14px;
+            /* Explicit width + height via calc(). iframes are replaced elements
+               with intrinsic default dimensions (300×150); some browsers ignore
+               implicit dimensions from `inset` for replaced elements and fall
+               back to the defaults — which is what made the iframe render at
+               300×150 in the upper-left of the frame with a scrollbar. */
+            width: calc(100% - 28px);
+            height: calc(100% - 28px);
             border: none;
             background: transparent;
             /* Concentric with the frame's 28px radius minus the 14px inset
