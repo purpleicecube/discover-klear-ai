@@ -976,30 +976,6 @@
             max-width: min(1100px, 94vw);
         }
 
-        .session-timer {
-            position: absolute;
-            top: clamp(1.75rem, 4vw, 2.75rem);
-            right: clamp(3.5rem, 6vw, 5rem);
-            z-index: 10;
-            font-weight: 500;
-            font-size: var(--size-small);
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .session-timer::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-cyan);
-            box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
-            animation: pulse 2.4s var(--ease-out-soft) infinite;
-        }
-
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(0.85); }
@@ -1597,8 +1573,6 @@
                 <path d="M0,260 C260,220 540,380 880,320 C1220,260 1500,140 1920,200 L1920,0 L0,0 Z" fill="rgba(251,207,232,0.12)"/>
             </svg>
         </div>
-
-        <div class="session-timer" aria-label="Session time remaining: 4 minutes 32 seconds">4:32 remaining</div>
 
         <div class="slide-content">
             <!-- The LiveAvatar iframe moved out of this slide to the persistent
