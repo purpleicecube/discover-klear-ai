@@ -1917,14 +1917,17 @@
             // ===========================================
             // CAPTURE INFRASTRUCTURE
             //
-            // Pre-flight: set CAPTURE_WEBHOOK_URL to your Make.com / Formspree
-            // / Google Apps Script webhook to start landing rows in your sheet.
-            // Until then captureData() falls back to console + localStorage so
-            // show-and-tell still works.
+            // Set CAPTURE_WEBHOOK_URL to the DigiFlow leads-capture endpoint
+            // running on Railway. Pattern:
+            //   https://<digiflow-railway-host>/webhooks/leads/discover-klear-ai
             //
-            // SETUP_SHEETS.md (in this repo) walks through Make.com setup.
+            // Until set, captureData() falls back to console + localStorage so
+            // show-and-tell still works (verify in DevTools).
+            //
+            // SETUP_DIGIFLOW.md (in this repo) walks through finding the URL
+            // after DigiFlow's Railway deploy picks up the new endpoint code.
             // ===========================================
-            const CAPTURE_WEBHOOK_URL = ''; // <-- paste your webhook URL here
+            const CAPTURE_WEBHOOK_URL = ''; // <-- paste DigiFlow Railway URL here
 
             const session = {
                 startTs: Date.now(),
