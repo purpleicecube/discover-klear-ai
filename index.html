@@ -57,12 +57,15 @@
             --font: 'Barlow', system-ui, -apple-system, sans-serif;
 
             /* Type scale */
+            /* Type scale — desktop upper bounds bumped per user feedback that
+               smaller fonts felt tiny on large monitors. Lower bounds (mobile)
+               kept where they were since mobile rendering was already good. */
             --size-hero: clamp(2.5rem, 6vw, 5.25rem);
-            --size-h2: clamp(1.625rem, 3.5vw, 3rem);
-            --size-h3: clamp(1.125rem, 1.8vw, 1.5rem);
-            --size-body: clamp(0.875rem, 1.15vw, 1.0625rem);
-            --size-small: clamp(0.75rem, 0.9vw, 0.875rem);
-            --size-micro: clamp(0.6875rem, 0.78vw, 0.8125rem);
+            --size-h2: clamp(1.625rem, 3.5vw, 3.25rem);
+            --size-h3: clamp(1.125rem, 2.1vw, 1.875rem);
+            --size-body: clamp(0.9375rem, 1.5vw, 1.3125rem);
+            --size-small: clamp(0.8125rem, 1.15vw, 1.125rem);
+            --size-micro: clamp(0.75rem, 0.95vw, 1rem);
             --size-number: clamp(2.75rem, 6vw, 4.5rem);
 
             /* Spacing */
@@ -451,11 +454,27 @@
 
         .subhead {
             font-weight: 400;
-            font-size: clamp(0.9375rem, 1.35vw, 1.1875rem);
+            /* Larger upper bound — was 1.1875rem; user noted desktop felt small */
+            font-size: clamp(0.9375rem, 1.55vw, 1.4375rem);
             color: var(--text-secondary);
             max-width: 44ch;
             text-align: center;
             line-height: 1.5;
+        }
+
+        /* Slide 1 sub-hero — sits below the "Discover Klear.ai" h1 and tells
+           the visitor where in the Klear.ai funnel they are. Larger and more
+           prominent than .subhead, but smaller than h1; gradient fill for
+           visual interest without competing with the hero. */
+        .landing-context {
+            font-weight: 600;
+            font-size: clamp(1.5rem, 3.2vw, 2.625rem);
+            line-height: 1.1;
+            letter-spacing: -0.015em;
+            color: var(--text-primary);
+            text-align: center;
+            max-width: 22ch;
+            margin: 0 auto;
         }
 
         .micro {
@@ -890,8 +909,113 @@
         }
 
         /* ===========================================
-           SLIDE 3 — ENGAGEMENT_GATE
+           SLIDE 3 — ICP (audience self-identification)
+           Dark-purple glass tiles + matching input. Slightly darker than
+           the gradient bg so white text reads cleanly. Tiles toggle on
+           click (single-select for role/org_type, multi for responsibilities).
            =========================================== */
+        .slide.icp .slide-content {
+            text-align: center;
+            gap: var(--space-md);
+            max-width: min(960px, 94vw);
+        }
+
+        .icp-form {
+            width: 100%;
+            margin-top: var(--space-md);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(1.25rem, 2.4vw, 1.875rem);
+            text-align: left;
+        }
+
+        .icp-field {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1vw, 0.75rem);
+        }
+
+        .icp-label {
+            font-weight: 600;
+            font-size: clamp(0.9375rem, 1.25vw, 1.125rem);
+            color: var(--text-primary);
+            letter-spacing: 0.01em;
+            line-height: 1.3;
+        }
+
+        .icp-hint {
+            font-weight: 400;
+            font-size: var(--size-small);
+            color: var(--text-muted);
+            margin-left: 6px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        /* Dark purple input + tiles — slightly darker than the slide gradient
+           bg so white text is high-contrast and readable. */
+        .icp-input {
+            padding: 14px 18px;
+            background: rgba(30, 22, 58, 0.72);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: var(--size-body);
+            font-family: var(--font);
+            min-height: 48px;
+            width: 100%;
+            transition: background var(--dur-fast),
+                        border-color var(--dur-fast);
+        }
+        .icp-input::placeholder { color: rgba(255, 255, 255, 0.45); }
+        .icp-input:focus {
+            outline: none;
+            background: rgba(38, 28, 70, 0.82);
+            border-color: rgba(251, 207, 232, 0.6);
+        }
+
+        .icp-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: clamp(0.5rem, 1vw, 0.75rem);
+        }
+
+        .icp-tile {
+            padding: 11px 18px;
+            background: rgba(30, 22, 58, 0.72);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: clamp(0.875rem, 1.1vw, 1.0625rem);
+            font-family: var(--font);
+            font-weight: 500;
+            min-height: 44px;
+            cursor: pointer;
+            transition: background var(--dur-fast),
+                        border-color var(--dur-fast),
+                        transform var(--dur-fast) var(--ease-out-soft),
+                        box-shadow var(--dur-fast);
+        }
+        .icp-tile:hover {
+            background: rgba(40, 28, 72, 0.82);
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-1px);
+        }
+        .icp-tile.selected {
+            background: rgba(166, 28, 200, 0.45);
+            border-color: rgba(251, 207, 232, 0.7);
+            box-shadow: 0 0 0 1px rgba(251, 207, 232, 0.4) inset,
+                        0 8px 24px -10px rgba(166, 28, 200, 0.55);
+        }
+        .icp-tile.selected:hover {
+            background: rgba(180, 35, 215, 0.5);
+        }
+
+        /* Legacy .slide.gate rule kept in case anything still references it. */
         .slide.gate .slide-content {
             text-align: center;
             gap: var(--space-md);
@@ -1174,13 +1298,56 @@
             transition: background var(--dur-fast), border-color var(--dur-fast);
         }
 
-        .form-row input::placeholder { color: var(--text-muted); }
+        .form-row input::placeholder,
+        .form-textarea::placeholder { color: var(--text-muted); }
 
-        .form-row input:focus {
+        .form-row input:focus,
+        .form-textarea:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.12);
             border-color: rgba(251, 207, 232, 0.5);
         }
+
+        /* Free-text "anything else" area — same input styling as the email/
+           company fields so visually it's a consistent capture block. */
+        .form-textarea {
+            width: 100%;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-size: var(--size-body);
+            font-family: var(--font);
+            min-height: 80px;
+            resize: vertical;
+            transition: background var(--dur-fast), border-color var(--dur-fast);
+        }
+
+        /* Slide 5 BANT tiles override — slightly smaller padding than the
+           ICP-slide tiles so the inline-with-form context reads as part of
+           the form rhythm, not as a separate tile system. */
+        .booking-form .icp-tiles {
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .booking-form .icp-tile {
+            padding: 9px 14px;
+            font-size: var(--size-small);
+        }
+
+        .privacy-line {
+            margin-top: var(--space-xs);
+            font-size: var(--size-small);
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.4;
+        }
+        .privacy-line a {
+            color: rgba(251, 207, 232, 0.85);
+            transition: color var(--dur-fast);
+        }
+        .privacy-line a:hover { color: var(--pill-pink); }
 
         .booking-form .pill {
             margin-top: var(--space-sm);
@@ -1470,10 +1637,10 @@
         </div>
 
         <div class="slide-content">
-            <p class="award-eyebrow reveal" data-delay="1">Klear.ai · Claims Administration</p>
-            <h1 class="reveal" data-delay="2">Discover Klear.ai</h1>
+            <h1 class="reveal" data-delay="1">Discover Klear.ai</h1>
+            <p class="landing-context reveal" data-delay="2">Klear.ai Claims Administration</p>
             <p class="subhead reveal" data-delay="3">
-                A quick intro to AI-native claims, risk, and audit.
+                AI-native software for claims, risk, audit, and policy.
             </p>
 
             <div class="video-poster reveal" data-delay="4" role="button" tabindex="0" aria-label="Play Klear.ai Claims intro video">
@@ -1506,9 +1673,9 @@
             <div class="award-layout">
                 <div class="award-text">
                     <p class="award-eyebrow reveal" data-delay="1">Award-Winning Claims Administration Software</p>
-                    <h2 class="reveal" data-delay="2">Sustainable Work Starts Here.</h2>
+                    <h2 class="reveal" data-delay="2">Sustainable Growth.</h2>
                     <p class="subhead reveal" data-delay="3">
-                        <em class="brand">Klear.ai</em> brings claims work into one intelligent platform — automation, analytics, and Native AI built for modern insurance and risk teams. Recognized for innovation, growth, and industry leadership.
+                        Built for <strong>Property &amp; Casualty</strong> insurance and <strong>Workers' Compensation</strong> programs. <em class="brand">Klear.ai</em> brings claims, risk, audit, and policy into one Native AI platform — recognized for innovation, growth, and industry leadership.
                     </p>
                 </div>
 
@@ -1521,11 +1688,13 @@
     </section>
 
     <!-- ===========================================
-         SLIDE 3 — ENGAGEMENT_GATE
-         Avatar placeholder shows visitors *who* they'd be talking to before
-         they pick an engagement depth. Same .avatar-frame class as slide 4.
+         SLIDE 3 — ICP (audience self-identification)
+         Replaces the old engagement gate. Captures org, role,
+         responsibilities, and org type via dark-purple glass tiles.
+         Field values feed session.prospect.explicit and flow into the
+         capture POST on slide 5's Book-my-time click.
          =========================================== -->
-    <section class="slide gate" id="slide-2">
+    <section class="slide icp" id="slide-2">
         <div class="gradient-bg" aria-hidden="true">
             <svg viewBox="0 0 1920 1080" preserveAspectRatio="none">
                 <path d="M0,700 C400,580 760,800 1100,680 C1440,560 1740,700 1920,620 L1920,1080 L0,1080 Z" fill="rgba(15,10,44,0.5)"/>
@@ -1535,29 +1704,51 @@
         </div>
 
         <div class="slide-content">
-            <!-- Avatar placeholder removed — Christina is now a persistent floating
-                 element (#christinaFloat) visible on every slide. -->
-            <h2 class="reveal" data-delay="1">Want to talk to someone?</h2>
+            <h2 class="reveal" data-delay="1">Are you our kind of customer?</h2>
             <p class="subhead reveal" data-delay="2">
-                Christina can walk you through how this fits your situation — about 6 minutes.
+                A few quick details so we can tailor the rest of this conversation.
             </p>
 
-            <div class="gate-tiles">
-                <button class="tile glass primary reveal" data-delay="3">
-                    <span class="tile-label">Yes — let's chat</span>
-                    <span class="tile-meta">~6 minutes with Christina</span>
-                </button>
+            <form class="icp-form reveal" data-delay="3" onsubmit="return false;">
+                <div class="icp-field">
+                    <label class="icp-label" for="icp-org">Your organization</label>
+                    <input type="text" id="icp-org" name="org_name" class="icp-input" placeholder="e.g., Acme Insurance" autocomplete="organization">
+                </div>
 
-                <button class="tile glass secondary reveal" data-delay="4">
-                    <span class="tile-label">Show me more first</span>
-                    <span class="tile-meta">Browse value pillars at your own pace</span>
-                </button>
+                <div class="icp-field">
+                    <span class="icp-label">Your role</span>
+                    <div class="icp-tiles" data-field="role" data-multi="false">
+                        <button type="button" class="icp-tile" data-value="claims-manager">Claims Manager / VP</button>
+                        <button type="button" class="icp-tile" data-value="risk-manager">Risk Manager</button>
+                        <button type="button" class="icp-tile" data-value="ops-coo">Operations / COO</button>
+                        <button type="button" class="icp-tile" data-value="it-tech">IT / Tech leader</button>
+                        <button type="button" class="icp-tile" data-value="other">Other</button>
+                    </div>
+                </div>
 
-                <button class="tile glass tertiary reveal" data-delay="5">
-                    <span class="tile-label">Not right now</span>
-                    <span class="tile-meta">Send me a summary instead</span>
-                </button>
-            </div>
+                <div class="icp-field">
+                    <span class="icp-label">Your program responsibilities <span class="icp-hint">select all that apply</span></span>
+                    <div class="icp-tiles" data-field="responsibilities" data-multi="true">
+                        <button type="button" class="icp-tile" data-value="claims-handling">Daily claims handling</button>
+                        <button type="button" class="icp-tile" data-value="audits-compliance">Audits &amp; compliance</button>
+                        <button type="button" class="icp-tile" data-value="vendor-tpa">Vendor / TPA management</button>
+                        <button type="button" class="icp-tile" data-value="reporting-analytics">Reporting &amp; analytics</button>
+                        <button type="button" class="icp-tile" data-value="strategy">Strategy &amp; modernization</button>
+                    </div>
+                </div>
+
+                <div class="icp-field">
+                    <span class="icp-label">Your organization type</span>
+                    <div class="icp-tiles" data-field="org_type" data-multi="false">
+                        <button type="button" class="icp-tile" data-value="pc-carrier">P&amp;C Carrier</button>
+                        <button type="button" class="icp-tile" data-value="tpa">TPA</button>
+                        <button type="button" class="icp-tile" data-value="public-risk-pool">Public Risk Pool / JPA</button>
+                        <button type="button" class="icp-tile" data-value="self-insured">Self-insured employer</button>
+                        <button type="button" class="icp-tile" data-value="workers-comp">Workers' Comp specialist</button>
+                        <button type="button" class="icp-tile" data-value="other">Other</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </section>
 
@@ -1637,7 +1828,40 @@
                         <input type="text" id="company" placeholder="Acme Insurance">
                     </div>
 
-                    <a class="pill large book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer">Book my time</a>
+                    <!-- Subtle BANT capture — Timeline + Budget tile asks.
+                         These feed session.prospect.explicit and post to the
+                         capture webhook when "Book my time" is clicked. -->
+                    <div class="form-row">
+                        <label>When are you hoping to have something in place?</label>
+                        <div class="icp-tiles" data-field="timeline" data-multi="false">
+                            <button type="button" class="icp-tile" data-value="this-quarter">This quarter</button>
+                            <button type="button" class="icp-tile" data-value="6-months">Next 6 months</button>
+                            <button type="button" class="icp-tile" data-value="12-months">Next year</button>
+                            <button type="button" class="icp-tile" data-value="exploring">Just exploring</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label>Where are you on budget?</label>
+                        <div class="icp-tiles" data-field="budget" data-multi="false">
+                            <button type="button" class="icp-tile" data-value="allocated">Allocated</button>
+                            <button type="button" class="icp-tile" data-value="in-planning">In planning</button>
+                            <button type="button" class="icp-tile" data-value="not-yet">Not yet</button>
+                            <button type="button" class="icp-tile" data-value="prefer-not">Prefer not to say</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="extras">Anything else you'd like us to know? <span class="micro" style="text-transform:none; letter-spacing:0;">(optional)</span></label>
+                        <textarea id="extras" class="form-textarea" rows="3" placeholder="Context, questions, what you'd want to cover on the call…"></textarea>
+                    </div>
+
+                    <p class="privacy-line">
+                        We use this info to prep your call.
+                        <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
+                    </p>
+
+                    <a class="pill large book-link" id="bookMyTime" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer">Book my time</a>
                 </form>
 
                 <div class="calendar-frame glass reveal" data-delay="4">
@@ -1688,9 +1912,140 @@
             const slides = Array.from(document.querySelectorAll('.slide'));
             const dots = Array.from(document.querySelectorAll('.nav-dots .dot'));
             const slideLabel = document.getElementById('slideLabel');
-            const labels = ['Landing', 'Award · Sustainable Work', 'Engagement gate', 'Christina · qualification', 'Book a meeting'];
+            const labels = ['Landing', 'Award · Sustainable Growth', 'Who you are', 'What we solve', 'Book a meeting'];
+
+            // ===========================================
+            // CAPTURE INFRASTRUCTURE
+            //
+            // Pre-flight: set CAPTURE_WEBHOOK_URL to your Make.com / Formspree
+            // / Google Apps Script webhook to start landing rows in your sheet.
+            // Until then captureData() falls back to console + localStorage so
+            // show-and-tell still works.
+            //
+            // SETUP_SHEETS.md (in this repo) walks through Make.com setup.
+            // ===========================================
+            const CAPTURE_WEBHOOK_URL = ''; // <-- paste your webhook URL here
+
+            const session = {
+                startTs: Date.now(),
+                slidesVisited: new Set(),
+                prospect: {
+                    explicit: {
+                        org_name: '',
+                        role: '',
+                        responsibilities: [],
+                        org_type: '',
+                        email: '',
+                        company: '',
+                        timeline: '',
+                        budget: '',
+                        extras: ''
+                    }
+                }
+            };
+
+            // Simple deal_status inference (rule-based v1).
+            function computeDealStatus(e) {
+                const tlExploring  = e.timeline === 'exploring';
+                const tlSoon       = e.timeline === 'this-quarter' || e.timeline === '6-months';
+                const budYes       = e.budget === 'allocated' || e.budget === 'in-planning';
+                const budNo        = e.budget === 'not-yet';
+                if (tlExploring && budNo) return 'nurture_only';
+                if (!e.email) return 'partially_qualified';
+                if (tlSoon && budYes) return 'qualified_deal';
+                return 'partially_qualified';
+            }
+
+            // Builds the full capture record and ships it.
+            function captureData(terminal) {
+                const now = Date.now();
+                const data = {
+                    timestamp: new Date(now).toISOString(),
+                    terminal_reached: terminal,
+                    time_on_site_seconds: Math.round((now - session.startTs) / 1000),
+                    slides_visited: Array.from(session.slidesVisited).sort(),
+                    page_url: window.location.href,
+                    referrer: document.referrer || null,
+                    explicit: Object.assign({}, session.prospect.explicit),
+                    inferred: { deal_status: computeDealStatus(session.prospect.explicit) }
+                };
+
+                // Console — always, so you can verify capture in DevTools.
+                // eslint-disable-next-line no-console
+                console.log('[Discover Klear.ai] Lead captured →', data);
+
+                // localStorage — always, latest only (handy for show-and-tell
+                // demo: open DevTools → Application → localStorage to inspect).
+                try {
+                    localStorage.setItem('discoverklear_lastLead', JSON.stringify(data));
+                } catch (_) { /* private mode etc. */ }
+
+                // Webhook — fire and forget so the Bookings link still navigates
+                // (we don't await; user keeps going).
+                if (CAPTURE_WEBHOOK_URL) {
+                    try {
+                        fetch(CAPTURE_WEBHOOK_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data),
+                            keepalive: true
+                        }).catch(() => { /* fire-and-forget */ });
+                    } catch (_) { /* never block on capture errors */ }
+                }
+            }
+
+            // Tile toggle handlers (one delegated listener per .icp-tiles group).
+            document.querySelectorAll('.icp-tiles').forEach((group) => {
+                const field = group.dataset.field;
+                const multi = group.dataset.multi === 'true';
+                group.addEventListener('click', (e) => {
+                    const tile = e.target.closest('.icp-tile');
+                    if (!tile) return;
+                    const value = tile.dataset.value;
+                    if (multi) {
+                        tile.classList.toggle('selected');
+                        const arr = session.prospect.explicit[field];
+                        if (tile.classList.contains('selected')) {
+                            if (!arr.includes(value)) arr.push(value);
+                        } else {
+                            const idx = arr.indexOf(value);
+                            if (idx > -1) arr.splice(idx, 1);
+                        }
+                    } else {
+                        group.querySelectorAll('.icp-tile').forEach(t => t.classList.remove('selected'));
+                        tile.classList.add('selected');
+                        session.prospect.explicit[field] = value;
+                    }
+                });
+            });
+
+            // Text input handlers — capture as the visitor types.
+            const wireInput = (id, key) => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', (e) => {
+                    session.prospect.explicit[key] = e.target.value;
+                });
+            };
+            wireInput('icp-org', 'org_name');
+            wireInput('email',   'email');
+            wireInput('company', 'company');
+            wireInput('extras',  'extras');
+
+            // Book my time click → capture before navigation. Anchor's default
+            // navigation continues uninterrupted (new tab opens Bookings).
+            const bookBtn = document.getElementById('bookMyTime');
+            if (bookBtn) bookBtn.addEventListener('click', () => captureData('book_meeting'));
+
+            // Capture once more when the user actually leaves (in case they
+            // abandoned before clicking the CTA — partial leads still useful).
+            window.addEventListener('pagehide', () => {
+                // Only capture if they got past slide 1 (otherwise it's noise)
+                if (session.slidesVisited.size > 1) captureData('page_exit');
+            });
 
             // IntersectionObserver triggers reveal animations + syncs nav state
+            // + tracks slides visited for the capture record.
             const io = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     const idx = slides.indexOf(entry.target);
@@ -1698,6 +2053,7 @@
                         entry.target.classList.add('visible');
                         dots.forEach((d, i) => d.classList.toggle('active', i === idx));
                         slideLabel.textContent = `${idx + 1} / ${slides.length} — ${labels[idx]}`;
+                        session.slidesVisited.add(idx + 1);
                     }
                 });
             }, { threshold: [0, 0.5, 1] });
