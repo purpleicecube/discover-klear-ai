@@ -584,6 +584,28 @@
             z-index: 1;
         }
 
+        /* Overlay that hides the empty white strip LiveAvatar renders BELOW
+           their "English / Chat now" controls. Positioned above the iframe in
+           z-order, but sized to sit BELOW the controls bar so they stay visible
+           and interactive. Background blends into the frame's dark bezel.
+           Adjust --bottom-cover-h on .avatar-frame to taste. */
+        .avatar-frame {
+            --bottom-cover-h: 28px;
+        }
+        .avatar-bottom-cover {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            height: var(--bottom-cover-h);
+            background: linear-gradient(180deg,
+                rgba(40, 30, 60, 0.97) 0%,
+                rgba(22, 18, 42, 0.99) 100%);
+            border-radius: 0 0 14px 14px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
         /* ===========================================
            CHRISTINA FLOAT
            Persistent draggable LiveAvatar portrait, mounted at <body> level
@@ -1285,6 +1307,9 @@
                     allow="microphone"
                     title="Christina LiveAvatar"
                     loading="lazy"></iframe>
+            <!-- Hides the empty white strip LiveAvatar renders below their
+                 controls bar. Sized via --bottom-cover-h in CSS. -->
+            <div class="avatar-bottom-cover" aria-hidden="true"></div>
         </div>
     </div>
 
