@@ -586,22 +586,24 @@
 
         /* Overlay that hides the empty white strip LiveAvatar renders BELOW
            their "English / Chat now" controls. Positioned above the iframe in
-           z-order, but sized to sit BELOW the controls bar so they stay visible
-           and interactive. Background blends into the frame's dark bezel.
-           Adjust --bottom-cover-h on .avatar-frame to taste. */
+           z-order, sized to sit BELOW the controls bar so they stay visible
+           and interactive.
+
+           Spans the full frame width/depth so it covers the white strip cleanly
+           from edge to edge — the frame's own overflow:hidden + outer border-
+           radius handle the corner clipping (no need for the overlay to round
+           its own corners). Solid color matches the bezel's bottom gradient
+           value (rgba(22,18,42) ≈ frame's linear-gradient end stop). */
         .avatar-frame {
-            --bottom-cover-h: 28px;
+            --bottom-cover-h: 48px;
         }
         .avatar-bottom-cover {
             position: absolute;
-            left: 14px;
-            right: 14px;
-            bottom: 14px;
+            left: 0;
+            right: 0;
+            bottom: 0;
             height: var(--bottom-cover-h);
-            background: linear-gradient(180deg,
-                rgba(40, 30, 60, 0.97) 0%,
-                rgba(22, 18, 42, 0.99) 100%);
-            border-radius: 0 0 14px 14px;
+            background: rgb(22, 18, 42);
             z-index: 2;
             pointer-events: none;
         }
