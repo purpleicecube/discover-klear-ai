@@ -569,7 +569,9 @@
             inset: 14px;
             border: none;
             background: transparent;
-            border-radius: 16px;
+            /* Concentric with the frame's 28px radius minus the 14px inset
+               so the iframe corner curves are parallel to the frame curves. */
+            border-radius: 14px;
             overflow: hidden;
             z-index: 1;
         }
@@ -587,7 +589,7 @@
             top: 110px;
             right: 28px;
             z-index: 55;
-            width: clamp(220px, 24vw, 300px);
+            width: clamp(240px, 26vw, 340px);
             display: flex;
             flex-direction: column;
             user-select: none;
@@ -886,7 +888,7 @@
         .avatar-frame {
             width: 100%;
             aspect-ratio: 9 / 16;
-            max-width: clamp(220px, 24vw, 300px);
+            max-width: clamp(240px, 26vw, 340px);
             border-radius: 28px;
             position: relative;
             overflow: hidden;
@@ -1189,7 +1191,8 @@
             .award-text { text-align: center; align-items: center; }
             .award-text .subhead { text-align: center; }
             .award-medal-wrap { max-width: clamp(180px, 50vw, 240px); }
-            .avatar-frame { max-width: clamp(180px, 52vw, 240px); }
+            .avatar-frame { max-width: clamp(200px, 56vw, 270px); }
+            .christina-float { width: clamp(200px, 56vw, 270px); }
             .challenge-cards { grid-template-columns: 1fr; }
             .booking-grid { grid-template-columns: 1fr; }
             .gate-tiles { grid-template-columns: 1fr; }
