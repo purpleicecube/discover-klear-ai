@@ -1311,8 +1311,12 @@
             .award-text { text-align: center; align-items: center; }
             .award-text .subhead { text-align: center; }
             .award-medal-wrap { max-width: clamp(180px, 50vw, 240px); }
-            .avatar-frame { max-width: clamp(200px, 56vw, 270px); }
-            .christina-float { width: clamp(200px, 56vw, 270px); }
+            /* Bigger on mobile — at small widths the previous 200–270px cap
+               made the iframe content (especially LiveAvatar's controls) feel
+               smashed. 78vw with a 320px floor lets Christina dominate the
+               phone screen as a proper popup. */
+            .avatar-frame { max-width: clamp(320px, 78vw, 380px); }
+            .christina-float { width: clamp(320px, 78vw, 380px); }
             .challenge-cards { grid-template-columns: 1fr; }
             .booking-grid { grid-template-columns: 1fr; }
             .gate-tiles { grid-template-columns: 1fr; }
