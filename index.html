@@ -562,10 +562,20 @@
 
         /* Real LiveAvatar <iframe> on slide 4 — sits inside the avatar-frame with
            a visible 14px matte so the frame edge reads as an intentional bezel
-           around the video, not edge-to-edge content. */
+           around the video, not edge-to-edge content.
+
+           The iframe extends ~70px past the frame's bottom edge. LiveAvatar's
+           pre-chat controls bar (language picker + "Chat now" button) lives in
+           that overhang and gets cropped by the avatar-frame's overflow:hidden.
+           Net result: visitor sees a clean portrait of Christina rather than
+           generic video-widget chrome. Trade-off: when LiveAvatar auto-starts
+           server-side this CSS crop is no longer needed and can be removed. */
         .avatar-iframe {
             position: absolute;
-            inset: 14px;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            height: calc(100% + 56px);
             border: none;
             background: transparent;
             border-radius: 16px;
