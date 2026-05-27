@@ -212,9 +212,15 @@
             top: clamp(1rem, 2.5vw, 1.75rem);
             left: clamp(1rem, 3vw, 2.25rem);
             z-index: 50;
-            pointer-events: none;
             line-height: 0;
+            display: block;
+            text-decoration: none;
+            transition: transform var(--dur-fast) var(--ease-out-soft),
+                        filter var(--dur-fast);
+            cursor: pointer;
         }
+
+        .wordmark:hover { transform: translateY(-2px) scale(1.04); }
 
         .wordmark-logo {
             /* Sized to match the floating Klear orb (.klear-orb-link) for visual symmetry */
@@ -222,6 +228,12 @@
             height: auto;
             display: block;
             filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
+            transition: filter var(--dur-fast);
+        }
+
+        .wordmark:hover .wordmark-logo {
+            filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28))
+                    drop-shadow(0 0 18px rgba(174, 169, 236, 0.35));
         }
 
         .nav-dots {
@@ -336,6 +348,24 @@
         .klear-orb-link.dragging {
             transition: opacity var(--dur-med) var(--ease-out-soft),
                         filter var(--dur-fast);
+        }
+
+        /* Collapsed state — orb is hidden while Christina is open.
+           Slight scale-down so the disappearance reads as "morphing into"
+           her rather than just blinking away. pointer-events: none so the
+           hidden orb can't be clicked underneath the open Christina. */
+        .klear-orb-link.collapsed {
+            opacity: 0;
+            transform: scale(0.55);
+            pointer-events: none;
+            transition: opacity 200ms cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* Reset to a clean button look (was already inherited from <a>;
+           preserved here in case browser defaults leak through). */
+        button.klear-orb-link {
+            font: inherit;
+            padding: 0;
         }
 
         /* Don't apply hover lift while dragging or on touch devices that don't hover */
@@ -618,7 +648,10 @@
            =========================================== */
         .christina-float {
             position: fixed;
-            top: 110px;
+            /* Position is set dynamically by expandChristina() (her bottom-right
+               anchors to the orb's center at the moment of summon). These
+               defaults are just a safe starting point if JS hasn't run yet. */
+            top: 100px;
             right: 28px;
             z-index: 55;
             width: clamp(240px, 26vw, 340px);
@@ -627,10 +660,31 @@
             user-select: none;
             -webkit-user-select: none;
             filter: drop-shadow(0 24px 50px rgba(12, 8, 30, 0.35));
+            /* Collapsed (default) state — she's a tiny invisible point at her
+               bottom-right corner, ready to scale up from the orb's location. */
             opacity: 0;
-            transition: opacity var(--dur-med) var(--ease-out-soft);
+            transform: scale(0.12);
+            transform-origin: bottom right;
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s 250ms;
         }
-        .christina-float.ready { opacity: 1; }
+
+        /* Expanded state — full size, full opacity, interactive.
+           visibility flips to visible IMMEDIATELY so the morph animation
+           is visible; the reverse waits 250ms (the collapse) before
+           hiding via visibility (handled by the base rule's transition). */
+        .christina-float.expanded {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+            visibility: visible;
+            transition: opacity 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                        transform 250ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s 0s;
+        }
 
         /* The avatar-frame inside the float keeps its existing styles but
            connects cleanly to the handle on top — only bottom corners round. */
@@ -649,10 +703,13 @@
             padding: 9px 14px;
             cursor: grab;
             touch-action: none;
-            display: flex;
+            /* Grid: left = grip, center = label (fills space, centers text),
+               right = close-X. Keeps the label optically centered regardless
+               of grip / close widths. */
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 10px;
             font-family: var(--font);
             font-weight: 500;
             font-size: var(--size-micro);
@@ -674,6 +731,37 @@
             height: 3px;
             border-radius: 50%;
             background: currentColor;
+        }
+
+        .christina-handle-label {
+            text-align: center;
+        }
+
+        /* Close X — collapses Christina back into the orb. Its pointerdown
+           is stopped from propagating to the drag handler in JS, so clicking
+           the X never starts a drag. */
+        .christina-close {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.65);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            transition: background var(--dur-fast),
+                        color var(--dur-fast);
+        }
+        .christina-close:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.95);
+        }
+        .christina-close svg {
+            width: 14px;
+            height: 14px;
+            display: block;
         }
 
         .play-btn {
@@ -1296,19 +1384,26 @@
          Mounted at body level so it stays visible across all slides.
          Drag handle bar at the top so iframe content stays interactive.
          =========================================== -->
-    <div class="christina-float" id="christinaFloat" aria-label="Christina LiveAvatar (drag to move)">
+    <div class="christina-float" id="christinaFloat" aria-label="Christina LiveAvatar (drag the handle to move)">
         <div class="christina-handle" id="christinaHandle">
             <span class="christina-handle-grip" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span><span></span>
             </span>
             <span class="christina-handle-label">Christina</span>
+            <button class="christina-close" id="christinaClose" type="button" aria-label="Close Christina">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 7 L17 17 M17 7 L7 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </button>
         </div>
         <div class="avatar-frame">
-            <iframe class="avatar-iframe"
-                    src="https://embed.liveavatar.com/v1/1efbf252-19cc-4802-bf48-b579c9486b1d?orientation=vertical"
+            <!-- src starts empty; expandChristina() sets the real LiveAvatar URL
+                 on summon and collapseChristina() clears it back to empty so
+                 each open is a fresh 6-min session (no idle credit burn). -->
+            <iframe class="avatar-iframe" id="christinaIframe"
+                    src=""
                     allow="microphone"
-                    title="Christina LiveAvatar"
-                    loading="lazy"></iframe>
+                    title="Christina LiveAvatar"></iframe>
             <!-- Hides the empty white strip LiveAvatar renders below their
                  controls bar. Sized via --bottom-cover-h in CSS. -->
             <div class="avatar-bottom-cover" aria-hidden="true"></div>
@@ -1316,10 +1411,13 @@
     </div>
 
     <!-- ===========================================
-         KLEAR ASSIST ORB — persistent floating brand link to klear.ai
-         Hero/active variant from klearassist_orb_states.html.
+         KLEAR ASSIST ORB — persistent floating widget that SUMMONS Christina.
+         No longer a klear.ai link (that role moved to the top-left wordmark).
+         Clicking the orb opens the Christina iframe (lazy-mounted) and hides
+         the orb. Christina's close button collapses her back, re-showing
+         the orb at her position.
          =========================================== -->
-    <a class="klear-orb-link" href="https://klear.ai" target="_blank" rel="noopener noreferrer" aria-label="Visit Klear.ai" draggable="false">
+    <button class="klear-orb-link" type="button" aria-label="Talk to Christina" draggable="false">
         <svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
                 <radialGradient id="hero-g" cx="36%" cy="30%" r="70%">
@@ -1376,7 +1474,7 @@
             <!-- Top-left specular highlight -->
             <ellipse cx="70" cy="70" rx="11" ry="6" fill="white" opacity="0.16" transform="rotate(-30,70,70)"/>
         </svg>
-    </a>
+    </button>
 
     <!-- ===========================================
          SLIDE 1 — LANDING
@@ -1714,20 +1812,95 @@
             const orb = document.querySelector('.klear-orb-link');
             const christinaFloat = document.getElementById('christinaFloat');
             const christinaHandle = document.getElementById('christinaHandle');
+            const christinaClose = document.getElementById('christinaClose');
+            const christinaIframe = document.getElementById('christinaIframe');
+            const LIVEAVATAR_URL = 'https://embed.liveavatar.com/v1/1efbf252-19cc-4802-bf48-b579c9486b1d?orientation=vertical';
 
-            // Orb defaults to the lower-right corner of Christina's floating frame
-            // — visually pairs them at startup; either can be dragged independently.
+            // Default orb position: bottom-right corner of the viewport (classic
+            // floating chat-widget spot). Used at page load and re-applied on
+            // resize when the user hasn't dragged the orb manually.
             function defaultOrbPosition() {
-                if (!christinaFloat || !orb) return;
-                const rect = christinaFloat.getBoundingClientRect();
+                if (!orb) return;
+                const margin = 28;
                 const orbRect = orb.getBoundingClientRect();
-                // Position orb so it overlaps the lower-right corner of Christina's frame
-                const targetLeft = rect.right - orbRect.width * 0.7;
-                const targetTop  = rect.bottom - orbRect.height * 0.7;
-                orb.style.left = targetLeft + 'px';
-                orb.style.top  = targetTop + 'px';
+                orb.style.left = (window.innerWidth  - orbRect.width  - margin) + 'px';
+                orb.style.top  = (window.innerHeight - orbRect.height - margin) + 'px';
                 orb.style.right = 'auto';
                 orb.style.bottom = 'auto';
+            }
+
+            // ===========================================
+            // SUMMON / COLLAPSE — the orb<->Christina state machine
+            // ===========================================
+            // expand: orb is clicked → Christina morphs in from the orb's
+            // current position; orb fades out. Iframe gets its src set so a
+            // fresh LiveAvatar session begins (no idle credit burn before this).
+            //
+            // collapse: close-X is clicked → Christina shrinks back to her
+            // bottom-right corner; orb is moved to that point and fades in.
+            // Iframe src is cleared so the LiveAvatar session ends cleanly.
+            // ===========================================
+            function expandChristina() {
+                if (!orb || !christinaFloat) return;
+                // Where is the orb right now (its center is the morph origin)
+                const orbRect = orb.getBoundingClientRect();
+                const orbCenterX = orbRect.left + orbRect.width / 2;
+                const orbCenterY = orbRect.top  + orbRect.height / 2;
+
+                // Position Christina so her bottom-right corner sits at the
+                // orb's center. With transform-origin: bottom right, scaling
+                // from 0.12 -> 1 makes her appear to grow OUT of the orb.
+                const floatW = christinaFloat.offsetWidth;
+                const floatH = christinaFloat.offsetHeight;
+
+                // Clamp so she doesn't end up off-screen if the orb is near
+                // the top-left corner of the viewport.
+                let left = orbCenterX - floatW;
+                let top  = orbCenterY - floatH;
+                const minMargin = 12;
+                left = Math.max(minMargin, Math.min(window.innerWidth  - floatW - minMargin, left));
+                top  = Math.max(minMargin, Math.min(window.innerHeight - floatH - minMargin, top));
+
+                // Skip the position transition during this reposition so she
+                // doesn't slide diagonally into place — only the scale+opacity
+                // morph should animate. (Set position first, force layout,
+                // restore transitions, then toggle expanded.)
+                christinaFloat.style.transition = 'none';
+                christinaFloat.style.left = left + 'px';
+                christinaFloat.style.top  = top + 'px';
+                christinaFloat.style.right = 'auto';
+                christinaFloat.style.bottom = 'auto';
+                christinaFloat.style.transformOrigin = 'bottom right';
+                /* eslint-disable-next-line no-unused-expressions */
+                christinaFloat.offsetHeight; // force reflow
+
+                // Restore inline-transition removal so the CSS rules apply again
+                christinaFloat.style.transition = '';
+
+                // Mount the iframe and fade the orb out / Christina in
+                christinaIframe.src = LIVEAVATAR_URL;
+                christinaFloat.classList.add('expanded');
+                orb.classList.add('collapsed');
+            }
+
+            function collapseChristina() {
+                if (!orb || !christinaFloat) return;
+                // Where to put the orb when it reappears: at Christina's
+                // bottom-right corner (so visually the orb "is" where she was).
+                const rect = christinaFloat.getBoundingClientRect();
+                const orbRect = orb.getBoundingClientRect();
+                orb.style.left = (rect.right - orbRect.width  / 2) + 'px';
+                orb.style.top  = (rect.bottom - orbRect.height / 2) + 'px';
+                orb.style.right = 'auto';
+                orb.style.bottom = 'auto';
+
+                // Start the collapse animation
+                christinaFloat.classList.remove('expanded');
+                orb.classList.remove('collapsed');
+
+                // Unmount the iframe after the morph finishes so the LiveAvatar
+                // session terminates cleanly (no background audio etc.).
+                setTimeout(() => { christinaIframe.src = ''; }, 280);
             }
 
             // Generic draggable helper — wraps the pointer-events drag pattern
@@ -1792,19 +1965,17 @@
                 return { isMoved: () => movedAtLeastOnce };
             }
 
-            // Christina float starts via its CSS default position (top:110 / right:28).
-            // Orb defaults to Christina's lower-right corner, so they read as paired.
-            // Both are independently draggable.
-            const orbDrag = makeDraggable(orb, orb, { onDragEndSuppressClick: true });
+            // Drag wiring. Orb drags itself; Christina drags via her handle bar
+            // (so clicks inside her iframe still reach LiveAvatar).
+            const orbDrag       = makeDraggable(orb,            orb,             { onDragEndSuppressClick: true });
             const christinaDrag = makeDraggable(christinaFloat, christinaHandle);
 
-            // Bootstrapping: wait for fonts so layout is stable, then position the orb
-            // (Christina's pixel position is what the orb anchors to) and fade in.
+            // Bootstrapping: wait for fonts so layout is stable, then position
+            // the orb in its default spot and fade it in.
             const positionAndReveal = () => {
                 defaultOrbPosition();
                 requestAnimationFrame(() => requestAnimationFrame(() => {
                     if (orb) orb.classList.add('ready');
-                    if (christinaFloat) christinaFloat.classList.add('ready');
                 }));
             };
             if (document.fonts && document.fonts.ready) {
@@ -1813,8 +1984,22 @@
                 setTimeout(positionAndReveal, 120);
             }
 
-            // On viewport resize: re-default the orb if neither has been dragged;
-            // otherwise clamp both into the new viewport bounds so nothing escapes.
+            // Orb click → summon Christina. The drag-vs-click discrimination in
+            // makeDraggable() (4px threshold) ensures actual drags don't trigger
+            // this; only intentional clicks do.
+            if (orb) {
+                orb.addEventListener('click', expandChristina);
+            }
+
+            // Close X → collapse Christina. stopPropagation prevents the
+            // pointerdown from bubbling to the drag handler on the handle.
+            if (christinaClose) {
+                christinaClose.addEventListener('pointerdown', (e) => e.stopPropagation());
+                christinaClose.addEventListener('click', collapseChristina);
+            }
+
+            // On viewport resize: re-default the orb if user hasn't dragged it;
+            // clamp both into the new viewport bounds so nothing escapes.
             let resizeRaf = null;
             window.addEventListener('resize', () => {
                 if (resizeRaf) cancelAnimationFrame(resizeRaf);
@@ -1827,9 +2012,7 @@
                         if (r.left > maxX) el.style.left = Math.max(0, maxX) + 'px';
                         if (r.top  > maxY) el.style.top  = Math.max(0, maxY) + 'px';
                     };
-                    if (!orbDrag.isMoved() && !christinaDrag.isMoved()) {
-                        defaultOrbPosition();
-                    }
+                    if (!orbDrag.isMoved()) defaultOrbPosition();
                     clamp(orb);
                     clamp(christinaFloat);
                 });
