@@ -24,7 +24,7 @@ Opens at <http://localhost:8501>.
 
 ## Structure
 
-```
+```text
 .
 ├── app.py             ~25-line Streamlit wrapper (hides chrome, embeds prototype)
 ├── index.html         Self-contained HTML prototype (Barlow font, wave gradient,
