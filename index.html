@@ -560,16 +560,11 @@
             transition: opacity var(--dur-fast);
         }
 
-        /* Real LiveAvatar <iframe> on slide 4 — sits inside the avatar-frame with
-           a visible 14px matte so the frame edge reads as an intentional bezel
-           around the video, not edge-to-edge content.
-
-           The iframe extends ~70px past the frame's bottom edge. LiveAvatar's
-           pre-chat controls bar (language picker + "Chat now" button) lives in
-           that overhang and gets cropped by the avatar-frame's overflow:hidden.
-           Net result: visitor sees a clean portrait of Christina rather than
-           generic video-widget chrome. Trade-off: when LiveAvatar auto-starts
-           server-side this CSS crop is no longer needed and can be removed. */
+        /* Real LiveAvatar <iframe> sits inside the avatar-frame with a visible
+           14px matte so the frame reads as an intentional bezel around the video.
+           The iframe extends ~70px past the frame's bottom so LiveAvatar's
+           pre-chat controls bar (language picker + "Chat now") gets cropped by
+           the avatar-frame's overflow:hidden. */
         .avatar-iframe {
             position: absolute;
             top: 14px;
@@ -581,6 +576,74 @@
             border-radius: 16px;
             overflow: hidden;
             z-index: 1;
+        }
+
+        /* ===========================================
+           CHRISTINA FLOAT
+           Persistent draggable LiveAvatar portrait, mounted at <body> level
+           so it stays visible across all slides (like the KlearAssist orb).
+           The frame is the .avatar-frame above; the wrapper handles positioning
+           + drag; the handle bar at the top provides a grab target distinct
+           from the iframe content (so clicks on the iframe still reach LiveAvatar).
+           =========================================== */
+        .christina-float {
+            position: fixed;
+            top: 110px;
+            right: 28px;
+            z-index: 55;
+            width: clamp(220px, 24vw, 300px);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+            filter: drop-shadow(0 24px 50px rgba(12, 8, 30, 0.35));
+            opacity: 0;
+            transition: opacity var(--dur-med) var(--ease-out-soft);
+        }
+        .christina-float.ready { opacity: 1; }
+
+        /* The avatar-frame inside the float keeps its existing styles but
+           connects cleanly to the handle on top — only bottom corners round. */
+        .christina-float .avatar-frame {
+            border-radius: 0 0 24px 24px;
+            border-top: none;
+        }
+
+        .christina-handle {
+            background: rgba(40, 30, 60, 0.92);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-bottom: none;
+            border-radius: 18px 18px 0 0;
+            padding: 9px 14px;
+            cursor: grab;
+            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: var(--font);
+            font-weight: 500;
+            font-size: var(--size-micro);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.88);
+            min-height: 36px;
+        }
+        .christina-float.dragging .christina-handle { cursor: grabbing; }
+
+        .christina-handle-grip {
+            display: inline-grid;
+            grid-template-columns: repeat(2, 3px);
+            gap: 2px 3px;
+            opacity: 0.5;
+        }
+        .christina-handle-grip span {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: currentColor;
         }
 
         .play-btn {
@@ -1198,6 +1261,27 @@
     <div class="keyboard-hint">↑↓ or scroll · swipe on mobile</div>
 
     <!-- ===========================================
+         CHRISTINA FLOAT — persistent draggable LiveAvatar portrait
+         Mounted at body level so it stays visible across all slides.
+         Drag handle bar at the top so iframe content stays interactive.
+         =========================================== -->
+    <div class="christina-float" id="christinaFloat" aria-label="Christina LiveAvatar (drag to move)">
+        <div class="christina-handle" id="christinaHandle">
+            <span class="christina-handle-grip" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+            </span>
+            <span class="christina-handle-label">Christina</span>
+        </div>
+        <div class="avatar-frame">
+            <iframe class="avatar-iframe"
+                    src="https://embed.liveavatar.com/v1/1efbf252-19cc-4802-bf48-b579c9486b1d?orientation=vertical"
+                    allow="microphone"
+                    title="Christina LiveAvatar"
+                    loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <!-- ===========================================
          KLEAR ASSIST ORB — persistent floating brand link to klear.ai
          Hero/active variant from klearassist_orb_states.html.
          =========================================== -->
@@ -1339,30 +1423,25 @@
         </div>
 
         <div class="slide-content">
-            <div class="avatar-frame reveal" data-delay="1">
-                <div class="avatar-content">
-                    <div class="avatar-figure" aria-hidden="true"></div>
-                    <div class="avatar-label">Christina · LiveAvatar</div>
-                </div>
-            </div>
-
-            <h2 class="reveal" data-delay="2">Want to talk to someone?</h2>
-            <p class="subhead reveal" data-delay="3">
+            <!-- Avatar placeholder removed — Christina is now a persistent floating
+                 element (#christinaFloat) visible on every slide. -->
+            <h2 class="reveal" data-delay="1">Want to talk to someone?</h2>
+            <p class="subhead reveal" data-delay="2">
                 Christina can walk you through how this fits your situation — about 6 minutes.
             </p>
 
             <div class="gate-tiles">
-                <button class="tile glass primary reveal" data-delay="4">
+                <button class="tile glass primary reveal" data-delay="3">
                     <span class="tile-label">Yes — let's chat</span>
                     <span class="tile-meta">~6 minutes with Christina</span>
                 </button>
 
-                <button class="tile glass secondary reveal" data-delay="5">
+                <button class="tile glass secondary reveal" data-delay="4">
                     <span class="tile-label">Show me more first</span>
                     <span class="tile-meta">Browse value pillars at your own pace</span>
                 </button>
 
-                <button class="tile glass tertiary reveal" data-delay="6">
+                <button class="tile glass tertiary reveal" data-delay="5">
                     <span class="tile-label">Not right now</span>
                     <span class="tile-meta">Send me a summary instead</span>
                 </button>
@@ -1386,36 +1465,28 @@
         <div class="session-timer" aria-label="Session time remaining: 4 minutes 32 seconds">4:32 remaining</div>
 
         <div class="slide-content">
-            <!-- Same centered-stack layout as slide 3: avatar → heading → subhead → tile row.
-                 Slide 4 hosts the real LiveAvatar iframe (slide 3 stays a static placeholder
-                 to avoid creating two concurrent sessions and burning credits). -->
-            <div class="avatar-frame reveal" data-delay="1">
-                <iframe class="avatar-iframe"
-                        src="https://embed.liveavatar.com/v1/1efbf252-19cc-4802-bf48-b579c9486b1d?orientation=vertical"
-                        allow="microphone"
-                        title="Christina LiveAvatar"
-                        loading="lazy"></iframe>
-            </div>
-
-            <h2 class="reveal" data-delay="2">What's holding your program back?</h2>
-            <p class="subhead reveal" data-delay="3">
+            <!-- The LiveAvatar iframe moved out of this slide to the persistent
+                 #christinaFloat element (mounted in <body>). Slide 4 layout is
+                 now heading → subhead → 3 numbered cards → skip link. -->
+            <h2 class="reveal" data-delay="1">What's holding your program back?</h2>
+            <p class="subhead reveal" data-delay="2">
                 Many claims programs are held back by legacy software — creating delays, inconsistent decisions, and data gaps. Select the challenge that best reflects your environment, and <em class="brand">Klear.ai</em> will tailor what comes next.
             </p>
 
             <div class="challenge-cards">
-                <button class="challenge-card reveal" data-delay="4">
+                <button class="challenge-card reveal" data-delay="3">
                     <span class="challenge-number">01</span>
                     <span class="challenge-label">Slow, manual claims handling</span>
                     <span class="pill">Choose</span>
                 </button>
 
-                <button class="challenge-card reveal" data-delay="5">
+                <button class="challenge-card reveal" data-delay="4">
                     <span class="challenge-number">02</span>
                     <span class="challenge-label">Limited visibility into claim status and trends</span>
                     <span class="pill">Choose</span>
                 </button>
 
-                <button class="challenge-card reveal" data-delay="6">
+                <button class="challenge-card reveal" data-delay="5">
                     <span class="challenge-number">03</span>
                     <span class="challenge-label">Fragmented systems and data silos</span>
                     <span class="pill">Choose</span>
@@ -1607,130 +1678,128 @@
             // - A click that didn't involve dragging still navigates to klear.ai.
             // ===========================================
             const orb = document.querySelector('.klear-orb-link');
+            const christinaFloat = document.getElementById('christinaFloat');
+            const christinaHandle = document.getElementById('christinaHandle');
 
-            // Slide 4 = CHRISTINA_STATE = id="slide-3" (0-indexed). Each slide is 100vh
-            // with scroll-snap, so the avatar's offset INSIDE its slide equals its
-            // viewport coordinates when that slide is the active one — which is the
-            // position we want the orb to overlay.
+            // Orb defaults to the lower-right corner of Christina's floating frame
+            // — visually pairs them at startup; either can be dragged independently.
             function defaultOrbPosition() {
-                const slide4 = document.getElementById('slide-3');
-                if (!slide4 || !orb) return;
-                const avatarFrame = slide4.querySelector('.avatar-frame');
-                if (!avatarFrame) return;
-
-                const avatarRect = avatarFrame.getBoundingClientRect();
-                const slide4Rect = slide4.getBoundingClientRect();
-                const offsetX = avatarRect.left - slide4Rect.left;
-                const offsetY = avatarRect.top - slide4Rect.top;
-                const centerX = offsetX + avatarRect.width / 2;
-                const centerY = offsetY + avatarRect.height / 2;
-
+                if (!christinaFloat || !orb) return;
+                const rect = christinaFloat.getBoundingClientRect();
                 const orbRect = orb.getBoundingClientRect();
-                orb.style.left = (centerX - orbRect.width / 2) + 'px';
-                orb.style.top  = (centerY - orbRect.height / 2) + 'px';
+                // Position orb so it overlaps the lower-right corner of Christina's frame
+                const targetLeft = rect.right - orbRect.width * 0.7;
+                const targetTop  = rect.bottom - orbRect.height * 0.7;
+                orb.style.left = targetLeft + 'px';
+                orb.style.top  = targetTop + 'px';
                 orb.style.right = 'auto';
                 orb.style.bottom = 'auto';
             }
 
-            if (orb) {
-                // Wait for fonts to settle so the layout is stable before measuring.
-                const positionAndReveal = () => {
-                    defaultOrbPosition();
-                    // Two RAFs to ensure the layout has applied before fading in.
-                    requestAnimationFrame(() => requestAnimationFrame(() => {
-                        orb.classList.add('ready');
-                    }));
-                };
-                if (document.fonts && document.fonts.ready) {
-                    document.fonts.ready.then(positionAndReveal);
-                } else {
-                    setTimeout(positionAndReveal, 120);
-                }
+            // Generic draggable helper — wraps the pointer-events drag pattern
+            // so it can be applied to both the orb (whose handle IS the orb)
+            // and the christina-float (whose handle is the .christina-handle bar
+            // sitting above the iframe, so the iframe stays clickable).
+            function makeDraggable(target, handle, opts = {}) {
+                if (!target || !handle) return { isMoved: () => false };
+                let dragging = false;
+                let psx = 0, psy = 0, tsx = 0, tsy = 0;
+                let moved = false;
+                let movedAtLeastOnce = false;
+                const THRESH = 4;
 
-                // Drag-to-move via Pointer Events (handles mouse, touch, pen uniformly).
-                let isDragging = false;
-                let pointerStartX = 0, pointerStartY = 0;
-                let orbStartX = 0, orbStartY = 0;
-                let hasMoved = false;
-                let orbMovedByUser = false;
-                const DRAG_THRESHOLD_PX = 4; // movement below this counts as a click, not a drag
+                handle.addEventListener('dragstart', (e) => e.preventDefault());
 
-                // Belt-and-suspenders: kill native HTML5 drag of the <a> URL,
-                // which otherwise hijacks the pointer interaction.
-                orb.addEventListener('dragstart', (e) => e.preventDefault());
-
-                orb.addEventListener('pointerdown', (e) => {
-                    // Mouse: only react to primary button
+                handle.addEventListener('pointerdown', (e) => {
                     if (e.pointerType === 'mouse' && e.button !== 0) return;
-                    isDragging = true;
-                    hasMoved = false;
-                    const rect = orb.getBoundingClientRect();
-                    orbStartX = rect.left;
-                    orbStartY = rect.top;
-                    pointerStartX = e.clientX;
-                    pointerStartY = e.clientY;
-                    orb.classList.add('dragging');
-                    try { orb.setPointerCapture(e.pointerId); } catch (_) {}
-                    // preventDefault stops the browser from also firing a native drag
-                    // (which would suppress subsequent pointermove on the captured target)
+                    dragging = true;
+                    moved = false;
+                    const rect = target.getBoundingClientRect();
+                    tsx = rect.left;
+                    tsy = rect.top;
+                    psx = e.clientX;
+                    psy = e.clientY;
+                    target.classList.add('dragging');
+                    try { handle.setPointerCapture(e.pointerId); } catch (_) {}
                     e.preventDefault();
                 });
 
-                orb.addEventListener('pointermove', (e) => {
-                    if (!isDragging) return;
-                    const dx = e.clientX - pointerStartX;
-                    const dy = e.clientY - pointerStartY;
-                    if (Math.abs(dx) > DRAG_THRESHOLD_PX || Math.abs(dy) > DRAG_THRESHOLD_PX) {
-                        hasMoved = true;
-                    }
-                    // Clamp inside viewport
-                    const maxX = window.innerWidth  - orb.offsetWidth;
-                    const maxY = window.innerHeight - orb.offsetHeight;
-                    const newX = Math.max(0, Math.min(maxX, orbStartX + dx));
-                    const newY = Math.max(0, Math.min(maxY, orbStartY + dy));
-                    orb.style.left = newX + 'px';
-                    orb.style.top  = newY + 'px';
-                    orb.style.right = 'auto';
-                    orb.style.bottom = 'auto';
+                handle.addEventListener('pointermove', (e) => {
+                    if (!dragging) return;
+                    const dx = e.clientX - psx;
+                    const dy = e.clientY - psy;
+                    if (Math.abs(dx) > THRESH || Math.abs(dy) > THRESH) moved = true;
+                    const maxX = window.innerWidth  - target.offsetWidth;
+                    const maxY = window.innerHeight - target.offsetHeight;
+                    target.style.left = Math.max(0, Math.min(maxX, tsx + dx)) + 'px';
+                    target.style.top  = Math.max(0, Math.min(maxY, tsy + dy)) + 'px';
+                    target.style.right = 'auto';
+                    target.style.bottom = 'auto';
                 });
 
-                const endDrag = (e) => {
-                    if (!isDragging) return;
-                    isDragging = false;
-                    orb.classList.remove('dragging');
-                    if (hasMoved) {
-                        orbMovedByUser = true;
-                        // The browser will fire a click after this pointerup — swallow it
-                        // so a drag doesn't navigate to klear.ai. A true click (no movement)
-                        // still navigates normally.
-                        orb.addEventListener('click', function swallow(ev) {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-                            orb.removeEventListener('click', swallow, true);
-                        }, { capture: true, once: true });
+                const end = () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    target.classList.remove('dragging');
+                    if (moved) {
+                        movedAtLeastOnce = true;
+                        if (opts.onDragEndSuppressClick) {
+                            handle.addEventListener('click', function swallow(ev) {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                handle.removeEventListener('click', swallow, true);
+                            }, { capture: true, once: true });
+                        }
                     }
                 };
+                handle.addEventListener('pointerup', end);
+                handle.addEventListener('pointercancel', end);
 
-                orb.addEventListener('pointerup', endDrag);
-                orb.addEventListener('pointercancel', endDrag);
-
-                // On viewport resize: re-default if user hasn't dragged; otherwise clamp.
-                let resizeRaf = null;
-                window.addEventListener('resize', () => {
-                    if (resizeRaf) cancelAnimationFrame(resizeRaf);
-                    resizeRaf = requestAnimationFrame(() => {
-                        if (!orbMovedByUser) {
-                            defaultOrbPosition();
-                            return;
-                        }
-                        const rect = orb.getBoundingClientRect();
-                        const maxX = window.innerWidth  - orb.offsetWidth;
-                        const maxY = window.innerHeight - orb.offsetHeight;
-                        if (rect.left > maxX) orb.style.left = Math.max(0, maxX) + 'px';
-                        if (rect.top  > maxY) orb.style.top  = Math.max(0, maxY) + 'px';
-                    });
-                });
+                return { isMoved: () => movedAtLeastOnce };
             }
+
+            // Christina float starts via its CSS default position (top:110 / right:28).
+            // Orb defaults to Christina's lower-right corner, so they read as paired.
+            // Both are independently draggable.
+            const orbDrag = makeDraggable(orb, orb, { onDragEndSuppressClick: true });
+            const christinaDrag = makeDraggable(christinaFloat, christinaHandle);
+
+            // Bootstrapping: wait for fonts so layout is stable, then position the orb
+            // (Christina's pixel position is what the orb anchors to) and fade in.
+            const positionAndReveal = () => {
+                defaultOrbPosition();
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    if (orb) orb.classList.add('ready');
+                    if (christinaFloat) christinaFloat.classList.add('ready');
+                }));
+            };
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(positionAndReveal);
+            } else {
+                setTimeout(positionAndReveal, 120);
+            }
+
+            // On viewport resize: re-default the orb if neither has been dragged;
+            // otherwise clamp both into the new viewport bounds so nothing escapes.
+            let resizeRaf = null;
+            window.addEventListener('resize', () => {
+                if (resizeRaf) cancelAnimationFrame(resizeRaf);
+                resizeRaf = requestAnimationFrame(() => {
+                    const clamp = (el) => {
+                        if (!el) return;
+                        const r = el.getBoundingClientRect();
+                        const maxX = window.innerWidth  - el.offsetWidth;
+                        const maxY = window.innerHeight - el.offsetHeight;
+                        if (r.left > maxX) el.style.left = Math.max(0, maxX) + 'px';
+                        if (r.top  > maxY) el.style.top  = Math.max(0, maxY) + 'px';
+                    };
+                    if (!orbDrag.isMoved() && !christinaDrag.isMoved()) {
+                        defaultOrbPosition();
+                    }
+                    clamp(orb);
+                    clamp(christinaFloat);
+                });
+            });
         })();
     </script>
 </body>
