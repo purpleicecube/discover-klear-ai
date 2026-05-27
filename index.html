@@ -910,37 +910,63 @@
 
         /* ===========================================
            SLIDE 3 — ICP (audience self-identification)
-           Dark-purple glass tiles + matching input. Slightly darker than
-           the gradient bg so white text reads cleanly. Tiles toggle on
+           Three glass cards in a row (matches the original engagement-gate
+           three-tile pattern). Lighter glass colors than v1 of this slide.
+           Each box groups a related set of ICP questions. Tiles toggle on
            click (single-select for role/org_type, multi for responsibilities).
            =========================================== */
         .slide.icp .slide-content {
             text-align: center;
             gap: var(--space-md);
-            max-width: min(960px, 94vw);
+            max-width: min(1180px, 95vw);
         }
 
-        .icp-form {
+        /* Three-column row of glass boxes — same layout pattern as .gate-tiles
+           was. Stacks on narrow viewports. */
+        .icp-boxes {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: clamp(0.75rem, 1.5vw, 1.25rem);
             width: 100%;
             margin-top: var(--space-md);
+            text-align: left;
+        }
+
+        /* The box itself — lighter glass, same family as the .tile.primary
+           on the old engagement gate. */
+        .icp-box {
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: var(--radius-tile);
+            padding: clamp(1.125rem, 2vw, 1.625rem);
             display: flex;
             flex-direction: column;
-            gap: clamp(1.25rem, 2.4vw, 1.875rem);
-            text-align: left;
+            gap: clamp(0.875rem, 1.4vw, 1.125rem);
+            min-height: clamp(300px, 38vw, 460px);
+        }
+
+        .icp-box-title {
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: clamp(1rem, 1.4vw, 1.25rem);
+            color: var(--text-primary);
+            letter-spacing: 0.01em;
+            line-height: 1.25;
         }
 
         .icp-field {
             display: flex;
             flex-direction: column;
-            gap: clamp(0.5rem, 1vw, 0.75rem);
+            gap: clamp(0.4rem, 0.8vw, 0.625rem);
         }
 
         .icp-label {
-            font-weight: 600;
-            font-size: clamp(0.9375rem, 1.25vw, 1.125rem);
-            color: var(--text-primary);
+            font-weight: 500;
+            font-size: var(--size-small);
+            color: var(--text-secondary);
             letter-spacing: 0.01em;
-            line-height: 1.3;
         }
 
         .icp-hint {
@@ -952,48 +978,43 @@
             letter-spacing: 0;
         }
 
-        /* Dark purple input + tiles — slightly darker than the slide gradient
-           bg so white text is high-contrast and readable. */
+        /* Input + tiles — lighter glass on glass. White-on-glass text. */
         .icp-input {
-            padding: 14px 18px;
-            background: rgba(30, 22, 58, 0.72);
-            backdrop-filter: blur(20px) saturate(160%);
-            -webkit-backdrop-filter: blur(20px) saturate(160%);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
+            padding: 11px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 11px;
             color: var(--text-primary);
             font-size: var(--size-body);
             font-family: var(--font);
-            min-height: 48px;
+            min-height: 44px;
             width: 100%;
             transition: background var(--dur-fast),
                         border-color var(--dur-fast);
         }
-        .icp-input::placeholder { color: rgba(255, 255, 255, 0.45); }
+        .icp-input::placeholder { color: rgba(255, 255, 255, 0.55); }
         .icp-input:focus {
             outline: none;
-            background: rgba(38, 28, 70, 0.82);
+            background: rgba(255, 255, 255, 0.14);
             border-color: rgba(251, 207, 232, 0.6);
         }
 
         .icp-tiles {
             display: flex;
             flex-wrap: wrap;
-            gap: clamp(0.5rem, 1vw, 0.75rem);
+            gap: 7px;
         }
 
         .icp-tile {
-            padding: 11px 18px;
-            background: rgba(30, 22, 58, 0.72);
-            backdrop-filter: blur(20px) saturate(160%);
-            -webkit-backdrop-filter: blur(20px) saturate(160%);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 12px;
+            padding: 8px 13px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
             color: var(--text-primary);
-            font-size: clamp(0.875rem, 1.1vw, 1.0625rem);
+            font-size: var(--size-small);
             font-family: var(--font);
             font-weight: 500;
-            min-height: 44px;
+            min-height: 36px;
             cursor: pointer;
             transition: background var(--dur-fast),
                         border-color var(--dur-fast),
@@ -1001,18 +1022,19 @@
                         box-shadow var(--dur-fast);
         }
         .icp-tile:hover {
-            background: rgba(40, 28, 72, 0.82);
-            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.34);
             transform: translateY(-1px);
         }
         .icp-tile.selected {
-            background: rgba(166, 28, 200, 0.45);
+            background: rgba(251, 207, 232, 0.38);
             border-color: rgba(251, 207, 232, 0.7);
-            box-shadow: 0 0 0 1px rgba(251, 207, 232, 0.4) inset,
-                        0 8px 24px -10px rgba(166, 28, 200, 0.55);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 1px rgba(251, 207, 232, 0.45) inset,
+                        0 6px 18px -8px rgba(251, 207, 232, 0.45);
         }
         .icp-tile.selected:hover {
-            background: rgba(180, 35, 215, 0.5);
+            background: rgba(251, 207, 232, 0.5);
         }
 
         /* Legacy .slide.gate rule kept in case anything still references it. */
@@ -1463,6 +1485,8 @@
             .challenge-cards { grid-template-columns: 1fr; }
             .booking-grid { grid-template-columns: 1fr; }
             .gate-tiles { grid-template-columns: 1fr; }
+            .icp-boxes  { grid-template-columns: 1fr; }
+            .icp-box    { min-height: auto; }
         }
 
         @media (max-height: 720px) {
@@ -1709,45 +1733,56 @@
                 A few quick details so we can tailor the rest of this conversation.
             </p>
 
-            <form class="icp-form reveal" data-delay="3" onsubmit="return false;">
-                <div class="icp-field">
-                    <label class="icp-label" for="icp-org">Your organization</label>
-                    <input type="text" id="icp-org" name="org_name" class="icp-input" placeholder="e.g., Acme Insurance" autocomplete="organization">
-                </div>
+            <!-- Three-box layout mirroring the original engagement-gate pattern:
+                 lighter glass cards instead of dark-purple tiles. Each box
+                 groups a related set of ICP questions. -->
+            <form class="icp-boxes reveal" data-delay="3" onsubmit="return false;">
 
-                <div class="icp-field">
-                    <span class="icp-label">Your role</span>
-                    <div class="icp-tiles" data-field="role" data-multi="false">
-                        <button type="button" class="icp-tile" data-value="claims-manager">Claims Manager / VP</button>
-                        <button type="button" class="icp-tile" data-value="risk-manager">Risk Manager</button>
-                        <button type="button" class="icp-tile" data-value="ops-coo">Operations / COO</button>
-                        <button type="button" class="icp-tile" data-value="it-tech">IT / Tech leader</button>
-                        <button type="button" class="icp-tile" data-value="other">Other</button>
+                <div class="icp-box">
+                    <div class="icp-box-title">Your organization</div>
+                    <div class="icp-field">
+                        <label class="icp-label" for="icp-org">Name</label>
+                        <input type="text" id="icp-org" name="org_name" class="icp-input" placeholder="e.g., Acme Insurance" autocomplete="organization">
+                    </div>
+                    <div class="icp-field">
+                        <span class="icp-label">Type</span>
+                        <div class="icp-tiles" data-field="org_type" data-multi="false">
+                            <button type="button" class="icp-tile" data-value="pc-carrier">P&amp;C Carrier</button>
+                            <button type="button" class="icp-tile" data-value="tpa">TPA</button>
+                            <button type="button" class="icp-tile" data-value="public-risk-pool">Public Risk Pool / JPA</button>
+                            <button type="button" class="icp-tile" data-value="self-insured">Self-insured employer</button>
+                            <button type="button" class="icp-tile" data-value="workers-comp">Workers' Comp specialist</button>
+                            <button type="button" class="icp-tile" data-value="other">Other</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="icp-field">
-                    <span class="icp-label">Your program responsibilities <span class="icp-hint">select all that apply</span></span>
-                    <div class="icp-tiles" data-field="responsibilities" data-multi="true">
-                        <button type="button" class="icp-tile" data-value="claims-handling">Daily claims handling</button>
-                        <button type="button" class="icp-tile" data-value="audits-compliance">Audits &amp; compliance</button>
-                        <button type="button" class="icp-tile" data-value="vendor-tpa">Vendor / TPA management</button>
-                        <button type="button" class="icp-tile" data-value="reporting-analytics">Reporting &amp; analytics</button>
-                        <button type="button" class="icp-tile" data-value="strategy">Strategy &amp; modernization</button>
+                <div class="icp-box">
+                    <div class="icp-box-title">Your role</div>
+                    <div class="icp-field">
+                        <div class="icp-tiles" data-field="role" data-multi="false">
+                            <button type="button" class="icp-tile" data-value="claims-manager">Claims Manager / VP</button>
+                            <button type="button" class="icp-tile" data-value="risk-manager">Risk Manager</button>
+                            <button type="button" class="icp-tile" data-value="ops-coo">Operations / COO</button>
+                            <button type="button" class="icp-tile" data-value="it-tech">IT / Tech leader</button>
+                            <button type="button" class="icp-tile" data-value="other">Other</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="icp-field">
-                    <span class="icp-label">Your organization type</span>
-                    <div class="icp-tiles" data-field="org_type" data-multi="false">
-                        <button type="button" class="icp-tile" data-value="pc-carrier">P&amp;C Carrier</button>
-                        <button type="button" class="icp-tile" data-value="tpa">TPA</button>
-                        <button type="button" class="icp-tile" data-value="public-risk-pool">Public Risk Pool / JPA</button>
-                        <button type="button" class="icp-tile" data-value="self-insured">Self-insured employer</button>
-                        <button type="button" class="icp-tile" data-value="workers-comp">Workers' Comp specialist</button>
-                        <button type="button" class="icp-tile" data-value="other">Other</button>
+                <div class="icp-box">
+                    <div class="icp-box-title">Your responsibilities <span class="icp-hint">select all that apply</span></div>
+                    <div class="icp-field">
+                        <div class="icp-tiles" data-field="responsibilities" data-multi="true">
+                            <button type="button" class="icp-tile" data-value="claims-handling">Daily claims handling</button>
+                            <button type="button" class="icp-tile" data-value="audits-compliance">Audits &amp; compliance</button>
+                            <button type="button" class="icp-tile" data-value="vendor-tpa">Vendor / TPA management</button>
+                            <button type="button" class="icp-tile" data-value="reporting-analytics">Reporting &amp; analytics</button>
+                            <button type="button" class="icp-tile" data-value="strategy">Strategy &amp; modernization</button>
+                        </div>
                     </div>
                 </div>
+
             </form>
         </div>
     </section>
