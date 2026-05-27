@@ -531,6 +531,45 @@
                 radial-gradient(ellipse 30% 50% at 30% 40%, rgba(254, 215, 170, 0.1) 0%, transparent 60%),
                 radial-gradient(ellipse 40% 60% at 70% 60%, rgba(251, 207, 232, 0.08) 0%, transparent 60%);
             pointer-events: none;
+            transition: opacity var(--dur-med) var(--ease-out-soft);
+        }
+
+        /* Real <video> element layered over the poster; revealed on play */
+        .video-element {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-card);
+            background: #000;
+            opacity: 0;
+            transition: opacity var(--dur-med) var(--ease-out-soft);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .video-poster.playing .video-element {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .video-poster.playing::after { opacity: 0; }
+        .video-poster.playing .play-btn,
+        .video-poster.playing .video-duration {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--dur-fast);
+        }
+
+        /* Real LiveAvatar <iframe> on slide 4 fills the avatar-frame */
+        .avatar-iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-card);
+            z-index: 1;
         }
 
         .play-btn {
@@ -1228,6 +1267,7 @@
             </p>
 
             <div class="video-poster reveal" data-delay="4" role="button" tabindex="0" aria-label="Play Klear.ai Claims intro video">
+                <video class="video-element" preload="metadata" playsinline src="./assets/klear-claims-intro.mp4"></video>
                 <button class="play-btn" aria-label="Play video">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M8 5v14l11-7z"/>
@@ -1332,12 +1372,15 @@
         <div class="session-timer" aria-label="Session time remaining: 4 minutes 32 seconds">4:32 remaining</div>
 
         <div class="slide-content">
-            <!-- Same centered-stack layout as slide 3: avatar → heading → subhead → tile row -->
+            <!-- Same centered-stack layout as slide 3: avatar → heading → subhead → tile row.
+                 Slide 4 hosts the real LiveAvatar iframe (slide 3 stays a static placeholder
+                 to avoid creating two concurrent sessions and burning credits). -->
             <div class="avatar-frame reveal" data-delay="1">
-                <div class="avatar-content">
-                    <div class="avatar-figure" aria-hidden="true"></div>
-                    <div class="avatar-label">Christina · LiveAvatar</div>
-                </div>
+                <iframe class="avatar-iframe"
+                        src="https://app.liveavatar.com/073b60a9-89a8-45aa-8902-c358f64d2852"
+                        allow="microphone"
+                        title="Christina LiveAvatar"
+                        loading="lazy"></iframe>
             </div>
 
             <h2 class="reveal" data-delay="2">What's holding your program back?</h2>
@@ -1518,6 +1561,28 @@
             }, { passive: true });
 
             if (slides[0]) slides[0].classList.add('visible');
+
+            // ===========================================
+            // VIDEO POSTER → PLAY
+            // Click anywhere on the poster (or the play button) → reveal the
+            // <video>, give it native controls, and start playback.
+            // ===========================================
+            const videoPoster = document.querySelector('.video-poster');
+            const videoEl = videoPoster ? videoPoster.querySelector('.video-element') : null;
+            if (videoPoster && videoEl) {
+                const playVideo = (e) => {
+                    if (videoEl.paused) {
+                        videoPoster.classList.add('playing');
+                        videoEl.controls = true;
+                        videoEl.play().catch(() => {}); // ignore autoplay-policy errors
+                        if (e) e.preventDefault();
+                    }
+                };
+                videoPoster.addEventListener('click', playVideo);
+                videoPoster.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') playVideo(e);
+                });
+            }
 
             // ===========================================
             // KLEAR ASSIST ORB — draggable + defaults to Christina iframe center
