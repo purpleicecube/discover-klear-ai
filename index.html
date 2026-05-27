@@ -560,17 +560,13 @@
             transition: opacity var(--dur-fast);
         }
 
-        /* Real LiveAvatar <iframe> sits inside the avatar-frame with a visible
-           14px matte so the frame reads as an intentional bezel around the video.
-           The iframe extends ~70px past the frame's bottom so LiveAvatar's
-           pre-chat controls bar (language picker + "Chat now") gets cropped by
-           the avatar-frame's overflow:hidden. */
+        /* Real LiveAvatar <iframe> sits inside the avatar-frame with a uniform
+           14px matte on all four sides so the bezel reads as an intentional,
+           neat frame around the video. LiveAvatar's own pre-chat controls
+           (language picker + "Chat now") stay visible — that's their UI. */
         .avatar-iframe {
             position: absolute;
-            top: 14px;
-            left: 14px;
-            right: 14px;
-            height: calc(100% + 56px);
+            inset: 14px;
             border: none;
             background: transparent;
             border-radius: 16px;
@@ -1246,7 +1242,7 @@
          =========================================== -->
     <div class="wordmark" aria-label="Klear.ai">
         <!-- Official circle Klear.ai logo. No accompanying text — logo carries the brand on its own. -->
-        <img class="wordmark-logo" src="../../04_Resources/klearai-logo-circle.png" alt="Klear.ai">
+        <img class="wordmark-logo" src="./assets/klearai-logo-circle.png" alt="Klear.ai">
     </div>
 
     <nav class="nav-dots" aria-label="Prototype slide navigation">
@@ -1402,7 +1398,7 @@
 
                 <div class="award-medal-wrap reveal" data-delay="4">
                     <!-- Official award badge PNG (medal + ribbon, with inset Klear.ai mark) -->
-                    <img class="award-medal" src="../../04_Resources/edff4220-ef49-439a-b928-7b647f4530c6.png" alt="Award-Winning Claims Administration Software badge">
+                    <img class="award-medal" src="./assets/edff4220-ef49-439a-b928-7b647f4530c6.png" alt="Award-Winning Claims Administration Software badge">
                 </div>
             </div>
         </div>
