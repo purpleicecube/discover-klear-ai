@@ -560,15 +560,16 @@
             transition: opacity var(--dur-fast);
         }
 
-        /* Real LiveAvatar <iframe> on slide 4 fills the avatar-frame */
+        /* Real LiveAvatar <iframe> on slide 4 — sits inside the avatar-frame with
+           a visible 14px matte so the frame edge reads as an intentional bezel
+           around the video, not edge-to-edge content. */
         .avatar-iframe {
             position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
+            inset: 14px;
             border: none;
             background: transparent;
-            border-radius: var(--radius-card);
+            border-radius: 16px;
+            overflow: hidden;
             z-index: 1;
         }
 
@@ -814,17 +815,18 @@
         .avatar-frame {
             width: 100%;
             aspect-ratio: 9 / 16;
-            max-width: clamp(160px, 19vw, 240px);
-            border-radius: var(--radius-card);
+            max-width: clamp(220px, 24vw, 300px);
+            border-radius: 28px;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.22);
             background:
                 radial-gradient(ellipse 70% 80% at 50% 60%, rgba(120, 90, 140, 0.55) 0%, transparent 70%),
-                linear-gradient(160deg, rgba(55, 42, 75, 0.96) 0%, rgba(28, 22, 48, 0.98) 100%);
+                linear-gradient(160deg, rgba(50, 38, 70, 0.98) 0%, rgba(22, 18, 42, 0.99) 100%);
             box-shadow:
-                0 30px 80px -20px rgba(12, 8, 30, 0.5),
-                0 0 80px -20px rgba(139, 73, 226, 0.5);
+                0 40px 100px -24px rgba(12, 8, 30, 0.6),
+                0 0 100px -20px rgba(139, 73, 226, 0.42),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.06);
         }
 
         .avatar-frame::after {
@@ -1116,7 +1118,7 @@
             .award-text { text-align: center; align-items: center; }
             .award-text .subhead { text-align: center; }
             .award-medal-wrap { max-width: clamp(180px, 50vw, 240px); }
-            .avatar-frame { max-width: clamp(120px, 42vw, 180px); }
+            .avatar-frame { max-width: clamp(180px, 52vw, 240px); }
             .challenge-cards { grid-template-columns: 1fr; }
             .booking-grid { grid-template-columns: 1fr; }
             .gate-tiles { grid-template-columns: 1fr; }
