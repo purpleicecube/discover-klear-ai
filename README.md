@@ -6,9 +6,12 @@ This repo is a **visual prototype hosted on Streamlit** for share-and-review pur
 
 ## Live demo
 
-Deployed via [Streamlit Community Cloud](https://share.streamlit.io). Public URL:
+Two deploy targets pointed at the same source:
 
-> _(set once deployed — typically `https://discoverklearai.streamlit.app`)_
+| Target | URL | Notes |
+| ----- | ----- | ----- |
+| **GitHub Pages** | <https://purpleicecube.github.io/discover-klear-ai/> | **Recommended for show-and-tell.** Native HTML at the page level — slides are full-viewport, video plays natively, the LiveAvatar iframe gets proper mic permission. |
+| Streamlit Community Cloud | <https://discover-klear-app.streamlit.app/> | Same source, wrapped in a Streamlit component iframe. Works for visual review but layout is constrained to ~900px iframe height; mic permission for the LiveAvatar may not propagate through Streamlit's iframe. |
 
 ## Run locally
 
