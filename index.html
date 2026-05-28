@@ -1675,8 +1675,8 @@
                 AI-native software for claims, risk, audit, and policy.
             </p>
 
-            <div class="video-poster reveal" data-delay="4" role="button" tabindex="0" aria-label="Play Klear.ai Claims intro video" data-video-url="https://u.pcloud.link/publink/show?code=XZfEuI5ZuMrXwhTFrI4DCFRFcjEWeykgmoDy">
-                <video class="video-element" preload="metadata" playsinline src="https://u.pcloud.link/publink/show?code=XZfEuI5ZuMrXwhTFrI4DCFRFcjEWeykgmoDy"></video>
+            <div class="video-poster reveal" data-delay="4" role="button" tabindex="0" aria-label="Play Klear.ai Claims intro video">
+                <video class="video-element" preload="metadata" playsinline src="./assets/klear-claims-intro.mp4"></video>
                 <button class="play-btn" aria-label="Play video">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M8 5v14l11-7z"/>
@@ -2173,21 +2173,12 @@
             const videoPoster = document.querySelector('.video-poster');
             const videoEl = videoPoster ? videoPoster.querySelector('.video-element') : null;
             if (videoPoster && videoEl) {
-                const externalUrl = videoPoster.dataset.videoUrl || '';
-                const isExternalHosted = /^https?:\/\//i.test(videoEl.getAttribute('src') || '');
                 const playVideo = (e) => {
-                    if (e) e.preventDefault();
-                    // pCloud share URLs are viewer pages, not streamable mp4 —
-                    // inline <video> can't play them. Open the hosted viewer in
-                    // a new tab so the click still does the right thing.
-                    if (isExternalHosted && externalUrl) {
-                        window.open(externalUrl, '_blank', 'noopener,noreferrer');
-                        return;
-                    }
                     if (videoEl.paused) {
                         videoPoster.classList.add('playing');
                         videoEl.controls = true;
-                        videoEl.play().catch(() => {});
+                        videoEl.play().catch(() => {}); // ignore autoplay-policy errors
+                        if (e) e.preventDefault();
                     }
                 };
                 videoPoster.addEventListener('click', playVideo);
