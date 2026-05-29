@@ -1525,6 +1525,67 @@
             margin-top: var(--space-sm);
         }
 
+        /* Ghost-pill variant for the secondary CTA on the use-case card. */
+        .pill.ghost {
+            background: transparent;
+            color: var(--pink-pill, #FDC8E1);
+            border: 1px solid rgba(251, 207, 232, 0.55);
+            box-shadow: none;
+        }
+        .pill.ghost:hover {
+            background: rgba(251, 207, 232, 0.1);
+            color: #FFFFFF;
+            border-color: rgba(251, 207, 232, 0.9);
+        }
+
+        /* Dynamic-summary line that pulls the per-path solution_focus into
+           a "Based on your answers…" sentence with the focus phrase bolded. */
+        .uc-dynamic-summary {
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.82);
+            margin: 0;
+            padding: 0.85rem 1rem;
+            background: rgba(251, 207, 232, 0.06);
+            border-left: 3px solid rgba(251, 207, 232, 0.55);
+            border-radius: 8px;
+        }
+        .uc-dynamic-summary strong {
+            color: rgba(251, 207, 232, 0.98);
+            font-weight: 600;
+        }
+
+        /* Recommended solution areas — labeled list under metrics. */
+        .uc-solution-areas {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 8px;
+        }
+        .uc-solution-areas li {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.82);
+            padding-left: 1.1rem;
+            position: relative;
+        }
+        .uc-solution-areas li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--pink-pill, #FDC8E1);
+        }
+        .uc-solution-areas li strong {
+            color: rgba(255, 255, 255, 0.96);
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
         @media (max-width: 760px) {
             .uc-grid { grid-template-columns: 1fr; }
             .diag-options { max-width: 100%; }
@@ -2162,6 +2223,8 @@
                         <h2 class="uc-title" data-slot="uc-title"></h2>
                         <p class="uc-summary" data-slot="uc-summary"></p>
 
+                        <p class="uc-dynamic-summary" data-slot="uc-dynamic-summary"></p>
+
                         <div class="uc-grid">
                             <div class="uc-tile">
                                 <span class="uc-tile-label">Business problem</span>
@@ -2182,9 +2245,13 @@
                             <thead><tr><th>Area</th><th>Metric</th></tr></thead>
                             <tbody data-slot="uc-metrics-body"></tbody>
                         </table>
+
+                        <span class="uc-metrics-title">Recommended solution areas</span>
+                        <ul class="uc-solution-areas" data-slot="uc-solution-areas"></ul>
                     </article>
                     <div class="diag-cta-row">
-                        <button type="button" class="pill large" data-action="continue-to-booking">Build my use case</button>
+                        <button type="button" class="pill large" data-action="continue-to-booking">Build my Claims use case</button>
+                        <button type="button" class="pill ghost" data-action="schedule-demo">Schedule a Claims demo</button>
                         <button type="button" class="diag-back-link" data-action="back-to-q2">← Adjust answers</button>
                     </div>
                 </div>
@@ -2442,6 +2509,7 @@
                     challenge_impact: e.challenge_impact || '',
                     use_case_title: e.use_case_title || '',
                     diagnostic_stage_reached: e.diagnostic_stage || 'select',
+                    book_intent: e.book_intent || '',
                     deal_status: computeDealStatus(e),
                     previously_submitted_at: state.last_submitted_at || ''
                 };
@@ -2712,6 +2780,7 @@
                     },
                     use_case: {
                         title: 'Automated Claims Document Intake and Summarization',
+                        focus: 'automating document intake, reducing manual claim handling, and improving adjuster productivity',
                         summary: 'When new claim documents are received, Klear.ai automatically reads, classifies, indexes, and summarizes them within the claim file. The system extracts key data, identifies missing information, and routes the claim or task to the right adjuster or supervisor.',
                         problem: 'Adjusters spend too much time reviewing documents, renaming files, identifying relevant details, and deciding what action to take next. This slows claim handling, creates inconsistent documentation, and increases the risk of missed information.',
                         solution: 'Klear.ai Claims Administration uses Native AI to automate document intake, summarization, indexing, and workflow routing. Documents become actionable claim intelligence instead of static attachments.',
@@ -2751,6 +2820,7 @@
                     },
                     use_case: {
                         title: 'Real-Time Claims Supervisor Dashboard',
+                        focus: 'centralizing supervisor visibility, surfacing claim aging and bottlenecks in real time, and accelerating intervention on high-risk claims',
                         summary: 'Klear.ai gives supervisors real-time visibility into claim status, aging, workloads, bottlenecks, and high-risk claim indicators. Instead of manual reports, supervisors monitor activity through dashboards, alerts, and configurable business rules.',
                         problem: 'Supervisors lack timely visibility into claim movement and program performance. By the time issues appear in reports, claims may already be delayed, over-reserved, under-reviewed, or at risk of escalation.',
                         solution: 'Klear.ai Claims Administration centralizes claim data, activity, notes, documents, financials, and workflows into one platform. Dashboards and analytics surface operational performance and claim trends in real time.',
@@ -2790,6 +2860,7 @@
                     },
                     use_case: {
                         title: 'Unified Claims Administration and Reporting',
+                        focus: 'unifying claims, documents and reporting on a single platform, eliminating duplicate work, and giving leadership consistent real-time analytics',
                         summary: 'Klear.ai unifies claims, documents, notes, payments, policy details, workflows, and reporting in one platform. Teams work from a single source of truth while leadership gains consistent, real-time analytics.',
                         problem: 'Disconnected systems create duplicate work, inconsistent data, reporting delays, and poor visibility. Claims teams lose time moving between platforms, while leadership struggles to make timely decisions from fragmented information.',
                         solution: 'Klear.ai Claims Administration provides a fully integrated platform for managing claims, workflows, documents, analytics, and reporting. Configurable dashboards and business rules standardize operations while maintaining flexibility.',
@@ -2804,6 +2875,16 @@
                     }
                 }
             };
+
+            // Recommended solution areas — fixed across all three paths
+            // (Klear.ai Claims Administration capability map).
+            const SOLUTION_AREAS = [
+                ['Claims Administration', 'Manage claim intake, activity, notes, financials, tasks, and outcomes in one platform.'],
+                ['Native AI',              'Summarize documents, extract key information, and support faster claim decisions.'],
+                ['Workflow Automation',    'Route tasks, trigger alerts, and standardize claim handling.'],
+                ['Dashboards & Analytics', 'Monitor claim status, workload, bottlenecks, and program trends.'],
+                ['Document Intelligence',  'Classify, index, and connect documents directly to claim activity.']
+            ];
 
             const diagShell = document.getElementById('diagnostic-shell');
             const STAGES = ['select', 'q1', 'q2', 'result'];
@@ -2877,6 +2958,35 @@
                     tbody.appendChild(tr);
                 });
 
+                // Dynamic summary — "Based on your answers, your organization
+                // may benefit from a Klear.ai solution focused on <focus>".
+                const dynEl = stageEl.querySelector('[data-slot="uc-dynamic-summary"]');
+                if (dynEl) {
+                    dynEl.innerHTML = '';
+                    if (uc.focus) {
+                        dynEl.appendChild(document.createTextNode(
+                            'Based on your answers, your organization may benefit from a Klear.ai Claims Administration solution focused on '
+                        ));
+                        const strong = document.createElement('strong');
+                        strong.textContent = uc.focus + '.';
+                        dynEl.appendChild(strong);
+                    }
+                }
+
+                // Recommended solution areas — fixed list across paths.
+                const areasEl = stageEl.querySelector('[data-slot="uc-solution-areas"]');
+                if (areasEl) {
+                    areasEl.innerHTML = '';
+                    SOLUTION_AREAS.forEach(([label, body]) => {
+                        const li = document.createElement('li');
+                        const strong = document.createElement('strong');
+                        strong.textContent = label + ':';
+                        li.appendChild(strong);
+                        li.appendChild(document.createTextNode(' ' + body));
+                        areasEl.appendChild(li);
+                    });
+                }
+
                 // Persist the title on state so it ships in the email payload.
                 state.current.use_case_title = uc.title;
                 saveState();
@@ -2949,11 +3059,15 @@
                 if (action === 'back-to-select') setStage('select');
                 else if (action === 'back-to-q1') setStage('q1');
                 else if (action === 'back-to-q2') setStage('q2');
-                else if (action === 'continue-to-booking') {
-                    // Visitor confirmed the use case — scroll to slide 5 to book.
-                    const booking = document.getElementById('slide-4');
-                    if (booking) booking.scrollIntoView({ behavior: 'smooth' });
-                } else if (action === 'skip-diagnostic') {
+                else if (action === 'continue-to-booking' || action === 'schedule-demo' || action === 'skip-diagnostic') {
+                    // All three CTAs scroll to the booking slide. We tag the
+                    // visitor's intent so the email payload tells you whether
+                    // they came from the primary "Build my use case" CTA, the
+                    // secondary "Schedule a demo" CTA, or the skip link.
+                    if (action === 'continue-to-booking') state.current.book_intent = 'use_case';
+                    if (action === 'schedule-demo')       state.current.book_intent = 'demo';
+                    if (action === 'skip-diagnostic')     state.current.book_intent = 'skipped_diagnostic';
+                    saveState();
                     const booking = document.getElementById('slide-4');
                     if (booking) booking.scrollIntoView({ behavior: 'smooth' });
                 }
