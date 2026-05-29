@@ -2046,6 +2046,25 @@
             .gate-tiles { grid-template-columns: 1fr; }
             .icp-boxes  { grid-template-columns: 1fr; }
             .icp-box    { min-height: auto; }
+
+            /* MOBILE SLIDE SIZING — the desktop layout locks each slide to
+               100dvh + overflow:hidden + justify-content:center, which clips
+               tall slides (use-case result, booking form + date picker, ICP
+               with 3 stacked boxes) at the bottom on phones. Switch to a
+               flex-start min-height layout so slides can grow with their
+               content, and soften the scroll-snap so a tall slide doesn't
+               trap the user between snap points. */
+            .slide {
+                height: auto;
+                min-height: 100vh;
+                min-height: 100dvh;
+                overflow-y: visible;
+                justify-content: flex-start;
+                padding-block: clamp(64px, 12vh, 96px);
+            }
+            html { scroll-snap-type: y proximity; }
+            section#slide-3 .slide-content { overflow-y: visible; }
+            .slide-content { gap: var(--space-md); }
         }
 
         @media (max-height: 720px) {
