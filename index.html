@@ -1724,8 +1724,8 @@
          SLIDE 3 — ICP (audience self-identification)
          Replaces the old engagement gate. Captures org, role,
          responsibilities, and org type via dark-purple glass tiles.
-         Field values feed session.prospect.explicit and flow into the
-         capture POST on slide 5's Book-my-time click.
+         Field values are autosaved to localStorage (state.current) and
+         emailed via Formsubmit.co on slide 5's Book-my-time click.
          =========================================== -->
     <section class="slide icp" id="slide-2">
         <div class="gradient-bg" aria-hidden="true">
@@ -1875,8 +1875,8 @@
                     </div>
 
                     <!-- Subtle BANT capture — Timeline + Budget tile asks.
-                         These feed session.prospect.explicit and post to the
-                         capture webhook when "Book my time" is clicked. -->
+                         Autosaved to localStorage and emailed via Formsubmit
+                         when "Book my time" is clicked. -->
                     <div class="form-row">
                         <label>When are you hoping to have something in place?</label>
                         <div class="icp-tiles" data-field="timeline" data-multi="false">
@@ -1965,39 +1965,90 @@
             const labels = ['Landing', 'Award · Sustainable Growth', 'Who you are', 'What we solve', 'Book a meeting'];
 
             // ===========================================
-            // CAPTURE INFRASTRUCTURE
+            // SELF-CONTAINED LEAD CAPTURE
             //
-            // Set CAPTURE_WEBHOOK_URL to the DigiFlow leads-capture endpoint
-            // running on Railway. Pattern:
-            //   https://<digiflow-railway-host>/webhooks/leads/discover-klear-ai
+            // No backend. Everything lives in:
+            //   - localStorage (state, returnee identity, form autosave)
+            //   - email (Formsubmit.co → primary + CC backups; inbox = record store)
             //
-            // Until set, captureData() falls back to console + localStorage so
-            // show-and-tell still works (verify in DevTools).
+            // Flow:
+            //   1. On load: read state. If a previous visitor_id exists, mark as
+            //      returnee, restore their form, and show a "Welcome back" banner.
+            //   2. As the visitor types/toggles, autosave to localStorage.
+            //   3. On full submit (Book my time): POST to Formsubmit (full lead).
+            //   4. On abandon-with-email (page hide): sendBeacon to Formsubmit.
             //
-            // SETUP_DIGIFLOW.md (in this repo) walks through finding the URL
-            // after DigiFlow's Railway deploy picks up the new endpoint code.
+            // To rotate recipients: edit PRIMARY_RECIPIENT and CC_RECIPIENTS.
+            // First submit to a new PRIMARY_RECIPIENT triggers a Formsubmit
+            // activation email — confirm it once, then leads deliver normally.
             // ===========================================
-            const CAPTURE_WEBHOOK_URL = 'https://digiflow-production.up.railway.app/webhooks/leads/discover-klear-ai';
+            const STATE_KEY = 'dca_v2_state';
+            const RETURNEE_TTL_DAYS = 30;
+            const PRIMARY_RECIPIENT = 'darrel.vaughn@klearai.com';
+            const CC_RECIPIENTS = 'darrel.vaughn@10touros.com,ldvatughn@protonmail.com';
+            const FORM_URL = 'https://formsubmit.co/ajax/' + encodeURIComponent(PRIMARY_RECIPIENT);
 
+            function genUUID() {
+                if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                    const r = Math.random() * 16 | 0;
+                    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+            }
+
+            function loadState() {
+                try {
+                    const raw = localStorage.getItem(STATE_KEY);
+                    if (raw) return JSON.parse(raw);
+                } catch (_) { /* private mode / corrupted */ }
+                return null;
+            }
+            function saveState() {
+                try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (_) { }
+            }
+            function freshExplicit() {
+                return {
+                    org_name: '', role: '', responsibilities: [], org_type: '',
+                    email: '', company: '', timeline: '', budget: '', extras: ''
+                };
+            }
+
+            // ---- Initialize state (returnee detection) ----
+            let state = loadState();
+            let isReturnee = false;
+            const nowIso = new Date().toISOString();
+
+            if (state && state.visitor_id) {
+                const lastSeen = new Date(state.last_seen_at || state.first_seen_at || nowIso);
+                const daysSince = (Date.now() - lastSeen.getTime()) / 86400000;
+                isReturnee = daysSince < RETURNEE_TTL_DAYS;
+                state.visit_count = (state.visit_count || 1) + 1;
+                state.last_seen_at = nowIso;
+                if (!state.current) state.current = freshExplicit();
+                if (!Array.isArray(state.current.slides_visited)) state.current.slides_visited = [];
+            } else {
+                state = {
+                    visitor_id: genUUID(),
+                    first_seen_at: nowIso,
+                    last_seen_at: nowIso,
+                    visit_count: 1,
+                    last_status: 'in_progress',
+                    last_submitted_at: null,
+                    current: Object.assign(freshExplicit(), { slides_visited: [], last_slide: 0 })
+                };
+            }
+            // Per-session flags (NOT persisted — reset every page load)
             const session = {
                 startTs: Date.now(),
-                slidesVisited: new Set(),
-                prospect: {
-                    explicit: {
-                        org_name: '',
-                        role: '',
-                        responsibilities: [],
-                        org_type: '',
-                        email: '',
-                        company: '',
-                        timeline: '',
-                        budget: '',
-                        extras: ''
-                    }
-                }
+                slidesVisited: new Set(state.current.slides_visited || []),
+                sent_full: false,
+                sent_abandon: false,
+                // Back-compat shim so the rest of the script keeps working.
+                prospect: { explicit: state.current }
             };
+            saveState();
 
-            // Simple deal_status inference (rule-based v1).
+            // ---- Deal-status rule (unchanged) ----
             function computeDealStatus(e) {
                 const tlExploring  = e.timeline === 'exploring';
                 const tlSoon       = e.timeline === 'this-quarter' || e.timeline === '6-months';
@@ -2009,43 +2060,83 @@
                 return 'partially_qualified';
             }
 
-            // Builds the full capture record and ships it.
-            function captureData(terminal) {
+            // ---- Build the payload Formsubmit will email ----
+            function buildPayload(terminal) {
                 const now = Date.now();
-                const data = {
-                    timestamp: new Date(now).toISOString(),
+                const e = state.current;
+                return {
+                    visitor_id: state.visitor_id,
+                    visit_number: state.visit_count,
+                    is_returnee: state.visit_count > 1,
                     terminal_reached: terminal,
+                    captured_at: new Date(now).toISOString(),
+                    first_seen_at: state.first_seen_at,
                     time_on_site_seconds: Math.round((now - session.startTs) / 1000),
-                    slides_visited: Array.from(session.slidesVisited).sort(),
+                    slides_visited: Array.from(session.slidesVisited).sort().join(', '),
                     page_url: window.location.href,
-                    referrer: document.referrer || null,
-                    explicit: Object.assign({}, session.prospect.explicit),
-                    inferred: { deal_status: computeDealStatus(session.prospect.explicit) }
+                    referrer: document.referrer || '',
+                    // Flat fields (Formsubmit renders these as a clean table)
+                    org_name: e.org_name || '',
+                    role: e.role || '',
+                    responsibilities: Array.isArray(e.responsibilities) ? e.responsibilities.join(', ') : (e.responsibilities || ''),
+                    org_type: e.org_type || '',
+                    email: e.email || '',
+                    company: e.company || '',
+                    timeline: e.timeline || '',
+                    budget: e.budget || '',
+                    extras: e.extras || '',
+                    deal_status: computeDealStatus(e),
+                    previously_submitted_at: state.last_submitted_at || ''
                 };
+            }
 
-                // Console — always, so you can verify capture in DevTools.
+            // ---- Send (full submit = fetch, abandon = sendBeacon) ----
+            function captureData(terminal) {
+                if (terminal === 'book_meeting' && session.sent_full) return;
+                if (terminal === 'page_exit' && session.sent_abandon) return;
+                if (terminal === 'page_exit' && session.sent_full) return; // already covered
+                if (terminal === 'page_exit' && !state.current.email) return; // no value in empty abandons
+
+                const payload = buildPayload(terminal);
+                const subject = '[Discover Klear.ai] ' + payload.deal_status.toUpperCase()
+                    + ' — ' + (payload.email || '(no email)')
+                    + ' — visit #' + payload.visit_number
+                    + (payload.is_returnee ? ' (returnee)' : '');
+                const body = JSON.stringify(Object.assign({
+                    _subject: subject,
+                    _cc: CC_RECIPIENTS,
+                    _captcha: 'false',
+                    _template: 'table',
+                    _honey: ''
+                }, payload));
+
                 // eslint-disable-next-line no-console
-                console.log('[Discover Klear.ai] Lead captured →', data);
+                console.log('[Discover Klear.ai] →', terminal, payload);
 
-                // localStorage — always, latest only (handy for show-and-tell
-                // demo: open DevTools → Application → localStorage to inspect).
-                try {
-                    localStorage.setItem('discoverklear_lastLead', JSON.stringify(data));
-                } catch (_) { /* private mode etc. */ }
-
-                // Webhook — fire and forget so the Bookings link still navigates
-                // (we don't await; user keeps going).
-                if (CAPTURE_WEBHOOK_URL) {
+                if (terminal === 'page_exit' && navigator.sendBeacon) {
+                    const blob = new Blob([body], { type: 'application/json' });
+                    navigator.sendBeacon(FORM_URL, blob);
+                } else {
                     try {
-                        fetch(CAPTURE_WEBHOOK_URL, {
+                        fetch(FORM_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(data),
+                            mode: 'cors',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body,
                             keepalive: true
                         }).catch(() => { /* fire-and-forget */ });
                     } catch (_) { /* never block on capture errors */ }
                 }
+
+                if (terminal === 'book_meeting') {
+                    state.last_status = 'full_submit';
+                    state.last_submitted_at = payload.captured_at;
+                    session.sent_full = true;
+                } else if (terminal === 'page_exit') {
+                    state.last_status = 'partial_abandon';
+                    session.sent_abandon = true;
+                }
+                saveState();
             }
 
             // Tile toggle handlers (one delegated listener per .icp-tiles group).
@@ -2058,7 +2149,8 @@
                     const value = tile.dataset.value;
                     if (multi) {
                         tile.classList.toggle('selected');
-                        const arr = session.prospect.explicit[field];
+                        if (!Array.isArray(state.current[field])) state.current[field] = [];
+                        const arr = state.current[field];
                         if (tile.classList.contains('selected')) {
                             if (!arr.includes(value)) arr.push(value);
                         } else {
@@ -2068,16 +2160,18 @@
                     } else {
                         group.querySelectorAll('.icp-tile').forEach(t => t.classList.remove('selected'));
                         tile.classList.add('selected');
-                        session.prospect.explicit[field] = value;
+                        state.current[field] = value;
                     }
+                    saveState();
                 });
             });
 
-            // Text input handlers — capture as the visitor types.
+            // Text input handlers — capture + persist as the visitor types.
             const wireInput = (id, key) => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('input', (e) => {
-                    session.prospect.explicit[key] = e.target.value;
+                    state.current[key] = e.target.value;
+                    saveState();
                 });
             };
             wireInput('icp-org', 'org_name');
@@ -2090,15 +2184,17 @@
             const bookBtn = document.getElementById('bookMyTime');
             if (bookBtn) bookBtn.addEventListener('click', () => captureData('book_meeting'));
 
-            // Capture once more when the user actually leaves (in case they
-            // abandoned before clicking the CTA — partial leads still useful).
+            // Capture once more when the user actually leaves — partial
+            // (abandon-with-email) leads use sendBeacon so they survive the
+            // tab-close. Only sends if visitor entered an email AND got past
+            // slide 1 (otherwise it's noise).
             window.addEventListener('pagehide', () => {
-                // Only capture if they got past slide 1 (otherwise it's noise)
                 if (session.slidesVisited.size > 1) captureData('page_exit');
             });
 
             // IntersectionObserver triggers reveal animations + syncs nav state
-            // + tracks slides visited for the capture record.
+            // + tracks slides visited for the capture record (persisted so
+            // returnees see correct "last slide" in the welcome-back banner).
             const io = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     const idx = slides.indexOf(entry.target);
@@ -2107,11 +2203,110 @@
                         dots.forEach((d, i) => d.classList.toggle('active', i === idx));
                         slideLabel.textContent = `${idx + 1} / ${slides.length} — ${labels[idx]}`;
                         session.slidesVisited.add(idx + 1);
+                        state.current.slides_visited = Array.from(session.slidesVisited);
+                        state.current.last_slide = idx;
+                        saveState();
                     }
                 });
             }, { threshold: [0, 0.5, 1] });
 
             slides.forEach((s) => io.observe(s));
+
+            // ===========================================
+            // RETURNEE — restore previously typed fields,
+            // optionally show a "Welcome back" banner.
+            // ===========================================
+            function restoreFormFromState() {
+                const c = state.current || {};
+                const setText = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val) el.value = val;
+                };
+                setText('icp-org', c.org_name);
+                setText('email',   c.email);
+                setText('company', c.company);
+                setText('extras',  c.extras);
+
+                const restoreTiles = (field, value) => {
+                    const group = document.querySelector('.icp-tiles[data-field="' + field + '"]');
+                    if (!group) return;
+                    group.querySelectorAll('.icp-tile').forEach(t => t.classList.remove('selected'));
+                    const values = Array.isArray(value) ? value : (value ? [value] : []);
+                    values.forEach(v => {
+                        const tile = group.querySelector('.icp-tile[data-value="' + v + '"]');
+                        if (tile) tile.classList.add('selected');
+                    });
+                };
+                restoreTiles('org_type',         c.org_type);
+                restoreTiles('role',             c.role);
+                restoreTiles('responsibilities', c.responsibilities);
+                restoreTiles('timeline',         c.timeline);
+                restoreTiles('budget',           c.budget);
+            }
+
+            function clearAllFields() {
+                document.querySelectorAll('#icp-org, #email, #company, #extras').forEach(el => { el.value = ''; });
+                document.querySelectorAll('.icp-tile.selected').forEach(t => t.classList.remove('selected'));
+            }
+
+            function hasPriorContent() {
+                const c = state.current || {};
+                return Boolean(
+                    c.org_name || c.email || c.company || c.extras ||
+                    c.role || c.org_type || c.timeline || c.budget ||
+                    (Array.isArray(c.responsibilities) && c.responsibilities.length)
+                );
+            }
+
+            function showReturneeBanner() {
+                const lastIdx = Math.max(0, Math.min(slides.length - 1, state.current.last_slide || 0));
+                const lastLabel = labels[lastIdx] || 'where you left off';
+
+                const bar = document.createElement('div');
+                bar.id = 'returnee-banner';
+                bar.style.cssText = [
+                    'position:fixed','top:0','left:0','right:0','z-index:9999',
+                    'background:rgba(22,18,42,0.94)','backdrop-filter:blur(8px)',
+                    '-webkit-backdrop-filter:blur(8px)','color:#FFFFFF',
+                    'padding:10px 16px','display:flex','align-items:center',
+                    'justify-content:center','gap:12px','flex-wrap:wrap',
+                    'font-family:Barlow,system-ui,sans-serif','font-size:0.92rem',
+                    'box-shadow:0 4px 18px rgba(0,0,0,0.25)'
+                ].join(';');
+                bar.innerHTML =
+                    '<span>👋 Welcome back. Pick up where you left off (<strong>' + lastLabel + '</strong>) or start fresh?</span>' +
+                    '<button id="rb-continue" style="background:#A61CC8;color:#fff;border:none;padding:7px 16px;border-radius:999px;cursor:pointer;font-weight:600;font-family:inherit;">Continue</button>' +
+                    '<button id="rb-fresh" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);padding:7px 16px;border-radius:999px;cursor:pointer;font-family:inherit;">Start fresh</button>' +
+                    '<button id="rb-dismiss" aria-label="Dismiss" style="background:none;color:rgba(255,255,255,0.6);border:none;cursor:pointer;font-size:1.3rem;line-height:1;padding:0 4px;">×</button>';
+                document.body.appendChild(bar);
+
+                document.getElementById('rb-continue').addEventListener('click', () => {
+                    restoreFormFromState();
+                    if (slides[lastIdx]) slides[lastIdx].scrollIntoView({ behavior: 'smooth' });
+                    bar.remove();
+                });
+                document.getElementById('rb-fresh').addEventListener('click', () => {
+                    // Keep visitor_id + history, but reset current draft.
+                    state.current = Object.assign(freshExplicit(), { slides_visited: [], last_slide: 0 });
+                    state.last_status = 'in_progress';
+                    saveState();
+                    clearAllFields();
+                    if (slides[0]) slides[0].scrollIntoView({ behavior: 'smooth' });
+                    bar.remove();
+                });
+                document.getElementById('rb-dismiss').addEventListener('click', () => bar.remove());
+            }
+
+            // Always restore form fields (silent — even if not showing the banner,
+            // the visitor sees their last-typed values pre-filled).
+            restoreFormFromState();
+
+            // Show the banner only for returnees with prior content who didn't
+            // already complete a full submit. Visit_count > 1 means they've been
+            // here before this session.
+            if (isReturnee && state.visit_count > 1 && hasPriorContent() && state.last_status !== 'full_submit') {
+                showReturneeBanner();
+            }
 
             // Click nav dots to jump
             dots.forEach((dot, idx) => {
