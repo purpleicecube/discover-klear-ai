@@ -909,6 +909,73 @@
             50% { transform: translateY(-8px) rotate(2deg); }
         }
 
+        /* ---------- Compact award strip (backgrounder under the hero copy) ---------- */
+        .awards-strip {
+            width: 100%;
+            max-width: min(1100px, 92vw);
+            margin-top: var(--space-lg);
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+        }
+        .award-chip {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform var(--dur-fast) var(--ease-out-soft),
+                        background var(--dur-fast),
+                        border-color var(--dur-fast);
+            min-height: 84px;
+        }
+        .award-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(251, 207, 232, 0.45);
+            transform: translateY(-2px);
+        }
+        .award-chip-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+        .award-chip-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            stroke: rgba(251, 207, 232, 0.92);
+            fill: none;
+            stroke-width: 1.8;
+        }
+        .award-chip-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            letter-spacing: -0.005em;
+        }
+        .award-chip-meta {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.02em;
+            line-height: 1.35;
+        }
+        @media (max-width: 920px) {
+            .awards-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 560px) {
+            .awards-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .award-chip { padding: 10px 12px; min-height: 76px; }
+            .award-chip-title { font-size: 0.76rem; }
+            .award-chip-meta { font-size: 0.66rem; }
+        }
+
         /* ===========================================
            SLIDE 3 — ICP (audience self-identification)
            Three glass cards in a row (matches the original engagement-gate
@@ -2198,6 +2265,66 @@
                 <div class="award-medal-wrap reveal" data-delay="4">
                     <!-- Official award badge PNG (medal + ribbon, with inset Klear.ai mark) -->
                     <img class="award-medal" src="./assets/edff4220-ef49-439a-b928-7b647f4530c6.png" alt="Award-Winning Claims Administration Software badge">
+                </div>
+            </div>
+
+            <!-- Compact award strip — clean monoline icons over Klear-palette
+                 glass chips, distilled from the rainbow pennant graphic so the
+                 recognition reads as a supporting backgrounder rather than a
+                 second hero. -->
+            <div class="awards-strip reveal" data-delay="5" role="list" aria-label="Awards and recognition">
+                <div class="award-chip" role="listitem">
+                    <div class="award-chip-head">
+                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2l3 6.5 7 1-5 4.8 1.3 7.2L12 17.8 5.7 21.5 7 14.3 2 9.5l7-1L12 2z" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="award-chip-title">Inc. 5000 (2X)</span>
+                    </div>
+                    <span class="award-chip-meta">Fast-growing — two-time honoree</span>
+                </div>
+
+                <div class="award-chip" role="listitem">
+                    <div class="award-chip-head">
+                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 21h6M10 18h4M12 3a6 6 0 016 6c0 3-2 4.5-2.5 6h-7C8 13.5 6 12 6 9a6 6 0 016-6z" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="award-chip-title">Most Innovative AI Firm</span>
+                    </div>
+                    <span class="award-chip-meta">Claims &amp; risk management software</span>
+                </div>
+
+                <div class="award-chip" role="listitem">
+                    <div class="award-chip-head">
+                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 4h12v4a6 6 0 11-12 0V4z" stroke-linejoin="round"/>
+                            <path d="M4 6h2v3a3 3 0 003 3M20 6h-2v3a3 3 0 01-3 3M9 21h6M12 16v5" stroke-linejoin="round" stroke-linecap="round"/>
+                        </svg>
+                        <span class="award-chip-title">Redhand Innovation (2X)</span>
+                    </div>
+                    <span class="award-chip-meta">Industry leadership 2024 &amp; 2025</span>
+                </div>
+
+                <div class="award-chip" role="listitem">
+                    <div class="award-chip-head">
+                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 5h14M3 10h14M3 15h9" stroke-linecap="round"/>
+                            <circle cx="17.5" cy="17" r="3" />
+                            <path d="M19.7 19.2L22 21.5" stroke-linecap="round"/>
+                        </svg>
+                        <span class="award-chip-title">Top 10 Audit Award</span>
+                    </div>
+                    <span class="award-chip-meta">Excellence in auditing practices</span>
+                </div>
+
+                <div class="award-chip" role="listitem">
+                    <div class="award-chip-head">
+                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 17l6-6 4 4 8-8" stroke-linejoin="round" stroke-linecap="round"/>
+                            <path d="M14 7h7v7" stroke-linejoin="round" stroke-linecap="round"/>
+                        </svg>
+                        <span class="award-chip-title">#158 Fastest Growing</span>
+                    </div>
+                    <span class="award-chip-meta">Private software co. · Inc. 5000 2025</span>
                 </div>
             </div>
         </div>
