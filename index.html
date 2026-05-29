@@ -2131,6 +2131,17 @@
             };
 
             window.addEventListener('keydown', (e) => {
+                // Don't hijack typing keys when an input/textarea/select or
+                // contenteditable is focused — otherwise space / arrows would
+                // advance slides instead of letting the operator type.
+                const t = e.target;
+                if (t && (
+                    t.tagName === 'INPUT' ||
+                    t.tagName === 'TEXTAREA' ||
+                    t.tagName === 'SELECT' ||
+                    t.isContentEditable
+                )) return;
+
                 switch (e.key) {
                     case 'ArrowDown':
                     case 'PageDown':
