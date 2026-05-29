@@ -1272,6 +1272,275 @@
         .skip-link:hover { color: var(--text-secondary); }
 
         /* ===========================================
+           SLIDE 4 — DIAGNOSTIC STATE MACHINE
+           Visitor picks a challenge → answers two follow-ups → sees a tailored
+           Klear.ai use case. Stages swap in place inside slide-3's content
+           area (no extra slides in the nav).
+           =========================================== */
+        .diagnostic-shell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+            width: 100%;
+            max-width: min(1100px, 92vw);
+            margin: 0 auto;
+        }
+        .diagnostic-stage {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+            animation: diag-fade-in 0.42s var(--ease-out-soft);
+        }
+        .diagnostic-stage[hidden] { display: none !important; }
+
+        @keyframes diag-fade-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .diag-breadcrumb {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 4px;
+        }
+        .diag-breadcrumb-step {
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .diag-breadcrumb-step.done {
+            background: rgba(251, 207, 232, 0.18);
+            color: rgba(255, 255, 255, 0.85);
+            border-color: rgba(251, 207, 232, 0.4);
+        }
+        .diag-breadcrumb-step.current {
+            background: var(--pink-pill, #FDC8E1);
+            color: #1A0935;
+            border-color: var(--pink-pill, #FDC8E1);
+        }
+
+        .diag-q-eyebrow {
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(251, 207, 232, 0.85);
+            font-weight: 700;
+        }
+        .diag-q-question {
+            font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+            font-weight: 700;
+            color: var(--text-dark-card);
+            text-align: center;
+            line-height: 1.18;
+            max-width: 26ch;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .diag-options {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+            max-width: 720px;
+            margin-top: 4px;
+        }
+        .diag-option {
+            background: var(--dark-card-bg);
+            border: 1px solid var(--dark-card-border);
+            border-radius: 18px;
+            padding: 1rem 1.25rem;
+            color: var(--text-dark-card);
+            font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform var(--dur-fast) var(--ease-out-soft),
+                        border-color var(--dur-fast),
+                        background var(--dur-fast),
+                        box-shadow var(--dur-fast);
+            font-family: var(--font);
+        }
+        .diag-option::before {
+            content: attr(data-letter);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(251, 207, 232, 0.14);
+            color: rgba(251, 207, 232, 0.95);
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .diag-option:hover {
+            background: var(--dark-card-bg-2);
+            border-color: rgba(251, 207, 232, 0.45);
+            transform: translateX(2px);
+            box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.5);
+        }
+        .diag-option.selected {
+            border-color: var(--pink-pill, #FDC8E1);
+            background: linear-gradient(135deg, rgba(251, 207, 232, 0.16), rgba(166, 28, 200, 0.18));
+        }
+
+        .diag-nav {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            margin-top: 4px;
+            justify-content: center;
+        }
+        .diag-back-link {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 8px 4px;
+            font-family: var(--font);
+            transition: color var(--dur-fast);
+        }
+        .diag-back-link:hover { color: rgba(255, 255, 255, 0.9); }
+
+        /* ---- Use-case result card ---- */
+        .use-case-card {
+            width: 100%;
+            max-width: 880px;
+            background: var(--dark-card-bg);
+            border: 1px solid var(--dark-card-border);
+            border-radius: 24px;
+            padding: clamp(1.25rem, 2vw, 1.9rem);
+            color: var(--text-dark-card);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.55);
+        }
+        .uc-eyebrow {
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(251, 207, 232, 0.9);
+            font-weight: 700;
+        }
+        .uc-title {
+            font-size: clamp(1.45rem, 2.2vw, 2rem);
+            line-height: 1.15;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+        .uc-summary {
+            font-size: clamp(0.95rem, 1.1vw, 1.075rem);
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.86);
+            margin: 0;
+        }
+        .uc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .uc-tile {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .uc-tile-label {
+            font-size: 0.66rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(251, 207, 232, 0.85);
+            font-weight: 700;
+        }
+        .uc-tile-body {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.86);
+        }
+        .uc-metrics-title {
+            font-size: 0.78rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(251, 207, 232, 0.9);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .uc-metrics {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        .uc-metrics th, .uc-metrics td {
+            text-align: left;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .uc-metrics th {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+        .uc-metrics td:first-child {
+            color: rgba(251, 207, 232, 0.92);
+            font-weight: 600;
+            width: 30%;
+            white-space: nowrap;
+        }
+        .uc-metrics td:last-child {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .uc-metrics tr:last-child td { border-bottom: none; }
+
+        .diag-cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            align-items: center;
+            margin-top: var(--space-sm);
+        }
+
+        @media (max-width: 760px) {
+            .uc-grid { grid-template-columns: 1fr; }
+            .diag-options { max-width: 100%; }
+            .diag-q-question { font-size: 1.4rem; }
+            .uc-title { font-size: 1.3rem; }
+            .diag-breadcrumb-step { font-size: 0.65rem; padding: 4px 9px; }
+        }
+
+        /* Make slide-3's content scroll internally if a tall use-case stage
+           overflows on small heights (rare on desktop, common on laptops). */
+        section#slide-3 .slide-content {
+            overflow-y: auto;
+            padding-block: var(--space-lg);
+        }
+
+        /* ===========================================
            SLIDE 5 — BOOK_MEETING
            =========================================== */
         .slide.booking .slide-content {
@@ -1812,35 +2081,115 @@
         </div>
 
         <div class="slide-content">
-            <!-- The LiveAvatar iframe moved out of this slide to the persistent
-                 #christinaFloat element (mounted in <body>). Slide 4 layout is
-                 now heading → subhead → 3 numbered cards → skip link. -->
-            <h2 class="reveal" data-delay="1">What's holding your program back?</h2>
-            <p class="subhead reveal" data-delay="2">
-                Many claims programs are held back by legacy software — creating delays, inconsistent decisions, and data gaps. Select the challenge that best reflects your environment, and <em class="brand">Klear.ai</em> will tailor what comes next.
-            </p>
+            <!-- DIAGNOSTIC STATE MACHINE. The 3 challenge cards remain the
+                 visitor's entry point; clicking Choose hands off into a small
+                 two-question diagnostic, then a tailored use case. All four
+                 stages live inside slide-3 (no extra entries in the nav). -->
+            <div class="diagnostic-shell" id="diagnostic-shell" data-stage="select">
 
-            <div class="challenge-cards">
-                <button class="challenge-card reveal" data-delay="3">
-                    <span class="challenge-number">01</span>
-                    <span class="challenge-label">Slow, manual claims handling</span>
-                    <span class="pill">Choose</span>
-                </button>
+                <!-- STAGE 1 — challenge select (the existing landing for this slide) -->
+                <div class="diagnostic-stage" data-stage-target="select">
+                    <h2 class="reveal" data-delay="1">What's holding your program back?</h2>
+                    <p class="subhead reveal" data-delay="2">
+                        Many claims programs are held back by legacy software — creating delays, inconsistent decisions, and data gaps. Select the challenge that best reflects your environment, and <em class="brand">Klear.ai</em> will tailor a use case.
+                    </p>
 
-                <button class="challenge-card reveal" data-delay="4">
-                    <span class="challenge-number">02</span>
-                    <span class="challenge-label">Limited visibility into claim status and trends</span>
-                    <span class="pill">Choose</span>
-                </button>
+                    <div class="challenge-cards">
+                        <button class="challenge-card reveal" data-delay="3" data-challenge="slow_manual">
+                            <span class="challenge-number">01</span>
+                            <span class="challenge-label">Slow, manual claims handling</span>
+                            <span class="pill">Choose</span>
+                        </button>
 
-                <button class="challenge-card reveal" data-delay="5">
-                    <span class="challenge-number">03</span>
-                    <span class="challenge-label">Fragmented systems and data silos</span>
-                    <span class="pill">Choose</span>
-                </button>
+                        <button class="challenge-card reveal" data-delay="4" data-challenge="limited_visibility">
+                            <span class="challenge-number">02</span>
+                            <span class="challenge-label">Limited visibility into claim status and trends</span>
+                            <span class="pill">Choose</span>
+                        </button>
+
+                        <button class="challenge-card reveal" data-delay="5" data-challenge="fragmented_systems">
+                            <span class="challenge-number">03</span>
+                            <span class="challenge-label">Fragmented systems and data silos</span>
+                            <span class="pill">Choose</span>
+                        </button>
+                    </div>
+
+                    <a href="#" class="skip-link" data-action="skip-diagnostic">Skip this question</a>
+                </div>
+
+                <!-- STAGE 2 — first follow-up (question contents filled by JS) -->
+                <div class="diagnostic-stage" data-stage-target="q1" hidden>
+                    <div class="diag-breadcrumb">
+                        <span class="diag-breadcrumb-step done">Challenge</span>
+                        <span class="diag-breadcrumb-step current">Where</span>
+                        <span class="diag-breadcrumb-step">Impact</span>
+                        <span class="diag-breadcrumb-step">Use case</span>
+                    </div>
+                    <span class="diag-q-eyebrow" data-slot="q1-context"></span>
+                    <h2 class="diag-q-question" data-slot="q1-question"></h2>
+                    <div class="diag-options" data-options-for="q1"></div>
+                    <div class="diag-nav">
+                        <button type="button" class="diag-back-link" data-action="back-to-select">← Different challenge</button>
+                    </div>
+                </div>
+
+                <!-- STAGE 3 — second follow-up -->
+                <div class="diagnostic-stage" data-stage-target="q2" hidden>
+                    <div class="diag-breadcrumb">
+                        <span class="diag-breadcrumb-step done">Challenge</span>
+                        <span class="diag-breadcrumb-step done">Where</span>
+                        <span class="diag-breadcrumb-step current">Impact</span>
+                        <span class="diag-breadcrumb-step">Use case</span>
+                    </div>
+                    <span class="diag-q-eyebrow" data-slot="q2-context"></span>
+                    <h2 class="diag-q-question" data-slot="q2-question"></h2>
+                    <div class="diag-options" data-options-for="q2"></div>
+                    <div class="diag-nav">
+                        <button type="button" class="diag-back-link" data-action="back-to-q1">← Back</button>
+                    </div>
+                </div>
+
+                <!-- STAGE 4 — generated use case (content filled by JS) -->
+                <div class="diagnostic-stage" data-stage-target="result" hidden>
+                    <div class="diag-breadcrumb">
+                        <span class="diag-breadcrumb-step done">Challenge</span>
+                        <span class="diag-breadcrumb-step done">Where</span>
+                        <span class="diag-breadcrumb-step done">Impact</span>
+                        <span class="diag-breadcrumb-step current">Use case</span>
+                    </div>
+                    <article class="use-case-card">
+                        <span class="uc-eyebrow">Your Klear.ai Claims Administration use case</span>
+                        <h2 class="uc-title" data-slot="uc-title"></h2>
+                        <p class="uc-summary" data-slot="uc-summary"></p>
+
+                        <div class="uc-grid">
+                            <div class="uc-tile">
+                                <span class="uc-tile-label">Business problem</span>
+                                <span class="uc-tile-body" data-slot="uc-problem"></span>
+                            </div>
+                            <div class="uc-tile">
+                                <span class="uc-tile-label">Klear.ai solution</span>
+                                <span class="uc-tile-body" data-slot="uc-solution"></span>
+                            </div>
+                            <div class="uc-tile">
+                                <span class="uc-tile-label">Outcome</span>
+                                <span class="uc-tile-body" data-slot="uc-outcome"></span>
+                            </div>
+                        </div>
+
+                        <span class="uc-metrics-title">Success metrics</span>
+                        <table class="uc-metrics">
+                            <thead><tr><th>Area</th><th>Metric</th></tr></thead>
+                            <tbody data-slot="uc-metrics-body"></tbody>
+                        </table>
+                    </article>
+                    <div class="diag-cta-row">
+                        <button type="button" class="pill large" data-action="continue-to-booking">Build my use case</button>
+                        <button type="button" class="diag-back-link" data-action="back-to-q2">← Adjust answers</button>
+                    </div>
+                </div>
+
             </div>
-
-            <a href="#" class="skip-link">Skip this question</a>
         </div>
     </section>
 
@@ -2009,7 +2358,10 @@
             function freshExplicit() {
                 return {
                     org_name: '', role: '', responsibilities: [], org_type: '',
-                    email: '', company: '', timeline: '', budget: '', extras: ''
+                    email: '', company: '', timeline: '', budget: '', extras: '',
+                    selected_challenge: '', selected_challenge_label: '',
+                    challenge_subpain: '', challenge_impact: '',
+                    use_case_title: '', diagnostic_stage: 'select'
                 };
             }
 
@@ -2085,6 +2437,11 @@
                     timeline: e.timeline || '',
                     budget: e.budget || '',
                     extras: e.extras || '',
+                    selected_challenge: e.selected_challenge_label || e.selected_challenge || '',
+                    challenge_subpain: e.challenge_subpain || '',
+                    challenge_impact: e.challenge_impact || '',
+                    use_case_title: e.use_case_title || '',
+                    diagnostic_stage_reached: e.diagnostic_stage || 'select',
                     deal_status: computeDealStatus(e),
                     previously_submitted_at: state.last_submitted_at || ''
                 };
@@ -2247,6 +2604,15 @@
             function clearAllFields() {
                 document.querySelectorAll('#icp-org, #email, #company, #extras').forEach(el => { el.value = ''; });
                 document.querySelectorAll('.icp-tile.selected').forEach(t => t.classList.remove('selected'));
+                // Reset the diagnostic state machine back to the challenge picker.
+                const shell = document.getElementById('diagnostic-shell');
+                if (shell) {
+                    shell.querySelectorAll('.diagnostic-stage').forEach(s => {
+                        s.hidden = (s.dataset.stageTarget !== 'select');
+                    });
+                    shell.dataset.stage = 'select';
+                }
+                document.querySelectorAll('.diag-option.selected').forEach(o => o.classList.remove('selected'));
             }
 
             function hasPriorContent() {
@@ -2254,7 +2620,8 @@
                 return Boolean(
                     c.org_name || c.email || c.company || c.extras ||
                     c.role || c.org_type || c.timeline || c.budget ||
-                    (Array.isArray(c.responsibilities) && c.responsibilities.length)
+                    (Array.isArray(c.responsibilities) && c.responsibilities.length) ||
+                    c.selected_challenge || c.challenge_subpain || c.challenge_impact
                 );
             }
 
@@ -2307,6 +2674,312 @@
             if (isReturnee && state.visit_count > 1 && hasPriorContent() && state.last_status !== 'full_submit') {
                 showReturneeBanner();
             }
+
+            // ===========================================
+            // DIAGNOSTIC STATE MACHINE (slide-3 sub-flow)
+            //
+            // Drives the four stages inside slide-3:
+            //   select → q1 → q2 → result → (Build my use case) → slide-4 booking
+            //
+            // Each path defines its own Q1 + Q2 wording/options + use-case
+            // content. State persists to localStorage (so a returnee comes
+            // back into the same diagnostic answers they typed) and ships in
+            // the email payload as selected_challenge / challenge_subpain /
+            // challenge_impact / use_case_title.
+            // ===========================================
+            const DIAGNOSTIC = {
+                slow_manual: {
+                    label: 'Slow, manual claims handling',
+                    q1: {
+                        eyebrow: 'Slow, manual claims handling',
+                        question: 'Where does the delay happen most often?',
+                        options: [
+                            { id: 'intake',     label: 'Claim intake and setup' },
+                            { id: 'documents',  label: 'Document review and indexing' },
+                            { id: 'tasks',      label: 'Adjuster task follow-up' },
+                            { id: 'approvals',  label: 'Supervisor review and approvals' }
+                        ]
+                    },
+                    q2: {
+                        eyebrow: 'Tell us a bit more',
+                        question: 'How are documents currently handled?',
+                        options: [
+                            { id: 'manual_rename',  label: 'Manually opened, reviewed, and renamed' },
+                            { id: 'uncategorized',  label: 'Uploaded but not automatically categorized' },
+                            { id: 'siloed',         label: 'Stored separately from claim activity' },
+                            { id: 'when_time',      label: 'Reviewed only when an adjuster has time' }
+                        ]
+                    },
+                    use_case: {
+                        title: 'Automated Claims Document Intake and Summarization',
+                        summary: 'When new claim documents are received, Klear.ai automatically reads, classifies, indexes, and summarizes them within the claim file. The system extracts key data, identifies missing information, and routes the claim or task to the right adjuster or supervisor.',
+                        problem: 'Adjusters spend too much time reviewing documents, renaming files, identifying relevant details, and deciding what action to take next. This slows claim handling, creates inconsistent documentation, and increases the risk of missed information.',
+                        solution: 'Klear.ai Claims Administration uses Native AI to automate document intake, summarization, indexing, and workflow routing. Documents become actionable claim intelligence instead of static attachments.',
+                        outcome: 'Claims teams reduce manual handling, improve adjuster productivity, accelerate claim movement, and create more consistent claim files.',
+                        metrics: [
+                            ['Efficiency',   'Reduction in document handling time'],
+                            ['Productivity', 'More claims managed per adjuster'],
+                            ['Accuracy',     'Fewer misfiled or overlooked documents'],
+                            ['Cycle Time',   'Faster movement from intake to next action'],
+                            ['Compliance',   'More consistent claim documentation']
+                        ]
+                    }
+                },
+                limited_visibility: {
+                    label: 'Limited visibility into claim status and trends',
+                    q1: {
+                        eyebrow: 'Limited visibility into claim status and trends',
+                        question: 'What visibility gap creates the biggest challenge?',
+                        options: [
+                            { id: 'inventory',  label: 'Open claim inventory' },
+                            { id: 'workload',   label: 'Adjuster workload' },
+                            { id: 'aging',      label: 'Claim aging and bottlenecks' },
+                            { id: 'financials', label: 'Financial trends and reserves' },
+                            { id: 'litigation', label: 'Litigation or high-risk claims' }
+                        ]
+                    },
+                    q2: {
+                        eyebrow: 'Tell us a bit more',
+                        question: 'How do supervisors currently identify claims that need attention?',
+                        options: [
+                            { id: 'manual_reports',   label: 'Manual reports' },
+                            { id: 'spreadsheets',     label: 'Spreadsheet tracking' },
+                            { id: 'adjuster_updates', label: 'Adjuster updates' },
+                            { id: 'only_escalate',    label: 'Only after a claim escalates' },
+                            { id: 'no_process',       label: 'There is no consistent process' }
+                        ]
+                    },
+                    use_case: {
+                        title: 'Real-Time Claims Supervisor Dashboard',
+                        summary: 'Klear.ai gives supervisors real-time visibility into claim status, aging, workloads, bottlenecks, and high-risk claim indicators. Instead of manual reports, supervisors monitor activity through dashboards, alerts, and configurable business rules.',
+                        problem: 'Supervisors lack timely visibility into claim movement and program performance. By the time issues appear in reports, claims may already be delayed, over-reserved, under-reviewed, or at risk of escalation.',
+                        solution: 'Klear.ai Claims Administration centralizes claim data, activity, notes, documents, financials, and workflows into one platform. Dashboards and analytics surface operational performance and claim trends in real time.',
+                        outcome: 'Supervisors proactively manage claim teams, identify bottlenecks earlier, and improve claim outcomes through better visibility and faster intervention.',
+                        metrics: [
+                            ['Oversight',       'Faster identification of aging claims'],
+                            ['Productivity',    'Improved adjuster workload balancing'],
+                            ['Risk Management', 'Earlier detection of high-risk claims'],
+                            ['Reporting',       'Reduced dependency on manual reports'],
+                            ['Performance',     'Improved claim closure and cycle-time trends']
+                        ]
+                    }
+                },
+                fragmented_systems: {
+                    label: 'Fragmented systems and data silos',
+                    q1: {
+                        eyebrow: 'Fragmented systems and data silos',
+                        question: 'Which systems are most disconnected today?',
+                        options: [
+                            { id: 'claims_policy',     label: 'Claims and policy data' },
+                            { id: 'claims_documents',  label: 'Claims and documents' },
+                            { id: 'claims_payments',   label: 'Claims and payments' },
+                            { id: 'claims_reporting',  label: 'Claims and reporting' },
+                            { id: 'claims_vendors',    label: 'Claims and external vendors' }
+                        ]
+                    },
+                    q2: {
+                        eyebrow: 'Tell us a bit more',
+                        question: 'What happens because of that fragmentation?',
+                        options: [
+                            { id: 'slow_reports',     label: 'Reports take too long to prepare' },
+                            { id: 'inconsistent_data',label: 'Data is inconsistent across systems' },
+                            { id: 'low_trust',        label: 'Leadership lacks confidence in the numbers' },
+                            { id: 'duplicate_work',   label: 'Teams duplicate work' },
+                            { id: 'all_above',        label: 'All of the above' }
+                        ]
+                    },
+                    use_case: {
+                        title: 'Unified Claims Administration and Reporting',
+                        summary: 'Klear.ai unifies claims, documents, notes, payments, policy details, workflows, and reporting in one platform. Teams work from a single source of truth while leadership gains consistent, real-time analytics.',
+                        problem: 'Disconnected systems create duplicate work, inconsistent data, reporting delays, and poor visibility. Claims teams lose time moving between platforms, while leadership struggles to make timely decisions from fragmented information.',
+                        solution: 'Klear.ai Claims Administration provides a fully integrated platform for managing claims, workflows, documents, analytics, and reporting. Configurable dashboards and business rules standardize operations while maintaining flexibility.',
+                        outcome: 'Organizations reduce system friction, improve data quality, simplify reporting, and make faster decisions using centralized claims intelligence.',
+                        metrics: [
+                            ['Data Quality',    'Fewer duplicate or inconsistent records'],
+                            ['Reporting',       'Faster production of management reports'],
+                            ['Efficiency',      'Reduced system switching'],
+                            ['Decision-Making', 'Improved leadership visibility'],
+                            ['Operations',      'More standardized claims workflows']
+                        ]
+                    }
+                }
+            };
+
+            const diagShell = document.getElementById('diagnostic-shell');
+            const STAGES = ['select', 'q1', 'q2', 'result'];
+
+            function getDiagPath() {
+                const key = state.current.selected_challenge;
+                return key && DIAGNOSTIC[key] ? DIAGNOSTIC[key] : null;
+            }
+
+            function findStageEl(name) {
+                return diagShell.querySelector('.diagnostic-stage[data-stage-target="' + name + '"]');
+            }
+
+            function renderOptions(stage, q) {
+                const container = findStageEl(stage).querySelector('.diag-options');
+                container.innerHTML = '';
+                const letters = ['A','B','C','D','E','F'];
+                q.options.forEach((opt, i) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'diag-option';
+                    btn.dataset.optionId = opt.id;
+                    btn.dataset.letter = letters[i] || '';
+                    btn.textContent = opt.label;
+                    container.appendChild(btn);
+                });
+            }
+
+            function renderQuestionStage(stage) {
+                const path = getDiagPath();
+                if (!path) return;
+                const q = path[stage];
+                if (!q) return;
+                const stageEl = findStageEl(stage);
+                stageEl.querySelector('[data-slot="' + stage + '-context"]').textContent = q.eyebrow || '';
+                stageEl.querySelector('[data-slot="' + stage + '-question"]').textContent = q.question;
+                renderOptions(stage, q);
+
+                // Mark previously-picked option as selected (if any), so a
+                // returnee jumping back to this stage sees their answer.
+                const stateKey = stage === 'q1' ? 'challenge_subpain' : 'challenge_impact';
+                const picked = state.current[stateKey];
+                if (picked) {
+                    const btn = stageEl.querySelector('.diag-option[data-option-id="' + picked + '"]');
+                    if (btn) btn.classList.add('selected');
+                }
+            }
+
+            function renderResultStage() {
+                const path = getDiagPath();
+                if (!path) return;
+                const uc = path.use_case;
+                const stageEl = findStageEl('result');
+                const setSlot = (slot, txt) => {
+                    const el = stageEl.querySelector('[data-slot="' + slot + '"]');
+                    if (el) el.textContent = txt;
+                };
+                setSlot('uc-title',    uc.title);
+                setSlot('uc-summary',  uc.summary);
+                setSlot('uc-problem',  uc.problem);
+                setSlot('uc-solution', uc.solution);
+                setSlot('uc-outcome',  uc.outcome);
+
+                const tbody = stageEl.querySelector('[data-slot="uc-metrics-body"]');
+                tbody.innerHTML = '';
+                uc.metrics.forEach(([area, metric]) => {
+                    const tr = document.createElement('tr');
+                    const td1 = document.createElement('td'); td1.textContent = area;
+                    const td2 = document.createElement('td'); td2.textContent = metric;
+                    tr.appendChild(td1); tr.appendChild(td2);
+                    tbody.appendChild(tr);
+                });
+
+                // Persist the title on state so it ships in the email payload.
+                state.current.use_case_title = uc.title;
+                saveState();
+            }
+
+            function setStage(name) {
+                if (!STAGES.includes(name)) name = 'select';
+                STAGES.forEach(s => {
+                    const el = findStageEl(s);
+                    if (el) el.hidden = (s !== name);
+                });
+                diagShell.dataset.stage = name;
+                state.current.diagnostic_stage = name;
+                saveState();
+
+                // Lazy-render the stage as we land on it (option order changes per path).
+                if (name === 'q1' || name === 'q2') renderQuestionStage(name);
+                if (name === 'result') renderResultStage();
+
+                // Smooth-scroll the slide back to top so a tall result card is fully visible.
+                const sl = document.getElementById('slide-3');
+                if (sl) {
+                    sl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Reset internal slide-content scroll so the new stage starts at top.
+                    const inner = sl.querySelector('.slide-content');
+                    if (inner) inner.scrollTop = 0;
+                }
+            }
+
+            // ---- Click handlers ----
+            diagShell.addEventListener('click', (e) => {
+                // Challenge card → set selection + advance to Q1
+                const card = e.target.closest('.challenge-card[data-challenge]');
+                if (card) {
+                    const key = card.dataset.challenge;
+                    if (!DIAGNOSTIC[key]) return;
+                    state.current.selected_challenge = key;
+                    state.current.selected_challenge_label = DIAGNOSTIC[key].label;
+                    state.current.challenge_subpain = '';
+                    state.current.challenge_impact = '';
+                    state.current.use_case_title = '';
+                    saveState();
+                    setStage('q1');
+                    return;
+                }
+
+                // Q1 / Q2 option pick
+                const opt = e.target.closest('.diag-option');
+                if (opt) {
+                    const stageEl = opt.closest('.diagnostic-stage');
+                    const stageName = stageEl.dataset.stageTarget;
+                    const optId = opt.dataset.optionId;
+                    stageEl.querySelectorAll('.diag-option.selected').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    const stateKey = stageName === 'q1' ? 'challenge_subpain' : 'challenge_impact';
+                    state.current[stateKey] = optId;
+                    saveState();
+                    // Auto-advance after a brief pause for the visual confirmation.
+                    setTimeout(() => {
+                        if (stageName === 'q1') setStage('q2');
+                        else setStage('result');
+                    }, 280);
+                    return;
+                }
+
+                // Nav buttons / skip link
+                const action = (e.target.closest('[data-action]') || {}).dataset?.action;
+                if (!action) return;
+                e.preventDefault();
+                if (action === 'back-to-select') setStage('select');
+                else if (action === 'back-to-q1') setStage('q1');
+                else if (action === 'back-to-q2') setStage('q2');
+                else if (action === 'continue-to-booking') {
+                    // Visitor confirmed the use case — scroll to slide 5 to book.
+                    const booking = document.getElementById('slide-4');
+                    if (booking) booking.scrollIntoView({ behavior: 'smooth' });
+                } else if (action === 'skip-diagnostic') {
+                    const booking = document.getElementById('slide-4');
+                    if (booking) booking.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+            // ---- Returnee resume: jump into the furthest-completed stage ----
+            (function resumeDiagnostic() {
+                if (!state.current.selected_challenge) return;
+                if (!DIAGNOSTIC[state.current.selected_challenge]) {
+                    state.current.selected_challenge = '';
+                    saveState();
+                    return;
+                }
+                let resumeStage = 'q1';
+                if (state.current.challenge_subpain) resumeStage = 'q2';
+                if (state.current.challenge_subpain && state.current.challenge_impact) resumeStage = 'result';
+                // Don't auto-scroll on initial page load — just preload the stage
+                // so it's the right one when the visitor reaches slide 3.
+                STAGES.forEach(s => {
+                    const el = findStageEl(s);
+                    if (el) el.hidden = (s !== resumeStage);
+                });
+                diagShell.dataset.stage = resumeStage;
+                if (resumeStage === 'q1' || resumeStage === 'q2') renderQuestionStage(resumeStage);
+                if (resumeStage === 'result') renderResultStage();
+            })();
 
             // Click nav dots to jump
             dots.forEach((dot, idx) => {
