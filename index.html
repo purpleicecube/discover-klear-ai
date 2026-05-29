@@ -1808,6 +1808,159 @@
         .nurture-link:hover { color: var(--text-secondary); }
 
         /* ===========================================
+           SELF-CONTAINED REQUEST-A-TIME PICKER
+           (replaces the Microsoft Bookings iframe / fake mini-calendar)
+           =========================================== */
+        .date-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0 8px;
+            margin: 0 -4px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(251, 207, 232, 0.3) transparent;
+        }
+        .date-strip::-webkit-scrollbar { height: 6px; }
+        .date-strip::-webkit-scrollbar-track { background: transparent; }
+        .date-strip::-webkit-scrollbar-thumb {
+            background: rgba(251, 207, 232, 0.25);
+            border-radius: 999px;
+        }
+        .date-card {
+            flex: 0 0 auto;
+            min-width: 68px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: transform var(--dur-fast) var(--ease-out-soft),
+                        border-color var(--dur-fast),
+                        background var(--dur-fast),
+                        box-shadow var(--dur-fast);
+        }
+        .date-card-dow {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 700;
+        }
+        .date-card-day {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        .date-card-mon {
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.55);
+            font-weight: 600;
+        }
+        .date-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(251, 207, 232, 0.5);
+            transform: translateY(-2px);
+        }
+        .date-card.selected {
+            background: linear-gradient(135deg, rgba(251, 207, 232, 0.22), rgba(166, 28, 200, 0.22));
+            border-color: var(--pink-pill, #FDC8E1);
+            box-shadow: 0 8px 24px -8px rgba(251, 207, 232, 0.3);
+        }
+        .date-card.selected .date-card-dow,
+        .date-card.selected .date-card-mon { color: rgba(255, 255, 255, 0.85); }
+
+        .slot-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .slot-pill {
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform var(--dur-fast) var(--ease-out-soft),
+                        background var(--dur-fast),
+                        border-color var(--dur-fast);
+        }
+        .slot-pill .slot-window {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.55);
+            letter-spacing: 0.02em;
+        }
+        .slot-pill:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(251, 207, 232, 0.5);
+        }
+        .slot-pill.selected {
+            background: linear-gradient(135deg, rgba(251, 207, 232, 0.22), rgba(166, 28, 200, 0.22));
+            border-color: var(--pink-pill, #FDC8E1);
+        }
+        .slot-pill.selected .slot-window { color: rgba(255, 255, 255, 0.82); }
+
+        .request-confirm {
+            background: rgba(251, 207, 232, 0.08);
+            border: 1px solid rgba(251, 207, 232, 0.32);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .request-confirm strong { color: rgba(251, 207, 232, 0.96); font-weight: 600; }
+        .request-confirm .tz-tag {
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            margin-left: auto;
+        }
+
+        .send-error {
+            margin-top: var(--space-xs);
+            color: #F8B4D9;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .send-success {
+            background: rgba(76, 217, 100, 0.08);
+            border: 1px solid rgba(76, 217, 100, 0.32);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            color: rgba(255, 255, 255, 0.94);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .send-success strong { color: rgba(196, 247, 207, 0.98); }
+
+        /* ===========================================
            RESPONSIVE BREAKPOINTS
            =========================================== */
         @media (max-width: 820px) {
@@ -2317,39 +2470,24 @@
 
                 <div class="calendar-frame glass reveal" data-delay="4">
                     <div>
-                        <div class="calendar-label">Microsoft Bookings</div>
-                        <div class="calendar-sub">Darrel's calendar · <em class="brand">Klear.ai</em> CMO</div>
+                        <div class="calendar-label">Request a time</div>
+                        <div class="calendar-sub">Darrel (CMO) replies within one business day · times shown in <span data-slot="visitor-tz-label">your timezone</span></div>
                     </div>
 
-                    <div class="calendar-mini" aria-hidden="true">
-                        <div class="day-head">S</div>
-                        <div class="day-head">M</div>
-                        <div class="day-head">T</div>
-                        <div class="day-head">W</div>
-                        <div class="day-head">T</div>
-                        <div class="day-head">F</div>
-                        <div class="day-head">S</div>
+                    <!-- Date strip: horizontal row of the next 10 weekdays. Click
+                         one to reveal Morning / Afternoon for that day. -->
+                    <div class="date-strip" id="dateStrip" role="listbox" aria-label="Pick a day"></div>
 
-                        <div class="day muted">26</div>
-                        <a class="day book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting">27</a>
-                        <a class="day available book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting (available)">28</a>
-                        <a class="day book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting">29</a>
-                        <a class="day available book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting (available)">30</a>
-                        <a class="day book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting">31</a>
-                        <div class="day muted">1</div>
+                    <!-- Slot row (Morning / Afternoon). Hidden until a day is
+                         chosen; rendered fresh per-day click. -->
+                    <div class="slot-row" id="slotRow" hidden></div>
 
-                        <div class="day muted">2</div>
-                        <a class="day available book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting (available)">3</a>
-                        <a class="day book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting">4</a>
-                        <a class="day available book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting (available)">5</a>
-                        <a class="day available book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting (available)">6</a>
-                        <a class="day book-link" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer" aria-label="Book a meeting">7</a>
-                        <div class="day muted">8</div>
-                    </div>
+                    <!-- Confirmation chip — appears once both date + daypart are
+                         chosen. Shows the human-readable selection + visitor's
+                         detected timezone. -->
+                    <div class="request-confirm" id="requestConfirm" hidden></div>
 
-                    <!-- Moved from the left form card: free-text extras +
-                         privacy line + primary CTA. Sits below the calendar
-                         so the right card balances the left card visually. -->
+                    <!-- Free-text extras (carried over from the previous layout). -->
                     <div class="form-row form-row-extras">
                         <label for="extras">Anything else you'd like us to know? <span class="micro" style="text-transform:none; letter-spacing:0;">(optional)</span></label>
                         <textarea id="extras" class="form-textarea" rows="3" placeholder="Context, questions, what you'd want to cover on the call…"></textarea>
@@ -2360,7 +2498,12 @@
                         <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
                     </p>
 
-                    <a class="pill large book-link" id="bookMyTime" href="https://bookings.cloud.microsoft/bookwithme/user/4e39ed552991490e9cf5163cb77b01ae%40klearai.com?anonymous&amp;ismsaljsauthenabled=true" target="_blank" rel="noopener noreferrer">Book my time</a>
+                    <!-- Send-state container — swaps between "Send my request"
+                         CTA and a confirmation message after submit. -->
+                    <div id="sendContainer">
+                        <button type="button" class="pill large" id="sendRequest">Send my request</button>
+                        <p class="send-error" id="sendError" hidden></p>
+                    </div>
                 </div>
             </div>
 
@@ -2428,7 +2571,8 @@
                     email: '', company: '', timeline: '', budget: '', extras: '',
                     selected_challenge: '', selected_challenge_label: '',
                     challenge_subpain: '', challenge_impact: '',
-                    use_case_title: '', diagnostic_stage: 'select'
+                    use_case_title: '', diagnostic_stage: 'select',
+                    requested_date: '', requested_daypart: '', visitor_timezone: ''
                 };
             }
 
@@ -2510,6 +2654,20 @@
                     use_case_title: e.use_case_title || '',
                     diagnostic_stage_reached: e.diagnostic_stage || 'select',
                     book_intent: e.book_intent || '',
+                    requested_date: e.requested_date || '',
+                    requested_daypart: e.requested_daypart || '',
+                    requested_display: (e.requested_date && e.requested_daypart)
+                        ? (function () {
+                            try {
+                                const d = new Date(e.requested_date + 'T00:00:00');
+                                const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+                                const mon = ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()];
+                                const part = e.requested_daypart === 'morning' ? 'Morning' : 'Afternoon';
+                                return dow + ', ' + mon + ' ' + d.getDate() + ' — ' + part;
+                            } catch (_) { return ''; }
+                        })()
+                        : '',
+                    visitor_timezone: e.visitor_timezone || '',
                     deal_status: computeDealStatus(e),
                     previously_submitted_at: state.last_submitted_at || ''
                 };
@@ -2604,10 +2762,183 @@
             wireInput('company', 'company');
             wireInput('extras',  'extras');
 
-            // Book my time click → capture before navigation. Anchor's default
-            // navigation continues uninterrupted (new tab opens Bookings).
-            const bookBtn = document.getElementById('bookMyTime');
-            if (bookBtn) bookBtn.addEventListener('click', () => captureData('book_meeting'));
+            // ===========================================
+            // SELF-CONTAINED REQUEST-A-TIME PICKER
+            // (replaces the Microsoft Bookings link the old layout used)
+            // ===========================================
+            // Visitor's local timezone — detected once at load, surfaced in
+            // the confirmation chip + shipped in the email so Darrel knows
+            // "2pm ET = 11am their time".
+            try {
+                state.current.visitor_timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+                saveState();
+            } catch (_) { /* ancient browser */ }
+
+            const dateStripEl = document.getElementById('dateStrip');
+            const slotRowEl   = document.getElementById('slotRow');
+            const confirmEl   = document.getElementById('requestConfirm');
+            const sendBtn     = document.getElementById('sendRequest');
+            const sendErrEl   = document.getElementById('sendError');
+            const sendContainerEl = document.getElementById('sendContainer');
+            const tzLabelEl   = document.querySelector('[data-slot="visitor-tz-label"]');
+            if (tzLabelEl && state.current.visitor_timezone) {
+                tzLabelEl.textContent = state.current.visitor_timezone.replace(/_/g, ' ');
+            }
+
+            const DOW_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            const MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const MON_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+            function isoDate(d) {
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+            function nextWeekdays(count) {
+                const out = [];
+                const d = new Date();
+                d.setHours(0, 0, 0, 0);
+                d.setDate(d.getDate() + 1); // start "tomorrow" — same-day requests are unrealistic for an inbound qualifier
+                while (out.length < count) {
+                    const dow = d.getDay();
+                    if (dow !== 0 && dow !== 6) out.push(new Date(d));
+                    d.setDate(d.getDate() + 1);
+                }
+                return out;
+            }
+            function humanDate(d) {
+                return `${DOW_SHORT[d.getDay()]}, ${MON_LONG[d.getMonth()]} ${d.getDate()}`;
+            }
+            function dayPartLabel(p) { return p === 'morning' ? 'Morning' : (p === 'afternoon' ? 'Afternoon' : ''); }
+
+            function renderDateStrip() {
+                if (!dateStripEl) return;
+                dateStripEl.innerHTML = '';
+                const days = nextWeekdays(10);
+                days.forEach(d => {
+                    const iso = isoDate(d);
+                    const card = document.createElement('button');
+                    card.type = 'button';
+                    card.className = 'date-card';
+                    card.dataset.date = iso;
+                    card.innerHTML =
+                        '<span class="date-card-dow">' + DOW_SHORT[d.getDay()] + '</span>' +
+                        '<span class="date-card-day">' + d.getDate() + '</span>' +
+                        '<span class="date-card-mon">' + MON_SHORT[d.getMonth()] + '</span>';
+                    if (state.current.requested_date === iso) card.classList.add('selected');
+                    dateStripEl.appendChild(card);
+                });
+            }
+
+            function renderSlotRow() {
+                if (!slotRowEl) return;
+                if (!state.current.requested_date) {
+                    slotRowEl.hidden = true;
+                    slotRowEl.innerHTML = '';
+                    return;
+                }
+                slotRowEl.hidden = false;
+                slotRowEl.innerHTML =
+                    '<button type="button" class="slot-pill" data-daypart="morning">' +
+                        'Morning<span class="slot-window">9 AM – 12 PM</span>' +
+                    '</button>' +
+                    '<button type="button" class="slot-pill" data-daypart="afternoon">' +
+                        'Afternoon<span class="slot-window">12 PM – 5 PM</span>' +
+                    '</button>';
+                if (state.current.requested_daypart) {
+                    const m = slotRowEl.querySelector('[data-daypart="' + state.current.requested_daypart + '"]');
+                    if (m) m.classList.add('selected');
+                }
+            }
+
+            function renderConfirm() {
+                if (!confirmEl) return;
+                if (state.current.requested_date && state.current.requested_daypart) {
+                    const d = new Date(state.current.requested_date + 'T00:00:00');
+                    const tz = state.current.visitor_timezone || '';
+                    confirmEl.innerHTML =
+                        '<span>You requested: <strong>' + humanDate(d) + ' — ' +
+                        dayPartLabel(state.current.requested_daypart) + '</strong></span>' +
+                        (tz ? '<span class="tz-tag">' + tz.replace(/_/g, ' ') + '</span>' : '');
+                    confirmEl.hidden = false;
+                } else {
+                    confirmEl.hidden = true;
+                    confirmEl.innerHTML = '';
+                }
+            }
+
+            function renderRequestPicker() {
+                renderDateStrip();
+                renderSlotRow();
+                renderConfirm();
+            }
+            renderRequestPicker();
+
+            if (dateStripEl) {
+                dateStripEl.addEventListener('click', (e) => {
+                    const card = e.target.closest('.date-card');
+                    if (!card) return;
+                    state.current.requested_date = card.dataset.date;
+                    state.current.requested_daypart = ''; // force re-pick when changing day
+                    saveState();
+                    dateStripEl.querySelectorAll('.date-card.selected').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    renderSlotRow();
+                    renderConfirm();
+                    if (sendErrEl) sendErrEl.hidden = true;
+                });
+            }
+            if (slotRowEl) {
+                slotRowEl.addEventListener('click', (e) => {
+                    const pill = e.target.closest('.slot-pill');
+                    if (!pill) return;
+                    state.current.requested_daypart = pill.dataset.daypart;
+                    saveState();
+                    slotRowEl.querySelectorAll('.slot-pill.selected').forEach(p => p.classList.remove('selected'));
+                    pill.classList.add('selected');
+                    renderConfirm();
+                    if (sendErrEl) sendErrEl.hidden = true;
+                });
+            }
+
+            function showSendError(msg) {
+                if (!sendErrEl) return;
+                sendErrEl.textContent = msg;
+                sendErrEl.hidden = false;
+            }
+            function showSendSuccess() {
+                if (!sendContainerEl) return;
+                const d = state.current.requested_date
+                    ? new Date(state.current.requested_date + 'T00:00:00')
+                    : null;
+                const when = d
+                    ? humanDate(d) + ' — ' + dayPartLabel(state.current.requested_daypart)
+                    : 'the time you picked';
+                sendContainerEl.innerHTML =
+                    '<div class="send-success">' +
+                        '<strong>Request sent.</strong><br>' +
+                        'We received your request for ' + when + '. Darrel will reply within one business day to confirm or suggest a nearby slot.' +
+                    '</div>';
+            }
+
+            if (sendBtn) {
+                sendBtn.addEventListener('click', () => {
+                    const e = state.current;
+                    if (!e.email) {
+                        showSendError('Please enter your work email so we can confirm.');
+                        const emailEl = document.getElementById('email');
+                        if (emailEl) emailEl.focus();
+                        return;
+                    }
+                    if (!e.requested_date || !e.requested_daypart) {
+                        showSendError('Pick a day and a morning or afternoon slot.');
+                        return;
+                    }
+                    captureData('book_meeting');
+                    showSendSuccess();
+                });
+            }
 
             // Capture once more when the user actually leaves — partial
             // (abandon-with-email) leads use sendBeacon so they survive the
@@ -2681,6 +3012,12 @@
                     shell.dataset.stage = 'select';
                 }
                 document.querySelectorAll('.diag-option.selected').forEach(o => o.classList.remove('selected'));
+                // Reset request-a-time picker
+                document.querySelectorAll('.date-card.selected').forEach(c => c.classList.remove('selected'));
+                const sr = document.getElementById('slotRow');
+                if (sr) { sr.hidden = true; sr.innerHTML = ''; }
+                const rc = document.getElementById('requestConfirm');
+                if (rc) { rc.hidden = true; rc.innerHTML = ''; }
             }
 
             function hasPriorContent() {
@@ -2689,7 +3026,8 @@
                     c.org_name || c.email || c.company || c.extras ||
                     c.role || c.org_type || c.timeline || c.budget ||
                     (Array.isArray(c.responsibilities) && c.responsibilities.length) ||
-                    c.selected_challenge || c.challenge_subpain || c.challenge_impact
+                    c.selected_challenge || c.challenge_subpain || c.challenge_impact ||
+                    c.requested_date || c.requested_daypart
                 );
             }
 
