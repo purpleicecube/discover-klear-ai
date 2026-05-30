@@ -249,12 +249,12 @@
         .tour-tracker {
             position: fixed;
             top: clamp(1rem, 2.5vw, 1.75rem);
-            left: clamp(1rem, 3vw, 2.25rem);
+            /* Shifted right so labels (now to the LEFT of each bulb) have
+               room to render without falling off the viewport. */
+            left: clamp(5.25rem, 9vw, 7.5rem);
             z-index: 60;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            pointer-events: none; /* re-enable on the toggle + stops */
+            display: block;
+            pointer-events: none;
         }
         /* Toggle = the original wordmark logo, untouched — no extra circle,
            no purple shadow, no shape change. Just the K with its drop shadow,
@@ -301,17 +301,18 @@
         }
 
         .tour-rail {
-            position: relative;
-            /* Position the rail so the first column (the dot) is centered
-               horizontally under the K logo. The line at left:7px (half of
-               the 14px dot) then descends right from the center of the K. */
-            margin-top: 4px;
-            margin-left: calc((clamp(80px, 8vw, 120px) - 14px) / 2);
+            /* Absolutely positioned so its RIGHT edge sits at K-center +
+               dot-radius. With items right-aligned (align-items: flex-end),
+               every bulb lands on the same vertical line directly under
+               the K. Labels flow LEFT from each bulb. */
+            position: absolute;
+            top: calc(100% + 6px);
+            right: calc(clamp(80px, 8vw, 120px) / 2 - 8px);
             padding-top: 18px;
             padding-left: 0;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: flex-end;
             gap: clamp(22px, 3vh, 38px);
             max-height: 0;
             opacity: 0;
@@ -324,12 +325,13 @@
             opacity: 1;
             pointer-events: auto;
         }
-        /* Organic string-of-lights line — drawn as an SVG path so it can
-           gently S-curve and lean left rather than dropping straight.
-           Stretches vertically to fill the rail behind the bulbs. */
+        /* String. SVG sits on the RIGHT side of the rail behind the bulb
+           column; path's x=20 corresponds to bulb center, and the curve
+           sways LEFT (lower x) toward the labels. ViewBox extends past
+           the last bulb so a short line segment is visible below it. */
         .tour-line {
             position: absolute;
-            left: -8px;
+            right: -8px;
             top: 0;
             bottom: 0;
             width: 36px;
@@ -342,26 +344,28 @@
             fill: none;
             stroke-linecap: round;
         }
-        /* Each stop = dot on the line + label flowing to the right. */
+        /* Each stop = label on the LEFT, dot on the RIGHT (HTML order).
+           Smaller font as requested so labels fit comfortably. */
         .tour-stop {
             pointer-events: auto;
             background: none;
             border: none;
             cursor: pointer;
             display: flex;
+            flex-direction: row;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             padding: 2px 0;
             color: rgba(255, 255, 255, 0.78);
             font-family: var(--font);
-            font-size: clamp(0.88rem, 1vw, 0.98rem);
+            font-size: clamp(0.72rem, 0.85vw, 0.84rem);
             font-weight: 500;
             letter-spacing: 0.005em;
             transition: color var(--dur-fast);
-            text-align: left;
+            text-align: right;
             position: relative;
         }
-        .tour-stop-label { /* labels carry no own glow now — bulbs do all the work */ }
+        .tour-stop-label { white-space: nowrap; }
 
         /* Bulb = a hollow outlined circle. The glow is a radial gradient
            rendered INSIDE the circle (pseudo-element with overflow:hidden
@@ -433,25 +437,26 @@
         .tour-stop:hover { color: #FFFFFF; }
         .tour-stop:hover .tour-stop-dot { border-color: rgba(255, 255, 255, 0.85); }
 
-        /* Bulbs all sit on the line at x=15 (rail column); the SVG sways
-           around them between stops. No per-stop offsets — the line is
-           the one that moves, not the bulbs. */
+        /* Per-stop classes retained for future tweaks; default no offset. */
         .tour-stop--p0,
         .tour-stop--p1,
         .tour-stop--p2,
         .tour-stop--p3,
-        .tour-stop--p4 { margin-left: 0; }
+        .tour-stop--p4 { margin: 0; }
 
         @media (max-width: 820px) {
+            .tour-tracker { left: clamp(4rem, 12vw, 5.5rem); }
             .tour-toggle img { width: clamp(60px, 14vw, 80px); }
             .tour-toggle::after { right: -16px; width: 8px; height: 8px; }
             .tour-rail {
                 gap: 18px;
-                margin-left: calc((clamp(60px, 14vw, 80px) - 12px) / 2);
+                right: calc(clamp(60px, 14vw, 80px) / 2 - 6px);
             }
-            .tour-line { left: 6px; }
+            /* Shift SVG 2px further right so bulb (12px wide on mobile)
+               still lands at path x=20 in the viewBox. */
+            .tour-line { right: -10px; }
             .tour-stop-dot { width: 12px; height: 12px; }
-            .tour-stop { font-size: 0.82rem; gap: 12px; }
+            .tour-stop { font-size: 0.72rem; gap: 10px; }
         }
 
         .nav-dots {
@@ -2431,39 +2436,41 @@
             <!-- Organic S-curve string. preserveAspectRatio="none" stretches
                  vertically to match the rail height; horizontal motion is
                  left/right sway only. Path leans left overall. -->
-            <!-- Organic string. Path passes through x=15 at each bulb's
-                 y (24 / 66 / 108 / 150 / 193) and sways gently between
-                 them, leaning left. preserveAspectRatio="none" stretches
-                 vertically with the rail height while keeping horizontal
-                 sway shape exact. -->
-            <svg class="tour-line" viewBox="0 0 36 200" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M 16 0
-                         L 16 24
-                         C 6 38, 10 50, 16 66
-                         C 23 80, 5 92, 16 108
-                         C 8 122, 4 138, 16 150
-                         C 23 165, 5 180, 16 193
-                         L 16 200" />
+            <!-- Path now passes through x=20 at each bulb's y (26 / 72 /
+                 118 / 162 / 210) — that's where bulb centers fall after
+                 the rail was right-anchored. ViewBox extends to 220 so a
+                 short segment of string is visible BELOW the last bulb
+                 (otherwise the bulb's outline + overflow:hidden hides the
+                 endpoint and the line appears to stop short of it). Path
+                 sways LEFT (lower x) between bulbs, gentle S overall. -->
+            <svg class="tour-line" viewBox="0 0 36 220" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M 20 0
+                         L 20 26
+                         C 8 42, 14 56, 20 72
+                         C 28 88, 6 102, 20 118
+                         C 10 134, 5 148, 20 162
+                         C 28 178, 7 195, 20 210
+                         L 20 220" />
             </svg>
             <button type="button" class="tour-stop tour-stop--p0" data-slide="0" aria-label="Go to Landing">
-                <span class="tour-stop-dot" aria-hidden="true"></span>
                 <span class="tour-stop-label">Landing</span>
+                <span class="tour-stop-dot" aria-hidden="true"></span>
             </button>
             <button type="button" class="tour-stop tour-stop--p1" data-slide="1" aria-label="Go to About Us">
-                <span class="tour-stop-dot" aria-hidden="true"></span>
                 <span class="tour-stop-label">About Us</span>
+                <span class="tour-stop-dot" aria-hidden="true"></span>
             </button>
             <button type="button" class="tour-stop tour-stop--p2" data-slide="2" aria-label="Go to About You">
-                <span class="tour-stop-dot" aria-hidden="true"></span>
                 <span class="tour-stop-label">About You</span>
+                <span class="tour-stop-dot" aria-hidden="true"></span>
             </button>
             <button type="button" class="tour-stop tour-stop--p3" data-slide="3" aria-label="Go to Solutions">
-                <span class="tour-stop-dot" aria-hidden="true"></span>
                 <span class="tour-stop-label">Solutions</span>
+                <span class="tour-stop-dot" aria-hidden="true"></span>
             </button>
             <button type="button" class="tour-stop tour-stop--p4" data-slide="4" aria-label="Go to Next Steps">
-                <span class="tour-stop-dot" aria-hidden="true"></span>
                 <span class="tour-stop-label">Next Steps</span>
+                <span class="tour-stop-dot" aria-hidden="true"></span>
             </button>
         </div>
     </div>
