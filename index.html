@@ -2466,10 +2466,11 @@
         </div>
     </div>
 
-    <!-- Old slide-label kept (visually hidden) for accessibility — the tour
-         tracker is now the visual indicator, but screen readers still need
-         the live region announcement. -->
-    <div class="slide-label visually-hidden" id="slideLabel" aria-live="polite">1 / 5 — Landing</div>
+    <!-- Bottom-left slide indicator. Tracks the active slide using the
+         same labels as the tour-tracker map (Landing / About Us / About
+         You / Solutions / Next Steps). aria-live announces changes for
+         screen readers. -->
+    <div class="slide-label" id="slideLabel" aria-live="polite">1 / 5 — Landing</div>
     <div class="keyboard-hint">↑↓ or scroll · swipe on mobile</div>
 
     <!-- ===========================================
@@ -3011,7 +3012,7 @@
             const slides = Array.from(document.querySelectorAll('.slide'));
             const dots = Array.from(document.querySelectorAll('.nav-dots .dot'));
             const slideLabel = document.getElementById('slideLabel');
-            const labels = ['Landing', 'Award · Sustainable Growth', 'Who you are', 'What we solve', 'Book a meeting'];
+            const labels = ['Landing', 'About Us', 'About You', 'Solutions', 'Next Steps'];
 
             // ===========================================
             // SELF-CONTAINED LEAD CAPTURE
