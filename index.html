@@ -2096,38 +2096,56 @@
             #slide-4 .slide-content > .subhead { color: var(--mobile-body-purple); }
             #slide-4 .nurture-link { color: var(--mobile-body-purple); }
 
-            /* FUNCTIONAL BLOCKS on slides 3 + 5 — ICP boxes and the
-               request-a-time picker both sit on lighter glass surfaces, so
-               every label / tile / date card / slot pill / form field
-               reads against the same lavender wash. Token-level override
-               flips all of them in lockstep without having to enumerate
-               every selector. Slide 4 (diagnostic) is intentionally not
-               included — it lives on darker cards where white is correct. */
-            #slide-2,
-            #slide-4 {
-                --text-primary:   var(--mobile-body-purple);
-                --text-secondary: rgba(45, 20, 105, 0.82);
-                --text-muted:     rgba(45, 20, 105, 0.62);
-            }
+            /* FUNCTIONAL BLOCKS on slides 3 + 5 — explicit per-selector
+               color rules with !important. Token-cascade via --text-primary
+               can fail silently when descendant elements have their own
+               `color` declarations (buttons, inputs) and on some mobile
+               browsers, so this enumerates every text-bearing selector
+               inside the ICP boxes (slide 3) and the request-a-time picker
+               + booking form (slide 5) and forces the color. Slide 4
+               (diagnostic state machine) sits on dark cards — not touched. */
 
-            /* Placeholders aren't part of the token system — override
-               explicitly so the lighter-glass fields stay legible. */
-            #slide-2 .icp-input::placeholder,
-            #slide-4 .form-row input::placeholder,
-            #slide-4 .form-textarea::placeholder {
-                color: rgba(45, 20, 105, 0.5);
+            /* --- Slide 3: ICP boxes --- */
+            #slide-2 .icp-box-title,
+            #slide-2 .icp-hint,
+            #slide-2 .icp-label,
+            #slide-2 .icp-input,
+            #slide-2 .icp-tile {
+                color: #2D1469 !important;
             }
+            #slide-2 .icp-input::placeholder { color: rgba(45, 20, 105, 0.5) !important; }
+            #slide-2 .icp-tile.selected { color: #2D1469 !important; }
 
-            /* Date strip + slot pills use their own rgba colors inline. */
+            /* --- Slide 5: booking form (left card) --- */
+            #slide-4 .booking-form .form-row label,
+            #slide-4 .booking-form .form-row input,
+            #slide-4 .booking-form .icp-tile {
+                color: #2D1469 !important;
+            }
+            #slide-4 .booking-form .form-row input::placeholder { color: rgba(45, 20, 105, 0.5) !important; }
+            #slide-4 .booking-form .icp-tile.selected { color: #2D1469 !important; }
+
+            /* --- Slide 5: calendar-frame (right card) --- */
+            #slide-4 .calendar-label,
+            #slide-4 .calendar-sub,
+            #slide-4 .calendar-frame .form-row label,
+            #slide-4 .calendar-frame .form-textarea,
+            #slide-4 .date-card-day,
+            #slide-4 .slot-pill,
+            #slide-4 .request-confirm,
+            #slide-4 .privacy-line {
+                color: #2D1469 !important;
+            }
+            #slide-4 .calendar-frame .form-textarea::placeholder { color: rgba(45, 20, 105, 0.5) !important; }
             #slide-4 .date-card-dow,
-            #slide-4 .date-card-mon { color: rgba(45, 20, 105, 0.72); }
-            #slide-4 .date-card-day { color: var(--mobile-body-purple); }
-            #slide-4 .slot-pill .slot-window { color: rgba(45, 20, 105, 0.68); }
+            #slide-4 .date-card-mon { color: rgba(45, 20, 105, 0.72) !important; }
+            #slide-4 .slot-pill .slot-window { color: rgba(45, 20, 105, 0.68) !important; }
+            #slide-4 .request-confirm strong { color: #2D1469 !important; }
             #slide-4 .request-confirm .tz-tag {
-                color: rgba(45, 20, 105, 0.7);
-                background: rgba(45, 20, 105, 0.08);
+                color: rgba(45, 20, 105, 0.72) !important;
+                background: rgba(45, 20, 105, 0.08) !important;
             }
-            #slide-4 .privacy-line a { color: rgba(112, 28, 158, 0.85); }
+            #slide-4 .privacy-line a { color: rgba(112, 28, 158, 0.9) !important; }
         }
 
         @media (max-height: 720px) {
