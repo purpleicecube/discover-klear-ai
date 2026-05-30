@@ -2065,6 +2065,36 @@
             html { scroll-snap-type: y proximity; }
             section#slide-3 .slide-content { overflow-y: visible; }
             .slide-content { gap: var(--space-md); }
+
+            /* MOBILE BODY-TEXT COLOR OVERRIDE — slides 2 / 3 / 5 only.
+               Titles stay white (they're large/bold enough); the smaller
+               supporting text shifts to a saturated brand purple so it
+               reads cleanly against the lavender regions of the gradient
+               background. Only targets text that sits DIRECTLY on the
+               slide background — anything inside a glass card or dark
+               option tile keeps its existing colors so contrast doesn't
+               flip. */
+            :root { --mobile-body-purple: #2D1469; }
+
+            /* Slide 2 — Sustainable Growth (award) */
+            #slide-1 .award-eyebrow,
+            #slide-1 .award-text .subhead { color: var(--mobile-body-purple); }
+            #slide-1 .award-text .subhead strong { color: var(--mobile-body-purple); }
+
+            /* Slide 3 — ICP / Diagnostic */
+            #slide-2 .diagnostic-stage[data-stage-target="select"] .subhead { color: var(--mobile-body-purple); }
+            #slide-2 .skip-link { color: var(--mobile-body-purple); }
+            #slide-2 .diag-breadcrumb-step:not(.current):not(.done) {
+                color: var(--mobile-body-purple);
+                border-color: rgba(45, 20, 105, 0.35);
+                background: rgba(45, 20, 105, 0.06);
+            }
+            #slide-2 .diag-q-eyebrow { color: var(--mobile-body-purple); }
+            #slide-2 .diag-back-link { color: var(--mobile-body-purple); }
+
+            /* Slide 5 — Booking */
+            #slide-4 .slide-content > .subhead { color: var(--mobile-body-purple); }
+            #slide-4 .nurture-link { color: var(--mobile-body-purple); }
         }
 
         @media (max-height: 720px) {
