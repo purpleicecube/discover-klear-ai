@@ -2095,6 +2095,39 @@
             /* Slide 5 — Booking */
             #slide-4 .slide-content > .subhead { color: var(--mobile-body-purple); }
             #slide-4 .nurture-link { color: var(--mobile-body-purple); }
+
+            /* FUNCTIONAL BLOCKS on slides 3 + 5 — ICP boxes and the
+               request-a-time picker both sit on lighter glass surfaces, so
+               every label / tile / date card / slot pill / form field
+               reads against the same lavender wash. Token-level override
+               flips all of them in lockstep without having to enumerate
+               every selector. Slide 4 (diagnostic) is intentionally not
+               included — it lives on darker cards where white is correct. */
+            #slide-2,
+            #slide-4 {
+                --text-primary:   var(--mobile-body-purple);
+                --text-secondary: rgba(45, 20, 105, 0.82);
+                --text-muted:     rgba(45, 20, 105, 0.62);
+            }
+
+            /* Placeholders aren't part of the token system — override
+               explicitly so the lighter-glass fields stay legible. */
+            #slide-2 .icp-input::placeholder,
+            #slide-4 .form-row input::placeholder,
+            #slide-4 .form-textarea::placeholder {
+                color: rgba(45, 20, 105, 0.5);
+            }
+
+            /* Date strip + slot pills use their own rgba colors inline. */
+            #slide-4 .date-card-dow,
+            #slide-4 .date-card-mon { color: rgba(45, 20, 105, 0.72); }
+            #slide-4 .date-card-day { color: var(--mobile-body-purple); }
+            #slide-4 .slot-pill .slot-window { color: rgba(45, 20, 105, 0.68); }
+            #slide-4 .request-confirm .tz-tag {
+                color: rgba(45, 20, 105, 0.7);
+                background: rgba(45, 20, 105, 0.08);
+            }
+            #slide-4 .privacy-line a { color: rgba(112, 28, 158, 0.85); }
         }
 
         @media (max-height: 720px) {
