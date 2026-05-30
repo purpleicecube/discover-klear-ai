@@ -239,6 +239,165 @@
                     drop-shadow(0 0 18px rgba(174, 169, 236, 0.35));
         }
 
+        /* ===========================================
+           GUIDED TOUR TRACKER
+           Top-left integrated progress map. The K logo is the toggle —
+           click it to collapse/expand the vertical line + 5 labeled stops.
+           Active stop tracks the slide currently in viewport. Visitors
+           can also click any stop to jump directly there.
+           =========================================== */
+        .tour-tracker {
+            position: fixed;
+            top: clamp(0.875rem, 2vw, 1.5rem);
+            left: clamp(0.875rem, 2.5vw, 1.75rem);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            pointer-events: none; /* re-enable on the toggle + stops */
+        }
+        .tour-toggle {
+            pointer-events: auto;
+            width: clamp(64px, 7vw, 92px);
+            height: clamp(64px, 7vw, 92px);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.96);
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: grid;
+            place-items: center;
+            box-shadow:
+                0 14px 36px -10px rgba(139, 73, 226, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.4),
+                0 0 22px rgba(174, 169, 236, 0.2);
+            position: relative;
+            transition: transform var(--dur-fast) var(--ease-out-soft),
+                        box-shadow var(--dur-fast);
+        }
+        .tour-toggle:hover {
+            transform: scale(1.04);
+            box-shadow:
+                0 18px 40px -8px rgba(139, 73, 226, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.55),
+                0 0 28px rgba(174, 169, 236, 0.32);
+        }
+        .tour-toggle img {
+            width: 78%;
+            height: 78%;
+            object-fit: contain;
+            display: block;
+        }
+        .tour-toggle::after {
+            /* Chevron — hint that the K is a toggle. Rotates 180° when expanded. */
+            content: '';
+            position: absolute;
+            right: -22px;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            border-right: 2px solid rgba(255, 255, 255, 0.78);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.78);
+            transform: translateY(-50%) rotate(45deg);
+            transition: transform var(--dur-med) var(--ease-out-soft);
+            opacity: 0.85;
+        }
+        .tour-tracker.expanded .tour-toggle::after {
+            transform: translateY(-25%) rotate(225deg);
+        }
+
+        .tour-rail {
+            position: relative;
+            margin-top: 16px;
+            margin-left: clamp(20px, 2.6vw, 36px);
+            padding-left: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(18px, 2.5vh, 30px);
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height var(--dur-med) var(--ease-out-soft),
+                        opacity var(--dur-med) var(--ease-out-soft);
+        }
+        .tour-tracker.expanded .tour-rail {
+            max-height: 600px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .tour-line {
+            position: absolute;
+            left: 11px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(180deg,
+                rgba(251, 207, 232, 0.7) 0%,
+                rgba(166, 28, 200, 0.55) 50%,
+                rgba(255, 255, 255, 0.18) 100%);
+            border-radius: 2px;
+            box-shadow: 0 0 14px rgba(251, 207, 232, 0.18);
+        }
+        .tour-stop {
+            pointer-events: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 4px 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: var(--font);
+            font-size: clamp(0.86rem, 1vw, 0.98rem);
+            font-weight: 500;
+            letter-spacing: 0.005em;
+            transition: color var(--dur-fast);
+            text-align: left;
+        }
+        .tour-stop-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: transparent;
+            flex-shrink: 0;
+            margin-left: -32px;
+            z-index: 1;
+            transition: all var(--dur-fast) var(--ease-out-soft);
+            position: relative;
+        }
+        .tour-stop.past .tour-stop-dot {
+            background: rgba(251, 207, 232, 0.62);
+            border-color: rgba(251, 207, 232, 0.78);
+        }
+        .tour-stop.past { color: rgba(255, 255, 255, 0.86); }
+        .tour-stop.current .tour-stop-dot {
+            background: var(--klear-purple, #8B49E2);
+            border-color: rgba(255, 255, 255, 0.92);
+            box-shadow:
+                0 0 0 5px rgba(139, 73, 226, 0.22),
+                0 0 18px rgba(139, 73, 226, 0.55);
+            transform: scale(1.18);
+        }
+        .tour-stop.current {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        .tour-stop:hover { color: #FFFFFF; }
+        .tour-stop:hover .tour-stop-dot:not(.tour-stop.current *) {
+            border-color: rgba(251, 207, 232, 0.92);
+        }
+
+        @media (max-width: 820px) {
+            .tour-toggle { width: 56px; height: 56px; }
+            .tour-toggle::after { right: -18px; width: 10px; height: 10px; }
+            .tour-rail { margin-left: 16px; padding-left: 26px; gap: 14px; }
+            .tour-line { left: 8px; }
+            .tour-stop-dot { width: 14px; height: 14px; margin-left: -26px; }
+            .tour-stop { font-size: 0.82rem; gap: 12px; }
+        }
+
         .nav-dots {
             position: fixed;
             top: 50%;
@@ -296,6 +455,18 @@
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.64);
             pointer-events: none;
+        }
+
+        /* Visually-hidden but accessible — used for the slide-label live
+           region after the tour-tracker took over visible nav. */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         .keyboard-hint {
@@ -2193,20 +2364,42 @@
     <!-- ===========================================
          Persistent overlays
          =========================================== -->
-    <div class="wordmark" aria-label="Klear.ai">
-        <!-- Official circle Klear.ai logo. No accompanying text — logo carries the brand on its own. -->
-        <img class="wordmark-logo" src="./assets/klearai-logo-circle.png" alt="Klear.ai">
+    <!-- Guided-tour tracker — K logo at top-left is the toggle; click it to
+         expand/collapse the vertical line of 5 labeled stops. Active stop
+         tracks the slide currently in view; clicking any stop scrolls there. -->
+    <div class="tour-tracker" id="tourTracker" aria-label="Guided tour progress">
+        <button type="button" class="tour-toggle" id="tourToggle" aria-label="Toggle guided tour map" aria-expanded="true">
+            <img src="./assets/klearai-logo-circle.png" alt="Klear.ai">
+        </button>
+        <div class="tour-rail" id="tourRail">
+            <div class="tour-line" aria-hidden="true"></div>
+            <button type="button" class="tour-stop" data-slide="0" aria-label="Go to Landing">
+                <span class="tour-stop-dot" aria-hidden="true"></span>
+                <span class="tour-stop-label">Landing</span>
+            </button>
+            <button type="button" class="tour-stop" data-slide="1" aria-label="Go to About Us">
+                <span class="tour-stop-dot" aria-hidden="true"></span>
+                <span class="tour-stop-label">About Us</span>
+            </button>
+            <button type="button" class="tour-stop" data-slide="2" aria-label="Go to About You">
+                <span class="tour-stop-dot" aria-hidden="true"></span>
+                <span class="tour-stop-label">About You</span>
+            </button>
+            <button type="button" class="tour-stop" data-slide="3" aria-label="Go to Solutions">
+                <span class="tour-stop-dot" aria-hidden="true"></span>
+                <span class="tour-stop-label">Solutions</span>
+            </button>
+            <button type="button" class="tour-stop" data-slide="4" aria-label="Go to Next Steps">
+                <span class="tour-stop-dot" aria-hidden="true"></span>
+                <span class="tour-stop-label">Next Steps</span>
+            </button>
+        </div>
     </div>
 
-    <nav class="nav-dots" aria-label="Prototype slide navigation">
-        <button class="dot active" data-slide="0" aria-label="Slide 1: Landing"></button>
-        <button class="dot" data-slide="1" aria-label="Slide 2: Award and trust"></button>
-        <button class="dot" data-slide="2" aria-label="Slide 3: Engagement gate"></button>
-        <button class="dot" data-slide="3" aria-label="Slide 4: Christina qualification"></button>
-        <button class="dot" data-slide="4" aria-label="Slide 5: Book meeting"></button>
-    </nav>
-
-    <div class="slide-label" id="slideLabel" aria-live="polite">1 / 5 — Landing</div>
+    <!-- Old slide-label kept (visually hidden) for accessibility — the tour
+         tracker is now the visual indicator, but screen readers still need
+         the live region announcement. -->
+    <div class="slide-label visually-hidden" id="slideLabel" aria-live="polite">1 / 5 — Landing</div>
     <div class="keyboard-hint">↑↓ or scroll · swipe on mobile</div>
 
     <!-- ===========================================
@@ -3175,6 +3368,40 @@
                 if (session.slidesVisited.size > 1) captureData('page_exit');
             });
 
+            // ===========================================
+            // GUIDED-TOUR TRACKER — toggle + active stop sync
+            // ===========================================
+            const tourTracker = document.getElementById('tourTracker');
+            const tourToggle  = document.getElementById('tourToggle');
+            const tourStops   = tourTracker ? Array.from(tourTracker.querySelectorAll('.tour-stop')) : [];
+
+            // Expand-state persistence: default expanded so first-time visitors
+            // see the tour map immediately. Toggling collapses/expands and
+            // saves the preference (per-browser).
+            const TOUR_EXPANDED_KEY = 'dca_tour_expanded';
+            const savedTourState = localStorage.getItem(TOUR_EXPANDED_KEY);
+            let tourExpanded = (savedTourState === null) ? true : (savedTourState === 'true');
+            if (tourExpanded) tourTracker.classList.add('expanded');
+            if (tourToggle) tourToggle.setAttribute('aria-expanded', String(tourExpanded));
+
+            if (tourToggle) {
+                tourToggle.addEventListener('click', () => {
+                    tourExpanded = !tourExpanded;
+                    tourTracker.classList.toggle('expanded', tourExpanded);
+                    tourToggle.setAttribute('aria-expanded', String(tourExpanded));
+                    localStorage.setItem(TOUR_EXPANDED_KEY, String(tourExpanded));
+                });
+            }
+
+            tourStops.forEach(stop => {
+                stop.addEventListener('click', () => {
+                    const idx = parseInt(stop.dataset.slide, 10);
+                    if (Number.isFinite(idx) && slides[idx]) {
+                        slides[idx].scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
             // IntersectionObserver triggers reveal animations + syncs nav state
             // + tracks slides visited for the capture record (persisted so
             // returnees see correct "last slide" in the welcome-back banner).
@@ -3185,6 +3412,13 @@
                         entry.target.classList.add('visible');
                         dots.forEach((d, i) => d.classList.toggle('active', i === idx));
                         slideLabel.textContent = `${idx + 1} / ${slides.length} — ${labels[idx]}`;
+                        // Tour-tracker active state: past stops to the left of
+                        // current, current = pulsing pink/purple, future = outline.
+                        tourStops.forEach((stop, i) => {
+                            stop.classList.toggle('past',    i <  idx);
+                            stop.classList.toggle('current', i === idx);
+                            stop.classList.toggle('future',  i >  idx);
+                        });
                         session.slidesVisited.add(idx + 1);
                         state.current.slides_visited = Array.from(session.slidesVisited);
                         state.current.last_slide = idx;
@@ -3660,15 +3894,14 @@
                 if (resumeStage === 'result') renderResultStage();
             })();
 
-            // Click nav dots to jump
-            dots.forEach((dot, idx) => {
-                dot.addEventListener('click', () => slides[idx].scrollIntoView({ behavior: 'smooth' }));
-            });
+            // (Old .nav-dots click wiring removed — the tour-tracker stops
+            // handle slide jumps now.)
 
-            // Keyboard nav
+            // Keyboard nav — derive current slide index from the tour tracker
+            // since it replaced the .nav-dots as the visible active indicator.
             const currentIndex = () => {
                 let active = 0;
-                dots.forEach((d, i) => { if (d.classList.contains('active')) active = i; });
+                tourStops.forEach((s, i) => { if (s.classList.contains('current')) active = i; });
                 return active;
             };
 
