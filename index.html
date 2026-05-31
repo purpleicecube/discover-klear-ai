@@ -121,6 +121,44 @@
             letter-spacing: -0.005em;
         }
 
+        /* ===========================================
+           GLOBAL SCROLLBAR — slim, branded, no chrome
+           Replaces the chunky OS scrollbar (with up/down arrow buttons
+           and gray thumb) on any internally-scrolling region with a
+           thin pink→magenta gradient pill on a transparent track.
+           Applies everywhere via universal selector + element-level
+           pseudos so it catches the diagnostic slide (Solutions), the
+           date strip on the booking slide, and anything future.
+           =========================================== */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(251, 207, 232, 0.45) transparent;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background: transparent;
+        }
+        ::-webkit-scrollbar-track,
+        ::-webkit-scrollbar-corner { background: transparent; }
+        ::-webkit-scrollbar-button { display: none; height: 0; width: 0; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg,
+                rgba(251, 207, 232, 0.55) 0%,
+                rgba(166, 28, 200, 0.4)  100%);
+            border-radius: 999px;
+            box-shadow: 0 0 6px rgba(251, 207, 232, 0.22) inset;
+            transition: background 0.2s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg,
+                rgba(251, 207, 232, 0.85) 0%,
+                rgba(166, 28, 200, 0.65) 100%);
+        }
+        /* Horizontal variants (e.g. date strip) — same gradient rotated. */
+        ::-webkit-scrollbar:horizontal { height: 6px; }
+        *:hover::-webkit-scrollbar-thumb { background-color: rgba(251, 207, 232, 0.6); }
+
         button, input {
             font-family: inherit;
             font-size: inherit;
