@@ -256,6 +256,11 @@
             align-items: flex-start;
             gap: 16px;
             pointer-events: none;
+            /* Acts like a header — drop-shadow gives visual anchoring so
+               the K + map don't get visually lost over busy slide art,
+               without painting a visible header bar. */
+            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.18))
+                    drop-shadow(0 0 24px rgba(255, 255, 255, 0.06));
         }
         /* Toggle = the original wordmark logo, untouched — no extra circle,
            no purple shadow, no shape change. Just the K with its drop shadow,
@@ -531,6 +536,62 @@
             clip: rect(0, 0, 0, 0);
             white-space: nowrap;
             border: 0;
+        }
+
+        /* ===========================================
+           SCROLL-DOWN HINT
+           Three nested down-chevrons at bottom-center that softly pulse
+           in sequence to telegraph "keep scrolling". Auto-hides on the
+           last slide where there's nothing below to scroll to.
+           =========================================== */
+        .scroll-hint {
+            position: fixed;
+            bottom: clamp(2.75rem, 5vw, 4rem);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            width: 32px;
+            height: 36px;
+            pointer-events: none;
+            transition: opacity var(--dur-med) var(--ease-out-soft);
+        }
+        .scroll-hint.is-hidden { opacity: 0; }
+
+        .scroll-hint .sh-chevron {
+            position: absolute;
+            left: 50%;
+            border-right: 2px solid rgba(255, 255, 255, 0.78);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.78);
+            animation: sh-flash 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+        }
+        /* Three nested down-pointing chevrons, concentric (shared center
+           x, increasingly small) and rotated 45deg so corners point down. */
+        .scroll-hint .sh-chevron.sh-c1 {
+            width: 24px; height: 24px;
+            margin-left: -12px;
+            top: 0;
+            transform: rotate(45deg);
+            animation-delay: 0s;
+        }
+        .scroll-hint .sh-chevron.sh-c2 {
+            width: 16px; height: 16px;
+            margin-left: -8px;
+            top: 6px;
+            transform: rotate(45deg);
+            animation-delay: 0.25s;
+        }
+        .scroll-hint .sh-chevron.sh-c3 {
+            width: 8px; height: 8px;
+            margin-left: -4px;
+            top: 12px;
+            transform: rotate(45deg);
+            animation-delay: 0.5s;
+        }
+        @keyframes sh-flash {
+            0%, 100% { opacity: 0.2; }
+            45%      { opacity: 0.95; }
+            60%      { opacity: 0.4; }
         }
 
         .keyboard-hint {
@@ -2471,6 +2532,14 @@
          You / Solutions / Next Steps). aria-live announces changes for
          screen readers. -->
     <div class="slide-label" id="slideLabel" aria-live="polite">1 / 5 — Landing</div>
+    <!-- Concentric down-chevrons hinting "scroll for more". Auto-hides
+         on the last slide via JS (slide index === slides.length - 1). -->
+    <div class="scroll-hint" id="scrollHint" aria-hidden="true">
+        <span class="sh-chevron sh-c1"></span>
+        <span class="sh-chevron sh-c2"></span>
+        <span class="sh-chevron sh-c3"></span>
+    </div>
+
     <div class="keyboard-hint">↑↓ or scroll · swipe on mobile</div>
 
     <!-- ===========================================
@@ -3490,6 +3559,12 @@
                             stop.classList.toggle('current', i === idx);
                             stop.classList.toggle('future',  i >  idx);
                         });
+                        // Hide the bottom scroll-hint on the last slide;
+                        // show it everywhere else as a "keep scrolling" cue.
+                        const scrollHint = document.getElementById('scrollHint');
+                        if (scrollHint) {
+                            scrollHint.classList.toggle('is-hidden', idx === slides.length - 1);
+                        }
                         session.slidesVisited.add(idx + 1);
                         state.current.slides_visited = Array.from(session.slidesVisited);
                         state.current.last_slide = idx;
