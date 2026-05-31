@@ -210,7 +210,7 @@
         /* Slide 2 growth-chart watermark — sits above the gradient waves
            but still behind the content. Slight float adds subtle life. */
         .gradient-bg .growth-chart-bg {
-            opacity: 0.85;
+            opacity: 0.7;
             animation: growth-chart-float 12s ease-in-out infinite;
         }
         @keyframes growth-chart-float {
@@ -220,7 +220,7 @@
         @media (max-width: 760px) {
             /* On phones the chart can dominate the medallion area. Dim it
                and let it crop slightly so it stays a backgrounder. */
-            .gradient-bg .growth-chart-bg { opacity: 0.6; }
+            .gradient-bg .growth-chart-bg { opacity: 0.45; }
         }
 
         /* Muted variant for the Christina state */
@@ -2745,39 +2745,39 @@
                 <path d="M0,260 C300,220 600,380 920,320 C1240,260 1520,160 1920,200 L1920,0 L0,0 Z" fill="rgba(251,207,232,0.16)"/>
             </svg>
 
-            <!-- Subtle growth-chart watermark — 5 ascending bars with a
-                 smooth connecting line + dots, low-opacity white. Sits
-                 between the gradient waves and the slide content,
-                 reinforcing the "Sustainable Growth" headline visually
-                 without competing with the medallion. -->
+            <!-- Subtle growth-chart watermark — confined to the center-right
+                 third of the slide so it sits BEHIND the gold medallion as
+                 a backdrop, not spread across the whole canvas. 5 bars in
+                 a compact group of ~700px wide, low alpha so the text
+                 remains the primary focus. -->
             <svg class="growth-chart-bg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <!-- Horizontal gridlines (very faint) -->
-                <line x1="320" y1="320" x2="1720" y2="320" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4 8"/>
-                <line x1="320" y1="470" x2="1720" y2="470" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4 8"/>
-                <line x1="320" y1="620" x2="1720" y2="620" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4 8"/>
-                <line x1="320" y1="770" x2="1720" y2="770" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4 8"/>
+                <!-- Short horizontal gridlines, only across the chart area -->
+                <line x1="980"  y1="380" x2="1720" y2="380" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 8"/>
+                <line x1="980"  y1="510" x2="1720" y2="510" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 8"/>
+                <line x1="980"  y1="640" x2="1720" y2="640" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 8"/>
+                <line x1="980"  y1="770" x2="1720" y2="770" stroke="rgba(255,255,255,0.04)" stroke-width="1" stroke-dasharray="4 8"/>
 
-                <!-- 5 ascending bars (translucent) -->
-                <rect x="440"  y="800" width="180" height="120" fill="rgba(255,255,255,0.05)" rx="6"/>
-                <rect x="720"  y="700" width="180" height="220" fill="rgba(255,255,255,0.06)" rx="6"/>
-                <rect x="1000" y="560" width="180" height="360" fill="rgba(255,255,255,0.07)" rx="6"/>
-                <rect x="1280" y="400" width="180" height="520" fill="rgba(255,255,255,0.08)" rx="6"/>
-                <rect x="1560" y="230" width="180" height="690" fill="rgba(255,255,255,0.09)" rx="6"/>
+                <!-- 5 ascending bars (translucent), center-right cluster -->
+                <rect x="1010" y="730" width="110" height="90"  fill="rgba(255,255,255,0.04)" rx="5"/>
+                <rect x="1160" y="650" width="110" height="170" fill="rgba(255,255,255,0.05)" rx="5"/>
+                <rect x="1310" y="540" width="110" height="280" fill="rgba(255,255,255,0.06)" rx="5"/>
+                <rect x="1460" y="420" width="110" height="400" fill="rgba(255,255,255,0.07)" rx="5"/>
+                <rect x="1610" y="290" width="110" height="530" fill="rgba(255,255,255,0.08)" rx="5"/>
 
                 <!-- Smooth ascending trend line through bar tops -->
-                <path d="M 530 800
-                         C 620 770, 720 740, 810 700
-                         C 900 660, 1000 600, 1090 560
-                         C 1180 510, 1280 450, 1370 400
-                         C 1460 340, 1560 280, 1650 230"
-                      stroke="rgba(255,255,255,0.42)" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+                <path d="M 1065 730
+                         C 1130 705, 1180 685, 1215 650
+                         C 1255 615, 1325 575, 1365 540
+                         C 1415 495, 1475 460, 1515 420
+                         C 1565 375, 1625 335, 1665 290"
+                      stroke="rgba(255,255,255,0.3)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
 
-                <!-- Data-point dots on top of each bar (white, brighter) -->
-                <circle cx="530"  cy="800" r="9" fill="rgba(255,255,255,0.55)" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"/>
-                <circle cx="810"  cy="700" r="9" fill="rgba(255,255,255,0.6)"  stroke="rgba(255,255,255,0.9)"  stroke-width="1.5"/>
-                <circle cx="1090" cy="560" r="9" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.95)" stroke-width="1.5"/>
-                <circle cx="1370" cy="400" r="9" fill="rgba(255,255,255,0.72)" stroke="rgba(255,255,255,1)"    stroke-width="1.5"/>
-                <circle cx="1650" cy="230" r="11" fill="rgba(255,255,255,0.85)" stroke="rgba(255,255,255,1)"    stroke-width="1.8"/>
+                <!-- Data-point dots on top of each bar -->
+                <circle cx="1065" cy="730" r="7"  fill="rgba(255,255,255,0.45)" stroke="rgba(255,255,255,0.7)" stroke-width="1.3"/>
+                <circle cx="1215" cy="650" r="7"  fill="rgba(255,255,255,0.5)"  stroke="rgba(255,255,255,0.75)" stroke-width="1.3"/>
+                <circle cx="1365" cy="540" r="7"  fill="rgba(255,255,255,0.55)" stroke="rgba(255,255,255,0.8)"  stroke-width="1.3"/>
+                <circle cx="1515" cy="420" r="7"  fill="rgba(255,255,255,0.62)" stroke="rgba(255,255,255,0.88)" stroke-width="1.3"/>
+                <circle cx="1665" cy="290" r="9"  fill="rgba(255,255,255,0.78)" stroke="rgba(255,255,255,1)"    stroke-width="1.5"/>
             </svg>
         </div>
 
