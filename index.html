@@ -3221,18 +3221,164 @@
                 return 'partially_qualified';
             }
 
+            // ===========================================
+            // ICP + BANT scoring — used to build the lead-summary header
+            // at the top of every Formsubmit email. Captures the same data
+            // we already collect (role, org_type, timeline, budget, etc.)
+            // and projects it onto a human-readable ICP card + a 12-point
+            // BANT scorecard with per-dimension reasoning.
+            // ===========================================
+            const ROLE_LABELS = {
+                'claims-manager': 'Claims Manager / VP',
+                'risk-manager':   'Risk Manager',
+                'ops-coo':        'Operations / COO',
+                'it-tech':        'IT / Tech leader',
+                'other':          'Other'
+            };
+            const ORG_TYPE_LABELS = {
+                'pc-carrier':       'P&C Carrier',
+                'tpa':              'TPA',
+                'public-risk-pool': 'Public Risk Pool / JPA',
+                'self-insured':     'Self-insured employer',
+                'workers-comp':     "Workers' Comp specialist",
+                'other':            'Other'
+            };
+            const RESPONSIBILITY_LABELS = {
+                'claims-handling':     'Daily claims handling',
+                'audits-compliance':   'Audits & compliance',
+                'vendor-tpa':          'Vendor / TPA management',
+                'reporting-analytics': 'Reporting & analytics',
+                'rmis':                'RMIS',
+                'safety':              'Safety',
+                'strategy':            'Strategy & modernization'
+            };
+            const TIMELINE_LABELS = {
+                'this-quarter': 'This quarter',
+                '6-months':     'Next 6 months',
+                '12-months':    'Next year',
+                'exploring':    'Just exploring'
+            };
+            const BUDGET_LABELS = {
+                'allocated':   'Allocated',
+                'in-planning': 'In planning',
+                'not-yet':     'Not yet',
+                'prefer-not':  'Prefer not to say'
+            };
+            const CHALLENGE_LABELS = {
+                'slow_manual':        'Slow, manual claims handling',
+                'limited_visibility': 'Limited visibility into claim status and trends',
+                'fragmented_systems': 'Fragmented systems and data silos'
+            };
+
+            function prettyRole(r) { return ROLE_LABELS[r] || r || '(not provided)'; }
+            function prettyOrgType(t) { return ORG_TYPE_LABELS[t] || t || '(not provided)'; }
+            function prettyResp(r) {
+                if (!r) return '(none selected)';
+                const arr = Array.isArray(r) ? r : String(r).split(/,\s*/);
+                const out = arr.filter(Boolean).map(x => RESPONSIBILITY_LABELS[x] || x);
+                return out.length ? out.join(', ') : '(none selected)';
+            }
+            function prettyChallenge(c) { return CHALLENGE_LABELS[c] || c || '(none)'; }
+
+            // Klear.ai BANT scorecard — 0-3 per dimension, 12 max.
+            function scoreAuthority(role) {
+                if (['claims-manager','risk-manager','ops-coo'].includes(role))
+                    return { score: 3, reason: prettyRole(role) + ' — decision-maker' };
+                if (role === 'it-tech')
+                    return { score: 2, reason: 'IT / Tech leader — influencer' };
+                if (role === 'other')
+                    return { score: 1, reason: 'Role: Other (unclassified)' };
+                return { score: 0, reason: 'Role not provided' };
+            }
+            function scoreNeed(e) {
+                const hasC = !!e.selected_challenge;
+                const hasS = !!e.challenge_subpain;
+                const hasI = !!e.challenge_impact;
+                const cStr = prettyChallenge(e.selected_challenge);
+                if (hasC && hasS && hasI)
+                    return { score: 3, reason: cStr + ' — fully diagnosed (subpain + impact)' };
+                if (hasC && (hasS || hasI))
+                    return { score: 2, reason: cStr + ' — partial diagnosis' };
+                if (hasC)
+                    return { score: 1, reason: cStr + ' — initial pain only' };
+                if (e.extras) {
+                    const ex = String(e.extras).slice(0, 60);
+                    return { score: 1, reason: 'Free-text only: "' + ex + (e.extras.length > 60 ? '…' : '') + '"' };
+                }
+                return { score: 0, reason: 'No need identified' };
+            }
+            function scoreBudget(b) {
+                if (b === 'allocated')   return { score: 3, reason: 'Allocated' };
+                if (b === 'in-planning') return { score: 2, reason: 'In planning' };
+                if (b === 'prefer-not')  return { score: 1, reason: 'Declined to share' };
+                if (b === 'not-yet')     return { score: 0, reason: 'No budget yet' };
+                return { score: 0, reason: 'Not provided' };
+            }
+            function scoreTimeline(t) {
+                if (t === 'this-quarter') return { score: 3, reason: 'This quarter (immediate)' };
+                if (t === '6-months')     return { score: 2, reason: 'Next 6 months (near-term)' };
+                if (t === '12-months')    return { score: 1, reason: 'Next year (long-term)' };
+                if (t === 'exploring')    return { score: 0, reason: 'Just exploring' };
+                return { score: 0, reason: 'Not provided' };
+            }
+            function bantVerdict(total) {
+                if (total >= 10) return 'QUALIFIED DEAL — strong fit, prioritize sales engagement';
+                if (total >= 7)  return 'PARTIALLY QUALIFIED — good fit, needs follow-up';
+                if (total >= 4)  return 'NURTURE — early stage, longer-term cycle';
+                return 'DISQUALIFIED — minimal fit, nurture only';
+            }
+            function formatTime(secs) {
+                if (!secs && secs !== 0) return '0s';
+                const m = Math.floor(secs / 60);
+                const s = secs % 60;
+                return m > 0 ? (m + 'm ' + s + 's') : (s + 's');
+            }
+
             // ---- Build the payload Formsubmit will email ----
+            // Lead with ICP identification + BANT scorecard so the inbox
+            // preview already tells you who this is and how strong they
+            // are. The full raw capture follows, unchanged, for backup.
             function buildPayload(terminal) {
                 const now = Date.now();
                 const e = state.current;
+                const sessionTime = Math.round((now - session.startTs) / 1000);
+
+                // ICP block
+                const visitSummary = 'Visit #' + state.visit_count
+                    + ' · ' + formatTime(sessionTime) + ' on site'
+                    + (state.visit_count > 1 ? ' · returning visitor' : ' · first visit');
+
+                // BANT scorecard
+                const auth = scoreAuthority(e.role);
+                const need = scoreNeed(e);
+                const bud  = scoreBudget(e.budget);
+                const tl   = scoreTimeline(e.timeline);
+                const bantTotal = auth.score + need.score + bud.score + tl.score;
+
                 return {
+                    // ===== 1) LEAD HEADER — ICP IDENTIFICATION =====
+                    '01_icp_email':              e.email || '(not provided)',
+                    '02_icp_title':              prettyRole(e.role),
+                    '03_icp_organization':       e.org_name || e.company || '(not provided)',
+                    '04_icp_organization_type':  prettyOrgType(e.org_type),
+                    '05_icp_responsibilities':   prettyResp(e.responsibilities),
+                    '06_icp_visit_summary':      visitSummary,
+
+                    // ===== 2) BANT SCORECARD (Klear.ai, 12-point) =====
+                    '07_bant_authority':   auth.score + '/3 — ' + auth.reason,
+                    '08_bant_need':        need.score + '/3 — ' + need.reason,
+                    '09_bant_budget':      bud.score  + '/3 — ' + bud.reason,
+                    '10_bant_timeline':    tl.score   + '/3 — ' + tl.reason,
+                    '11_BANT_TOTAL':       bantTotal + '/12 — ' + bantVerdict(bantTotal),
+
+                    // ===== 3) RAW CAPTURE (everything previously sent, unchanged) =====
                     visitor_id: state.visitor_id,
                     visit_number: state.visit_count,
                     is_returnee: state.visit_count > 1,
                     terminal_reached: terminal,
                     captured_at: new Date(now).toISOString(),
                     first_seen_at: state.first_seen_at,
-                    time_on_site_seconds: Math.round((now - session.startTs) / 1000),
+                    time_on_site_seconds: sessionTime,
                     slides_visited: Array.from(session.slidesVisited).sort().join(', '),
                     page_url: window.location.href,
                     referrer: document.referrer || '',
@@ -3279,8 +3425,11 @@
                 if (terminal === 'page_exit' && !state.current.email) return; // no value in empty abandons
 
                 const payload = buildPayload(terminal);
+                // Include BANT total in the subject so the inbox lands a
+                // quick "9/12" hit alongside the deal-status verdict.
+                const bantStr = (payload['11_BANT_TOTAL'] || '').split(' ')[0]; // "9/12"
                 const subject = '[Discover Klear.ai] ' + payload.deal_status.toUpperCase()
-                    + ' — ' + (payload.email || '(no email)')
+                    + ' (' + bantStr + ') — ' + (payload.email || '(no email)')
                     + ' — visit #' + payload.visit_number
                     + (payload.is_returnee ? ' (returnee)' : '');
                 const body = JSON.stringify(Object.assign({
