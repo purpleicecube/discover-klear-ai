@@ -2423,86 +2423,9 @@
             section#slide-3 .slide-content { overflow-y: visible; }
             .slide-content { gap: var(--space-md); }
 
-            /* MOBILE BODY-TEXT COLOR OVERRIDE — slides 2 / 3 / 5 only.
-               Titles stay white (they're large/bold enough); the smaller
-               supporting text shifts to a saturated brand purple so it
-               reads cleanly against the lavender regions of the gradient
-               background. Only targets text that sits DIRECTLY on the
-               slide background — anything inside a glass card or dark
-               option tile keeps its existing colors so contrast doesn't
-               flip. */
-            :root { --mobile-body-purple: #2D1469; }
-
-            /* Slide 2 — Sustainable Growth (award) */
-            #slide-1 .award-eyebrow,
-            #slide-1 .award-text .subhead { color: var(--mobile-body-purple); }
-            #slide-1 .award-text .subhead strong { color: var(--mobile-body-purple); }
-
-            /* Slide 3 — ICP / Diagnostic */
-            #slide-2 .diagnostic-stage[data-stage-target="select"] .subhead { color: var(--mobile-body-purple); }
-            #slide-2 .skip-link { color: var(--mobile-body-purple); }
-            #slide-2 .diag-breadcrumb-step:not(.current):not(.done) {
-                color: var(--mobile-body-purple);
-                border-color: rgba(45, 20, 105, 0.35);
-                background: rgba(45, 20, 105, 0.06);
-            }
-            #slide-2 .diag-q-eyebrow { color: var(--mobile-body-purple); }
-            #slide-2 .diag-back-link { color: var(--mobile-body-purple); }
-
-            /* Slide 5 — Booking */
-            #slide-4 .slide-content > .subhead { color: var(--mobile-body-purple); }
-            #slide-4 .nurture-link { color: var(--mobile-body-purple); }
-
-            /* FUNCTIONAL BLOCKS on slides 3 + 5 — explicit per-selector
-               color rules with !important. Token-cascade via --text-primary
-               can fail silently when descendant elements have their own
-               `color` declarations (buttons, inputs) and on some mobile
-               browsers, so this enumerates every text-bearing selector
-               inside the ICP boxes (slide 3) and the request-a-time picker
-               + booking form (slide 5) and forces the color. Slide 4
-               (diagnostic state machine) sits on dark cards — not touched. */
-
-            /* --- Slide 3: ICP boxes --- */
-            #slide-2 .icp-box-title,
-            #slide-2 .icp-hint,
-            #slide-2 .icp-label,
-            #slide-2 .icp-input,
-            #slide-2 .icp-tile {
-                color: #2D1469 !important;
-            }
-            #slide-2 .icp-input::placeholder { color: rgba(45, 20, 105, 0.5) !important; }
-            #slide-2 .icp-tile.selected { color: #2D1469 !important; }
-
-            /* --- Slide 5: booking form (left card) --- */
-            #slide-4 .booking-form .form-row label,
-            #slide-4 .booking-form .form-row input,
-            #slide-4 .booking-form .icp-tile {
-                color: #2D1469 !important;
-            }
-            #slide-4 .booking-form .form-row input::placeholder { color: rgba(45, 20, 105, 0.5) !important; }
-            #slide-4 .booking-form .icp-tile.selected { color: #2D1469 !important; }
-
-            /* --- Slide 5: calendar-frame (right card) --- */
-            #slide-4 .calendar-label,
-            #slide-4 .calendar-sub,
-            #slide-4 .calendar-frame .form-row label,
-            #slide-4 .calendar-frame .form-textarea,
-            #slide-4 .date-card-day,
-            #slide-4 .slot-pill,
-            #slide-4 .request-confirm,
-            #slide-4 .privacy-line {
-                color: #2D1469 !important;
-            }
-            #slide-4 .calendar-frame .form-textarea::placeholder { color: rgba(45, 20, 105, 0.5) !important; }
-            #slide-4 .date-card-dow,
-            #slide-4 .date-card-mon { color: rgba(45, 20, 105, 0.72) !important; }
-            #slide-4 .slot-pill .slot-window { color: rgba(45, 20, 105, 0.68) !important; }
-            #slide-4 .request-confirm strong { color: #2D1469 !important; }
-            #slide-4 .request-confirm .tz-tag {
-                color: rgba(45, 20, 105, 0.72) !important;
-                background: rgba(45, 20, 105, 0.08) !important;
-            }
-            #slide-4 .privacy-line a { color: rgba(112, 28, 158, 0.9) !important; }
+            /* Mobile text on slides 2 / 3 / 5 inherits the default
+               high-contrast white from :root — earlier dark-purple
+               override was reverted per LDV (2026-05-31). */
         }
 
         @media (max-height: 720px) {
