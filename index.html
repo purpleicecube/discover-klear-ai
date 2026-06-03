@@ -2426,30 +2426,47 @@
 
         .gamma-preview-completed {
             flex-direction: column;
-            align-items: stretch;
+            align-items: center;
             gap: 10px;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 18px 22px;
+            background: linear-gradient(135deg, rgba(251, 207, 232, 0.1), rgba(166, 28, 200, 0.12));
+            border: 1px solid rgba(251, 207, 232, 0.32);
             border-radius: 16px;
+            text-align: center;
         }
         .gamma-preview-eyebrow {
             font-size: 0.74rem;
             letter-spacing: 0.12em;
             text-transform: uppercase;
-            color: rgba(251, 207, 232, 0.9);
+            color: rgba(251, 207, 232, 0.95);
             font-weight: 700;
-            text-align: center;
         }
-        .gamma-iframe {
-            width: 100%;
-            aspect-ratio: 4 / 5;
-            min-height: 420px;
-            max-height: 720px;
-            border: 0;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.18);
-            display: block;
+        .gamma-preview-detail {
+            font-size: 0.92rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+            max-width: 44ch;
+            margin: 0;
+        }
+        .gamma-preview-open {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 11px 22px;
+            border-radius: 999px;
+            background: var(--pink-pill, #FDC8E1);
+            color: #1A0935;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+            font-family: var(--font);
+            transition: transform var(--dur-fast) var(--ease-out-soft), box-shadow var(--dur-fast);
+            box-shadow: 0 10px 24px -8px rgba(251, 207, 232, 0.5);
+        }
+        .gamma-preview-open:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px -8px rgba(251, 207, 232, 0.7);
         }
 
         .gamma-takeaway-completed {
@@ -2523,7 +2540,8 @@
         }
 
         @media (max-width: 760px) {
-            .gamma-iframe { min-height: 320px; aspect-ratio: 3 / 4; }
+            .gamma-preview-completed { padding: 14px 16px; }
+            .gamma-preview-detail { font-size: 0.86rem; }
         }
 
         /* ===========================================
@@ -3124,18 +3142,21 @@
                         <ul class="uc-solution-areas" data-slot="uc-solution-areas"></ul>
                     </article>
 
-                    <!-- Inline Gamma deck preview. data-state controls which
-                         child is visible: "idle" (default, before commit),
-                         "pending" (generation in flight), "completed"
-                         (iframe loaded), "failed" (silent — just stay idle). -->
+                    <!-- Inline Gamma deck status card. Gamma's public docs
+                         URLs set X-Frame-Options: SAMEORIGIN, so iframe
+                         embedding from discoverklearai.com is blocked.
+                         Instead we show a styled status card with an
+                         "Open your deck" CTA that opens the Gamma player
+                         in a new tab. -->
                     <div class="gamma-preview" id="gammaPreview" data-state="idle" aria-live="polite">
                         <div class="gamma-preview-pending">
                             <span class="gamma-spinner" aria-hidden="true"></span>
                             <span>Preparing your personalized Klear.ai deck — typically 3–5 minutes</span>
                         </div>
                         <div class="gamma-preview-completed">
-                            <span class="gamma-preview-eyebrow">Your personalized deck</span>
-                            <iframe class="gamma-iframe" title="Your personalized Klear.ai deck" allow="fullscreen" loading="lazy"></iframe>
+                            <span class="gamma-preview-eyebrow">Your personalized deck is ready</span>
+                            <p class="gamma-preview-detail">A Klear.ai-branded use-case deck has been generated for your team. Open it in a new tab to view, share, or download as PDF.</p>
+                            <a class="gamma-preview-open" href="#" target="_blank" rel="noopener noreferrer">Open your personalized deck →</a>
                         </div>
                     </div>
 
@@ -3800,12 +3821,11 @@
                 const previewEl = document.getElementById('gammaPreview');
                 if (previewEl) {
                     previewEl.dataset.state = status || 'idle';
-                    const iframeEl = previewEl.querySelector('.gamma-iframe');
-                    if (status === 'completed' && url && iframeEl && iframeEl.src !== url) {
-                        iframeEl.src = url;
-                    }
-                    if (status !== 'completed' && iframeEl && iframeEl.src) {
-                        iframeEl.src = '';
+                    const openLink = previewEl.querySelector('.gamma-preview-open');
+                    if (status === 'completed' && url && openLink) {
+                        openLink.href = url;
+                    } else if (openLink) {
+                        openLink.href = '#';
                     }
                 }
                 // ---- slide 5 success-card area (only present after submit) ----
