@@ -372,6 +372,76 @@
             background: rgba(99, 14, 212, 0.08);
         }
 
+        /* ===========================================
+           v1.3.0 BOTTOM TAB BAR
+           Fixed bottom translucent-white nav matching the top bar.
+           Smooth-scroll anchors to the 4 key slides. Active state
+           tracks the slide currently in view (hook in the existing
+           IntersectionObserver). Sits ABOVE the orb (z-index 65 vs
+           orb's 55) so the tabs never get blocked.
+           =========================================== */
+        .bottom-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            z-index: 65;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(99, 14, 212, 0.08);
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            padding-inline: clamp(0.5rem, 2vw, 1rem);
+            padding-bottom: env(safe-area-inset-bottom);
+            font-family: var(--font);
+        }
+        .bottom-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 6px 4px 8px;
+            text-decoration: none;
+            color: rgba(26, 11, 46, 0.55);
+            font-size: 0.6875rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            position: relative;
+            transition: color var(--dur-fast);
+        }
+        .bottom-tab svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+        }
+        .bottom-tab:hover { color: var(--klear-navy); }
+        .bottom-tab.active {
+            color: var(--klear-purple);
+        }
+        .bottom-tab.active::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--klear-purple);
+        }
+        /* Reserve space at the bottom of the document so the last slide's
+           content + the orb's resting position aren't obscured by the
+           fixed bottom tab bar. */
+        body { padding-bottom: 64px; }
+        html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
+
         .tour-tracker {
             position: fixed;
             top: calc(var(--nav-height) + clamp(0.5rem, 1.5vw, 1rem));
@@ -5497,6 +5567,69 @@
                     clamp(christinaFloat);
                 });
             });
+        })();
+    </script>
+
+    <!-- ===========================================
+         v1.3.0 BOTTOM TAB BAR
+         Fixed bottom nav with 4 anchors. Active state synced by the
+         IntersectionObserver below.
+         =========================================== -->
+    <nav class="bottom-tabs" aria-label="Page sections">
+        <a class="bottom-tab" data-target="slide-0" href="#slide-0" aria-label="Home">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 11l9-8 9 8M5 9.5V21h14V9.5" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a class="bottom-tab" data-target="slide-1" href="#slide-1" aria-label="Features">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l2.6 5.6L20 9.5l-4 4 1 5.8L12 16.5l-5 2.8 1-5.8-4-4 5.4-.9L12 3z" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span>Features</span>
+        </a>
+        <a class="bottom-tab" data-target="slide-2" href="#slide-2" aria-label="Solutions">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 18h6M10 21h4M12 3a6 6 0 016 6c0 3-2 4.5-2.5 6h-7C8 13.5 6 12 6 9a6 6 0 016-6z" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span>Solutions</span>
+        </a>
+        <a class="bottom-tab" data-target="slide-4" href="#slide-4" aria-label="Demo">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="15" rx="2" stroke-linejoin="round"/>
+                <path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/>
+            </svg>
+            <span>Demo</span>
+        </a>
+    </nav>
+
+    <!-- Active-tab tracker: hooks into the slide-change pattern used by
+         the top tour-tracker. Tabs map to slide ids (slide-0, slide-1,
+         slide-2, slide-4); slide-3 (diagnostic) inherits the Solutions
+         active state since it's part of the solution-discovery flow. -->
+    <script>
+        (function () {
+            const tabs = Array.from(document.querySelectorAll('.bottom-tab'));
+            if (!tabs.length) return;
+            const slideEls = Array.from(document.querySelectorAll('section.slide'));
+            if (!slideEls.length) return;
+            // Map each slide id to which tab should be "active" while in view.
+            const SLIDE_TO_TAB = {
+                'slide-0': 'slide-0',
+                'slide-1': 'slide-1',
+                'slide-2': 'slide-2',
+                'slide-3': 'slide-2',   // diagnostic shares the Solutions tab
+                'slide-4': 'slide-4'
+            };
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.intersectionRatio > 0.5) {
+                        const activeTabId = SLIDE_TO_TAB[e.target.id];
+                        tabs.forEach(t => t.classList.toggle('active', t.dataset.target === activeTabId));
+                    }
+                });
+            }, { threshold: [0.5] });
+            slideEls.forEach(s => obs.observe(s));
         })();
     </script>
 </body>
