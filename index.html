@@ -381,10 +381,10 @@
         }
         .top-nav-brand:hover .top-nav-chevron { transform: translateY(2px); color: var(--klear-purple); }
         /* The tour-tracker's K logo + chevron now live in the top nav.
-           Hide the tour-tracker entirely on desktop too — the top nav
-           covers brand identity and the bottom tab bar covers navigation.
-           (Mobile was already hidden per D3.) */
-        .tour-tracker { display: none; }
+           See the override on the original .tour-tracker rule below —
+           the early rule here loses to the original `display: flex` on
+           cascade, so the actual hide happens with !important on the
+           original block. */
         .top-nav-contact {
             font-weight: 500;
             font-size: 0.9375rem;
@@ -469,18 +469,18 @@
         html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
 
         .tour-tracker {
+            /* v1.3.0 — tour-tracker retired in favor of the top nav
+               (brand identity) + bottom tab bar (navigation). DOM
+               preserved so the tracker can be revived later if useful. */
+            display: none !important;
             position: fixed;
             top: calc(var(--nav-height) + clamp(0.5rem, 1.5vw, 1rem));
             left: clamp(1rem, 3vw, 2.25rem);
             z-index: 60;
-            display: flex;
             flex-direction: row;
             align-items: flex-start;
             gap: 16px;
             pointer-events: none;
-            /* Acts like a header — drop-shadow gives visual anchoring so
-               the K + map don't get visually lost over busy slide art,
-               without painting a visible header bar. */
             filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.18))
                     drop-shadow(0 0 24px rgba(255, 255, 255, 0.06));
         }
@@ -1088,27 +1088,26 @@
             /* v1.3.0 — chunky lavender "matte" frame around the video.
                Light surface color matches the awards / form light surfaces.
                Inner video sits inside this border so the video's corners
-               nest cleanly behind the lighter frame. */
+               nest cleanly behind the lighter frame. Background-clip:
+               padding-box keeps the poster image clipped to the inner
+               (non-border) area so the lavender mat reads as a solid
+               continuous frame. */
             border: clamp(10px, 1.4vw, 16px) solid var(--surface-container-low);
             background-clip: padding-box;
-            box-shadow:
-                0 30px 70px -24px rgba(99, 14, 212, 0.45),
-                0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+            box-shadow: 0 30px 70px -24px rgba(99, 14, 212, 0.45);
             transition: transform var(--dur-med) var(--ease-out-soft),
                         box-shadow var(--dur-med) var(--ease-out-soft);
             cursor: pointer;
             background-image: url('./assets/intro-poster.png');
             background-size: cover;
             background-position: center;
-            background-color: rgba(30, 25, 50, 0.98);
+            background-color: var(--surface-container-low);
             min-height: 44px;
         }
 
         .video-poster:hover {
             transform: translateY(-3px);
-            box-shadow:
-                0 40px 90px -24px rgba(99, 14, 212, 0.55),
-                0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+            box-shadow: 0 40px 90px -24px rgba(99, 14, 212, 0.55);
         }
 
         .video-poster::after {
@@ -1122,15 +1121,18 @@
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
 
-        /* Real <video> element layered over the poster; revealed on play */
+        /* Real <video> element layered over the poster; revealed on play.
+           v1.3.0 — inner radius set to match the inner curvature of the
+           lavender mat (outer radius minus border width ≈ 12px) so the
+           video edge nests cleanly inside the frame with no seam. */
         .video-element {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: var(--radius-card);
-            background: #000;
+            border-radius: clamp(8px, 1.1vw, 12px);
+            background: var(--surface-container-low);
             opacity: 0;
             transition: opacity var(--dur-med) var(--ease-out-soft);
             z-index: 1;
