@@ -17,18 +17,41 @@
            Single-font (Barlow), wave-gradient bg, dual card system.
            =========================================== */
         :root {
-            /* Brand colors */
-            --klear-purple: #8B49E2;
-            --klear-purple-deep: #7C3AED;
-            --klear-magenta: #A61CC8;
-            --klear-navy: #091C53;
-            --klear-navy-deep: #0F0A2C;
+            /* Brand colors — v1.3.0 "Klear Lucid AI" palette (D1 LOCKED:
+               solid purple CTAs, pink pills retired). The legacy token
+               names are retained to keep every existing rule wired in;
+               only the values move. */
+            --klear-purple: #630ED4;            /* was #8B49E2 */
+            --klear-purple-deep: #4F0AAE;       /* was #7C3AED */
+            --klear-magenta: #A61CC8;           /* unchanged */
+            --klear-navy: #1A0B2E;              /* was #091C53 — deep indigo grounding */
+            --klear-navy-deep: #0A0418;         /* was #0F0A2C */
 
-            /* Pink/lavender pill system */
-            --pill-pink: #FBCFE8;
-            --pill-pink-bright: #F4B4D8;
-            --pill-pink-deep: #EC9BC4;
-            --pill-text: #1A0E2E;
+            /* v1.3.0 surface system — light-mode content cards. */
+            --surface: #FEF7FF;
+            --surface-dim: #DFD7E6;
+            --surface-bright: #FEF7FF;
+            --surface-container-lowest: #FFFFFF;
+            --surface-container-low: #F9F1FF;
+
+            /* v1.3.0 hero gradient stops. */
+            --hero-gradient-top: #F9F1FF;
+            --hero-gradient-mid: #630ED4;
+            --hero-gradient-bottom: #1A0B2E;
+
+            /* v1.3.0 CTA tokens — solid purple, white text, per D1. */
+            --cta-bg: #630ED4;
+            --cta-fg: #FFFFFF;
+            --cta-bg-hover: #4F0AAE;
+
+            /* Pill system — v1.3.0 repurposes the legacy --pill-pink
+               names to carry the new purple selected-state. Existing
+               rules that reference these tokens continue to work; only
+               the values move. */
+            --pill-pink: #630ED4;               /* was #FBCFE8 — now brand purple (selected state) */
+            --pill-pink-bright: #7C3AED;        /* was #F4B4D8 — hover */
+            --pill-pink-deep: #4F0AAE;          /* was #EC9BC4 — active */
+            --pill-text: #FFFFFF;               /* was #1A0E2E — white on purple */
 
             /* Accent + highlights */
             --accent-cyan: #22D3EE;
@@ -2581,22 +2604,20 @@
             .icp-boxes  { grid-template-columns: 1fr; }
             .icp-box    { min-height: auto; }
 
-            /* MOBILE SLIDE SIZING — the desktop layout locks each slide to
-               100dvh + overflow:hidden + justify-content:center, which clips
-               tall slides (use-case result, booking form + date picker, ICP
-               with 3 stacked boxes) at the bottom on phones. Switch to a
-               flex-start min-height layout so slides can grow with their
-               content, and soften the scroll-snap so a tall slide doesn't
-               trap the user between snap points. */
+            /* MOBILE SLIDE SIZING (v1.3.0) — sections size to their
+               content for a natural mobile scroll, no fullscreen-padding
+               bloat, no scroll-snap jerk between sections. Desktop's
+               cinematic 100vh-per-slide is preserved untouched (see the
+               default `.slide` rule at the top of this file). */
             .slide {
                 height: auto;
-                min-height: 100vh;
-                min-height: 100dvh;
+                min-height: auto;
                 overflow-y: visible;
                 justify-content: flex-start;
-                padding-block: clamp(64px, 12vh, 96px);
+                padding-block: clamp(48px, 9vh, 80px);
+                scroll-snap-align: none;
             }
-            html { scroll-snap-type: y proximity; }
+            html { scroll-snap-type: none; }
             section#slide-3 .slide-content { overflow-y: visible; }
             .slide-content { gap: var(--space-md); }
 
