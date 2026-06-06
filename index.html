@@ -801,13 +801,16 @@
            last slide where there's nothing below to scroll to.
            =========================================== */
         .scroll-hint {
+            /* v1.3.0 — scroll-hint chevrons tripled in size + lifted
+               above the bottom tab bar (64px tall) so they're a clear
+               "scroll down" signal, not lost in the chrome. */
             position: fixed;
-            bottom: clamp(2.75rem, 5vw, 4rem);
+            bottom: clamp(6rem, 9vw, 8rem);
             left: 50%;
             transform: translateX(-50%);
             z-index: 50;
-            width: 32px;
-            height: 36px;
+            width: 96px;
+            height: 100px;
             pointer-events: none;
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
@@ -816,38 +819,53 @@
         .scroll-hint .sh-chevron {
             position: absolute;
             left: 50%;
-            border-right: 2px solid rgba(255, 255, 255, 0.78);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.78);
+            /* Chevron color is per-slide (white on the dark hero, brand
+               purple on light-surface slides). The JS scroll-observer
+               toggles .on-light onto the .scroll-hint container based
+               on which slide is in view. */
+            border-right: 5px solid rgba(255, 255, 255, 0.98);
+            border-bottom: 5px solid rgba(255, 255, 255, 0.98);
             animation: sh-flash 2.4s ease-in-out infinite;
-            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+            filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.45))
+                    drop-shadow(0 0 12px rgba(255, 255, 255, 0.45));
         }
         /* Three nested down-pointing chevrons, concentric (shared center
-           x, increasingly small) and rotated 45deg so corners point down. */
+           x, increasingly small) and rotated 45deg so corners point down.
+           v1.3.0 — sizes tripled (8/16/24 → 24/40/56 effective). */
         .scroll-hint .sh-chevron.sh-c1 {
-            width: 24px; height: 24px;
-            margin-left: -12px;
+            width: 56px; height: 56px;
+            margin-left: -28px;
             top: 0;
             transform: rotate(45deg);
             animation-delay: 0s;
         }
         .scroll-hint .sh-chevron.sh-c2 {
-            width: 16px; height: 16px;
-            margin-left: -8px;
-            top: 6px;
+            width: 40px; height: 40px;
+            margin-left: -20px;
+            top: 14px;
             transform: rotate(45deg);
             animation-delay: 0.25s;
         }
         .scroll-hint .sh-chevron.sh-c3 {
-            width: 8px; height: 8px;
-            margin-left: -4px;
-            top: 12px;
+            width: 24px; height: 24px;
+            margin-left: -12px;
+            top: 28px;
             transform: rotate(45deg);
             animation-delay: 0.5s;
         }
+        /* On light-surface slides (1 through 4) the chevrons flip to
+           brand purple with a soft-purple drop shadow for contrast
+           against the lavender content cards. */
+        .scroll-hint.on-light .sh-chevron {
+            border-right-color: var(--klear-purple);
+            border-bottom-color: var(--klear-purple);
+            filter: drop-shadow(0 3px 10px rgba(99, 14, 212, 0.4))
+                    drop-shadow(0 0 12px rgba(99, 14, 212, 0.25));
+        }
         @keyframes sh-flash {
-            0%, 100% { opacity: 0.2; }
-            45%      { opacity: 0.95; }
-            60%      { opacity: 0.4; }
+            0%, 100% { opacity: 0.35; }
+            45%      { opacity: 1; }
+            60%      { opacity: 0.55; }
         }
 
         .keyboard-hint {
@@ -4912,9 +4930,13 @@
                         });
                         // Hide the bottom scroll-hint on the last slide;
                         // show it everywhere else as a "keep scrolling" cue.
+                        // v1.3.0 — also toggle .on-light so the chevron
+                        // color flips brand purple on light-surface slides
+                        // (everything after slide 0).
                         const scrollHint = document.getElementById('scrollHint');
                         if (scrollHint) {
                             scrollHint.classList.toggle('is-hidden', idx === slides.length - 1);
+                            scrollHint.classList.toggle('on-light', idx >= 1);
                         }
                         session.slidesVisited.add(idx + 1);
                         state.current.slides_visited = Array.from(session.slidesVisited);
