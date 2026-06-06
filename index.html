@@ -379,7 +379,14 @@
             margin-top: 2px;
             transition: transform var(--dur-fast);
         }
-        .top-nav-brand:hover .top-nav-chevron { transform: translateY(2px); color: var(--klear-purple); }
+        .top-nav-brand:hover .top-nav-chevron { color: var(--klear-purple); }
+        /* When the tour-rail is open, the nav chevron rotates 180°
+           (caret-down → caret-up) to mirror the original tour-toggle
+           chevron behavior. */
+        .top-nav-brand.tour-open .top-nav-chevron {
+            transform: rotate(180deg);
+            color: var(--klear-purple);
+        }
         /* The tour-tracker's K logo + chevron now live in the top nav.
            See the override on the original .tour-tracker rule below —
            the early rule here loses to the original `display: flex` on
@@ -469,14 +476,15 @@
         html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
 
         .tour-tracker {
-            /* v1.3.0 — tour-tracker retired in favor of the top nav
-               (brand identity) + bottom tab bar (navigation). DOM
-               preserved so the tracker can be revived later if useful. */
-            display: none !important;
+            /* v1.3.0 — tour-tracker visible, but its own K-logo toggle
+               is hidden (the K + chevron in the top nav drive the
+               toggle now). The horizontal rail of slide stops pops out
+               just below the top nav when the nav's K is clicked. */
             position: fixed;
             top: calc(var(--nav-height) + clamp(0.5rem, 1.5vw, 1rem));
             left: clamp(1rem, 3vw, 2.25rem);
             z-index: 60;
+            display: flex;
             flex-direction: row;
             align-items: flex-start;
             gap: 16px;
@@ -484,6 +492,9 @@
             filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.18))
                     drop-shadow(0 0 24px rgba(255, 255, 255, 0.06));
         }
+        /* Hide the tour-tracker's own K-logo toggle — the nav's Circle K
+           drives the toggle now. The rail itself stays. */
+        .tour-tracker .tour-toggle { display: none; }
         /* Toggle = the original wordmark logo, untouched — no extra circle,
            no purple shadow, no shape change. Just the K with its drop shadow,
            wrapped in a transparent button so it's clickable. */
@@ -4753,6 +4764,21 @@
                     tourToggle.setAttribute('aria-expanded', String(tourExpanded));
                     localStorage.setItem(TOUR_EXPANDED_KEY, String(tourExpanded));
                 });
+            }
+
+            // v1.3.0 — top-nav Circle K drives the (now-hidden) tour-toggle.
+            // Clicking the nav K pops out the tour-rail of slide stops; the
+            // chevron rotates to mirror the original toggle behavior. The
+            // home-scroll behavior on the brand link is intentionally
+            // dropped — the bottom-tab Home button covers that.
+            const navBrand = document.querySelector('.top-nav-brand');
+            if (navBrand && tourToggle && tourTracker) {
+                navBrand.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    tourToggle.click();
+                    navBrand.classList.toggle('tour-open', tourTracker.classList.contains('expanded'));
+                });
+                navBrand.classList.toggle('tour-open', tourTracker.classList.contains('expanded'));
             }
 
             tourStops.forEach(stop => {
