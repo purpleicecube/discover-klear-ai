@@ -1568,8 +1568,33 @@
         section#slide-3 .diag-breadcrumb-step.done    { color: var(--klear-purple); }
         section#slide-3 .diag-breadcrumb-step.current { color: var(--klear-navy); font-weight: 600; }
         section#slide-3 .diag-q-eyebrow { color: var(--klear-purple); }
-        section#slide-3 .diag-back-link { color: rgba(26, 11, 46, 0.55); }
-        section#slide-3 .diag-back-link:hover { color: var(--klear-purple); }
+        /* "← Adjust answers" — brand purple on light surface so it's
+           clearly readable as a secondary action, not a stray label. */
+        section#slide-3 .diag-back-link {
+            color: var(--klear-purple);
+            font-weight: 500;
+            text-decoration: underline;
+            text-decoration-color: rgba(99, 14, 212, 0.4);
+            text-underline-offset: 3px;
+        }
+        section#slide-3 .diag-back-link:hover {
+            color: var(--cta-bg-hover);
+            text-decoration-color: var(--cta-bg-hover);
+        }
+
+        /* "Schedule a Claims demo" secondary CTA — outlined brand-purple
+           pill on light surface (was barely-visible pink on lavender). */
+        section#slide-3 .pill.ghost {
+            background: transparent;
+            color: var(--klear-purple);
+            border: 1.5px solid var(--klear-purple);
+            box-shadow: none;
+        }
+        section#slide-3 .pill.ghost:hover {
+            background: var(--klear-purple);
+            color: var(--cta-fg);
+            border-color: var(--klear-purple);
+        }
 
         /* v1.3.0 — slide 5 (booking) restyled for light surface. The .glass
            cards (booking-form + calendar-frame) flip from translucent dark
