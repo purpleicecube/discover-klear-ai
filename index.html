@@ -17,18 +17,41 @@
            Single-font (Barlow), wave-gradient bg, dual card system.
            =========================================== */
         :root {
-            /* Brand colors */
-            --klear-purple: #8B49E2;
-            --klear-purple-deep: #7C3AED;
-            --klear-magenta: #A61CC8;
-            --klear-navy: #091C53;
-            --klear-navy-deep: #0F0A2C;
+            /* Brand colors — v1.3.0 "Klear Lucid AI" palette (D1 LOCKED:
+               solid purple CTAs, pink pills retired). The legacy token
+               names are retained to keep every existing rule wired in;
+               only the values move. */
+            --klear-purple: #630ED4;            /* was #8B49E2 */
+            --klear-purple-deep: #4F0AAE;       /* was #7C3AED */
+            --klear-magenta: #A61CC8;           /* unchanged */
+            --klear-navy: #1A0B2E;              /* was #091C53 — deep indigo grounding */
+            --klear-navy-deep: #0A0418;         /* was #0F0A2C */
 
-            /* Pink/lavender pill system */
-            --pill-pink: #FBCFE8;
-            --pill-pink-bright: #F4B4D8;
-            --pill-pink-deep: #EC9BC4;
-            --pill-text: #1A0E2E;
+            /* v1.3.0 surface system — light-mode content cards. */
+            --surface: #FEF7FF;
+            --surface-dim: #DFD7E6;
+            --surface-bright: #FEF7FF;
+            --surface-container-lowest: #FFFFFF;
+            --surface-container-low: #F9F1FF;
+
+            /* v1.3.0 hero gradient stops. */
+            --hero-gradient-top: #F9F1FF;
+            --hero-gradient-mid: #630ED4;
+            --hero-gradient-bottom: #1A0B2E;
+
+            /* v1.3.0 CTA tokens — solid purple, white text, per D1. */
+            --cta-bg: #630ED4;
+            --cta-fg: #FFFFFF;
+            --cta-bg-hover: #4F0AAE;
+
+            /* Pill system — v1.3.0 repurposes the legacy --pill-pink
+               names to carry the new purple selected-state. Existing
+               rules that reference these tokens continue to work; only
+               the values move. */
+            --pill-pink: #630ED4;               /* was #FBCFE8 — now brand purple (selected state) */
+            --pill-pink-bright: #7C3AED;        /* was #F4B4D8 — hover */
+            --pill-pink-deep: #4F0AAE;          /* was #EC9BC4 — active */
+            --pill-text: #FFFFFF;               /* was #1A0E2E — white on purple */
 
             /* Accent + highlights */
             --accent-cyan: #22D3EE;
@@ -89,6 +112,10 @@
             --radius-dark-card: 28px;
             --radius-tile: 18px;
             --radius-pill: 999px;
+
+            /* v1.3.0 — top nav bar height (referenced by tour-tracker offset
+               and by the nav itself). */
+            --nav-height: 56px;
         }
 
         /* ===========================================
@@ -300,22 +327,174 @@
            Active stop tracks the slide currently in viewport. Visitors
            can also click any stop to jump directly there.
            =========================================== */
-        .tour-tracker {
+        /* ===========================================
+           v1.3.0 TOP NAV BAR
+           Fixed, translucent white with backdrop blur so the hero
+           gradient shows through. Klear.ai wordmark left, Contact right.
+           Hides automatically below the orb (z-index lower) and above
+           slide content (z-index higher).
+           =========================================== */
+        .top-nav {
             position: fixed;
-            top: clamp(1rem, 2.5vw, 1.75rem);
-            left: clamp(1rem, 3vw, 2.25rem);
-            z-index: 60;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-height);
+            z-index: 70;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(99, 14, 212, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-inline: clamp(1rem, 3vw, 2.25rem);
+            font-family: var(--font);
+        }
+        .top-nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            letter-spacing: -0.01em;
+            color: var(--klear-navy);
+            text-decoration: none;
+        }
+        .top-nav-brand-mark { font-style: italic; }
+        /* v1.3.0 — Circle K logo + chevron moved into the nav per Darrel's
+           request. Logo image sized to fit the 56px nav bar; chevron is a
+           small caret that hints at the (now-retired) tour-rail toggle. */
+        .top-nav-logo {
+            width: 38px;
+            height: 38px;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(99, 14, 212, 0.18));
+        }
+        .top-nav-chevron {
+            display: inline-block;
+            font-size: 14px;
+            color: rgba(26, 11, 46, 0.45);
+            line-height: 1;
+            margin-top: 2px;
+            transition: transform var(--dur-fast);
+        }
+        .top-nav-brand:hover .top-nav-chevron { color: var(--klear-purple); }
+        /* When the tour-rail is open, the nav chevron rotates 180°
+           (caret-down → caret-up) to mirror the original tour-toggle
+           chevron behavior. */
+        .top-nav-brand.tour-open .top-nav-chevron {
+            transform: rotate(180deg);
+            color: var(--klear-purple);
+        }
+        /* The tour-tracker's K logo + chevron now live in the top nav.
+           See the override on the original .tour-tracker rule below —
+           the early rule here loses to the original `display: flex` on
+           cascade, so the actual hide happens with !important on the
+           original block. */
+        .top-nav-contact {
+            font-weight: 500;
+            font-size: 0.9375rem;
+            color: var(--klear-purple);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            transition: background var(--dur-fast);
+        }
+        .top-nav-contact:hover {
+            background: rgba(99, 14, 212, 0.08);
+        }
+
+        /* ===========================================
+           v1.3.0 BOTTOM TAB BAR
+           Fixed bottom translucent-white nav matching the top bar.
+           Smooth-scroll anchors to the 4 key slides. Active state
+           tracks the slide currently in view (hook in the existing
+           IntersectionObserver). Sits ABOVE the orb (z-index 65 vs
+           orb's 55) so the tabs never get blocked.
+           =========================================== */
+        .bottom-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            z-index: 65;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(99, 14, 212, 0.08);
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            padding-inline: clamp(0.5rem, 2vw, 1rem);
+            padding-bottom: env(safe-area-inset-bottom);
+            font-family: var(--font);
+        }
+        .bottom-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 6px 4px 8px;
+            text-decoration: none;
+            color: rgba(26, 11, 46, 0.55);
+            font-size: 0.6875rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            position: relative;
+            transition: color var(--dur-fast);
+        }
+        .bottom-tab svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+        }
+        .bottom-tab:hover { color: var(--klear-navy); }
+        .bottom-tab.active {
+            color: var(--klear-purple);
+        }
+        .bottom-tab.active::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--klear-purple);
+        }
+        /* Reserve space at the bottom of the document so the last slide's
+           content + the orb's resting position aren't obscured by the
+           fixed bottom tab bar. */
+        body { padding-bottom: 64px; }
+        html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
+
+        .tour-tracker {
+            /* v1.3.0 — tour-tracker sits INSIDE the top nav, immediately
+               to the right of the Circle K + chevron. left: tightened so
+               the rail's first bulb sits right next to the chevron with
+               only a small breathing gap (~6px). */
+            position: fixed;
+            top: 0;
+            left: clamp(4.5rem, 7.5vw, 6.5rem);
+            height: var(--nav-height);
+            z-index: 75;
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
-            gap: 16px;
+            align-items: center;
+            gap: 0;
             pointer-events: none;
-            /* Acts like a header — drop-shadow gives visual anchoring so
-               the K + map don't get visually lost over busy slide art,
-               without painting a visible header bar. */
-            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.18))
-                    drop-shadow(0 0 24px rgba(255, 255, 255, 0.06));
+            filter: none;
         }
+        /* Hide the tour-tracker's own K-logo toggle — the nav's Circle K
+           drives the toggle now. The rail itself stays. */
+        .tour-tracker .tour-toggle { display: none; }
         /* Toggle = the original wordmark logo, untouched — no extra circle,
            no purple shadow, no shape change. Just the K with its drop shadow,
            wrapped in a transparent button so it's clickable. */
@@ -364,22 +543,30 @@
            with its label rendered horizontally directly below it. The string
            runs left-to-right through bulb centers. */
         .tour-rail {
+            /* v1.3.0 — rail sits inside the nav bar (no panel chrome).
+               Compact horizontal strip with bulb-over-label stops sized
+               to fit the 56px nav height. Background is transparent —
+               the nav's own translucent white provides the surface.
+               Left padding tightened to close the chevron-to-line gap. */
             position: relative;
-            margin-top: calc(clamp(80px, 8vw, 120px) / 2 - 8px);
-            padding-left: 18px;
-            padding-right: 22px;
+            margin: 0;
+            padding: 0 12px 0 6px;
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: center;
             gap: 0;
+            height: 100%;
             max-width: 0;
             opacity: 0;
             overflow: hidden;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
             transition: max-width var(--dur-med) var(--ease-out-soft),
                         opacity var(--dur-med) var(--ease-out-soft);
         }
         .tour-tracker.expanded .tour-rail {
-            max-width: min(640px, calc(100vw - clamp(120px, 18vw, 180px)));
+            max-width: min(560px, calc(100vw - clamp(180px, 22vw, 240px)));
             opacity: 1;
             pointer-events: auto;
         }
@@ -387,21 +574,28 @@
            centers. Bulb height is 16, so its center sits at top: 7. */
         .tour-line {
             position: absolute;
-            left: 18px;
-            right: 22px;
-            top: 7px;
+            left: 6px;
+            right: 12px;
+            /* Centered through bulb center: bulb is 12px tall and the
+               stop column starts ~14px from the top of the 56px nav,
+               so bulb center sits at ~20px. */
+            top: 20px;
             height: 1.5px;
             background: linear-gradient(90deg,
-                rgba(255, 255, 255, 0.32) 0%,
-                rgba(255, 255, 255, 0.5) 50%,
-                rgba(255, 255, 255, 0.32) 100%);
-            box-shadow: 0 0 6px rgba(255, 255, 255, 0.4),
-                        0 0 12px rgba(255, 255, 255, 0.18);
+                rgba(99, 14, 212, 0.35) 0%,
+                rgba(99, 14, 212, 0.6) 50%,
+                rgba(99, 14, 212, 0.35) 100%);
+            box-shadow: 0 0 6px rgba(99, 14, 212, 0.3),
+                        0 0 12px rgba(99, 14, 212, 0.15);
             border-radius: 2px;
             pointer-events: none;
         }
         /* Each stop = dot on top, label below (column layout, horizontal text). */
         .tour-stop {
+            /* v1.3.0 — compact bulb-over-label stop fitted to the 56px
+               nav height. Vertically centered. Label color is a softer
+               lavender (~2 shades lighter than dark navy) so the rail
+               reads as light, airy navigation. */
             pointer-events: auto;
             background: none;
             border: none;
@@ -409,12 +603,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            padding: 0 6px;
-            width: clamp(64px, 8vw, 88px);
-            color: rgba(255, 255, 255, 0.78);
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 6px;
+            width: clamp(56px, 7vw, 78px);
+            height: 100%;
+            color: rgba(99, 14, 212, 0.48);
             font-family: var(--font);
-            font-size: clamp(0.7rem, 0.85vw, 0.82rem);
+            font-size: 0.65rem;
             font-weight: 500;
             letter-spacing: 0.005em;
             transition: color var(--dur-fast);
@@ -432,11 +628,13 @@
            soft hot-spot at center), so past + current bulbs both look
            like lit globes rather than tiny center highlights. */
         .tour-stop-dot {
-            width: 16px;
-            height: 16px;
+            /* v1.3.0 — bulb shrunk from 16px → 12px so the stop column
+               fits comfortably in the 56px nav with the label below. */
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: transparent;
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border: 1.5px solid rgba(99, 14, 212, 0.35);
             flex-shrink: 0;
             z-index: 1;
             transition: border-color var(--dur-med) var(--ease-out-soft);
@@ -450,22 +648,25 @@
             border-radius: 50%;
             background: radial-gradient(
                 circle at 50% 50%,
-                rgba(255, 255, 255, 1) 0%,
-                rgba(255, 255, 255, 0.9) 55%,
-                rgba(255, 255, 255, 0.7) 100%
+                rgba(99, 14, 212, 1) 0%,
+                rgba(99, 14, 212, 0.88) 55%,
+                rgba(99, 14, 212, 0.65) 100%
             );
             opacity: 0;
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
 
+        /* v1.3.0 — past / current / future label colors lightened by
+           ~2 shades for the in-nav tour-rail. Bulb saturation kept
+           strong enough to read as the slide-position indicator. */
         /* Past = clearly visible glow inside the full circle */
-        .tour-stop.past .tour-stop-dot { border-color: rgba(255, 255, 255, 0.92); }
+        .tour-stop.past .tour-stop-dot { border-color: rgba(99, 14, 212, 0.85); }
         .tour-stop.past .tour-stop-dot::before { opacity: 0.78; }
-        .tour-stop.past { color: rgba(255, 255, 255, 0.85); }
+        .tour-stop.past { color: rgba(99, 14, 212, 0.62); }
 
         /* Current = brightest interior glow + breathing animation */
         .tour-stop.current .tour-stop-dot {
-            border-color: #FFFFFF;
+            border-color: var(--klear-purple);
             animation: tour-bulb-breathe 2.8s ease-in-out infinite;
         }
         .tour-stop.current .tour-stop-dot::before {
@@ -473,12 +674,12 @@
             animation: tour-bulb-interior 2.8s ease-in-out infinite;
         }
         .tour-stop.current {
-            color: #FFFFFF;
+            color: #8B49E2;
             font-weight: 600;
         }
         @keyframes tour-bulb-breathe {
-            0%, 100% { border-color: rgba(255, 255, 255, 0.95); }
-            50%      { border-color: #FFFFFF; }
+            0%, 100% { border-color: rgba(99, 14, 212, 0.95); }
+            50%      { border-color: var(--klear-purple); }
         }
         @keyframes tour-bulb-interior {
             0%, 100% { opacity: 0.92; }
@@ -486,11 +687,12 @@
         }
 
         /* Future = empty bulb, only outline */
-        .tour-stop.future .tour-stop-dot { border-color: rgba(255, 255, 255, 0.32); }
+        .tour-stop.future .tour-stop-dot { border-color: rgba(99, 14, 212, 0.22); }
         .tour-stop.future .tour-stop-dot::before { opacity: 0; }
-        .tour-stop.future { color: rgba(255, 255, 255, 0.5); }
+        .tour-stop.future { color: rgba(99, 14, 212, 0.32); }
 
-        .tour-stop:hover { color: #FFFFFF; }
+        .tour-stop:hover { color: #8B49E2; }
+        .tour-stop:hover .tour-stop-dot { border-color: var(--klear-purple); }
         .tour-stop:hover .tour-stop-dot { border-color: rgba(255, 255, 255, 0.85); }
 
         /* Per-stop classes retained as no-op hooks for future tweaks. */
@@ -849,25 +1051,33 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
             padding: clamp(0.625rem, 1vw, 0.875rem) clamp(1.25rem, 2.2vw, 1.875rem);
-            background: var(--pill-pink);
-            color: var(--pill-text);
+            background: var(--cta-bg);
+            color: var(--cta-fg);
             border-radius: var(--radius-pill);
             font-family: var(--font);
             font-weight: 600;
             font-size: var(--size-body);
             letter-spacing: 0;
             min-height: 44px;
+            text-decoration: none;
             transition: transform var(--dur-fast) var(--ease-out-soft),
                         background var(--dur-fast),
                         box-shadow var(--dur-fast);
-            box-shadow: 0 8px 20px -8px rgba(244, 180, 216, 0.45);
+            box-shadow: 0 8px 20px -8px rgba(99, 14, 212, 0.45);
         }
+        .pill .pill-arrow {
+            display: inline-block;
+            line-height: 1;
+            transition: transform var(--dur-fast) var(--ease-out-soft);
+        }
+        .pill:hover .pill-arrow { transform: translateX(3px); }
 
         .pill:hover {
             transform: translateY(-2px);
-            background: var(--pill-pink-bright);
-            box-shadow: 0 12px 32px -8px rgba(244, 180, 216, 0.6);
+            background: var(--cta-bg-hover);
+            box-shadow: 0 12px 32px -8px rgba(99, 14, 212, 0.6);
         }
 
         .pill:active { transform: translateY(0); }
@@ -906,28 +1116,46 @@
             margin-top: var(--space-md);
             width: min(640px, 78vw);
             aspect-ratio: 16 / 9;
-            border-radius: var(--radius-card);
+            border-radius: clamp(20px, 2.5vw, 28px);
             position: relative;
             overflow: hidden;
-            border: 1px solid var(--glass-border-strong);
-            box-shadow:
-                0 30px 80px -20px rgba(12, 8, 30, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+            /* v1.3.0 — lavender frame is painted by .video-poster::before
+               as a dedicated overlay (z-index 3, above both the video
+               element at z-index 1 and the radial highlights ::after at
+               z-index 2). This guarantees the frame stays visible during
+               playback regardless of how the video element repaints its
+               native controls / surface. Outer box-shadow supplies the
+               brand-purple drop for depth. */
+            border: none;
+            box-shadow: 0 30px 70px -24px rgba(99, 14, 212, 0.45);
             transition: transform var(--dur-med) var(--ease-out-soft),
                         box-shadow var(--dur-med) var(--ease-out-soft);
             cursor: pointer;
             background-image: url('./assets/intro-poster.png');
             background-size: cover;
             background-position: center;
-            background-color: rgba(30, 25, 50, 0.98);
+            background-color: var(--surface-container-low);
             min-height: 44px;
+        }
+
+        /* v1.3.0 — dedicated frame overlay. Sits ABOVE the video element
+           (z-index 1) and above the radial highlight ::after (z-index 2)
+           so the lavender mat always paints last, edge-aligned to the
+           container's rounded corners. pointer-events: none so the play
+           click still reaches the underlying poster. */
+        .video-poster::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 clamp(10px, 1.4vw, 16px) var(--surface-container-low);
+            z-index: 3;
+            pointer-events: none;
         }
 
         .video-poster:hover {
             transform: translateY(-3px);
-            box-shadow:
-                0 40px 100px -20px rgba(12, 8, 30, 0.6),
-                0 0 0 1px rgba(251, 207, 232, 0.22) inset;
+            box-shadow: 0 40px 90px -24px rgba(99, 14, 212, 0.55);
         }
 
         .video-poster::after {
@@ -938,18 +1166,23 @@
                 radial-gradient(ellipse 30% 50% at 30% 40%, rgba(254, 215, 170, 0.1) 0%, transparent 60%),
                 radial-gradient(ellipse 40% 60% at 70% 60%, rgba(251, 207, 232, 0.08) 0%, transparent 60%);
             pointer-events: none;
+            z-index: 2;
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
 
-        /* Real <video> element layered over the poster; revealed on play */
+        /* Real <video> element layered over the poster; revealed on play.
+           v1.3.0 — video fills the entire .video-poster box (no border
+           offset anymore). Border-radius matches the outer container's
+           radius so the corners align. The inset box-shadow on the
+           parent paints the lavender frame on top of these edges. */
         .video-element {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: var(--radius-card);
-            background: #000;
+            border-radius: clamp(20px, 2.5vw, 28px);
+            background: var(--surface-container-low);
             opacity: 0;
             transition: opacity var(--dur-med) var(--ease-out-soft);
             z-index: 1;
@@ -1205,42 +1438,246 @@
             gap: var(--space-lg);
         }
 
-        .award-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-            gap: clamp(1.5rem, 4vw, 4rem);
+        /* v1.3.0 — slide 2 (award/trust) switches to a light surface
+           per the reference image. Heading goes brand purple, body goes
+           dark, growth-chart watermark + medallion + side-by-side layout
+           are retired in favor of a centered heading + body + vertical
+           awards stack. */
+        section#slide-1,
+        section#slide-2,
+        section#slide-3,
+        section#slide-4 {
+            background: var(--surface);
+        }
+        section#slide-1 .gradient-bg,
+        section#slide-2 .gradient-bg,
+        section#slide-3 .gradient-bg,
+        section#slide-4 .gradient-bg { display: none; }
+        section#slide-1 .slide-content {
             align-items: center;
+            text-align: center;
+            gap: var(--space-md);
+        }
+
+        /* v1.3.0 — text colors flip for light-surface slides 1-4. The
+           hero on slide 0 keeps white-on-purple defaults. */
+        section#slide-2 h2,
+        section#slide-3 h2,
+        section#slide-4 h2 {
+            color: var(--klear-navy);
+        }
+        section#slide-2 .subhead,
+        section#slide-3 .subhead,
+        section#slide-4 .subhead {
+            color: rgba(26, 11, 46, 0.72);
+        }
+        section#slide-2 .subhead .brand,
+        section#slide-3 .subhead .brand,
+        section#slide-4 .subhead .brand {
+            color: var(--klear-purple);
+            font-style: italic;
+        }
+
+        /* v1.3.0 — "SOLUTIONS" promoted to match the visual weight of
+           the "Sustainable Growth." heading on the previous slide.
+           Same font size / weight / color so the two slides feel like
+           sibling sections rather than a header + an eyebrow. */
+        .solutions-eyebrow {
+            font-weight: 700;
+            font-size: clamp(2rem, 4.8vw, 3.75rem);
+            line-height: 1.02;
+            color: var(--klear-purple);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            margin-bottom: 0;
+        }
+
+        /* v1.3.0 — ICP-box (slide 2 / ICP capture) restyled for light surface. */
+        section#slide-2 .icp-box {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            box-shadow: 0 2px 6px -2px rgba(99, 14, 212, 0.06);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        section#slide-2 .icp-box-title { color: var(--klear-navy); }
+        section#slide-2 .icp-label { color: rgba(26, 11, 46, 0.62); }
+        section#slide-2 .icp-hint { color: rgba(26, 11, 46, 0.5); }
+        section#slide-2 .icp-input {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-2 .icp-input::placeholder { color: rgba(26, 11, 46, 0.4); }
+        section#slide-2 .icp-input:focus {
+            background: var(--surface-container-lowest);
+            border-color: var(--klear-purple);
+        }
+
+        /* v1.3.0 — challenge cards (slide 3 / diagnostic) restyled for
+           light surface. The numbered 01 / 02 / 03 treatment + "Choose"
+           pill structure is preserved; only the chrome flips light. */
+        section#slide-3 .challenge-card {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            box-shadow: 0 2px 6px -2px rgba(99, 14, 212, 0.08);
+        }
+        section#slide-3 .challenge-card::before { display: none; }
+        section#slide-3 .challenge-card:hover {
+            background: var(--surface-container-low);
+            border-color: rgba(99, 14, 212, 0.32);
+            box-shadow: 0 12px 32px -10px rgba(99, 14, 212, 0.2);
+        }
+        section#slide-3 .challenge-number { color: var(--klear-purple); }
+        section#slide-3 .challenge-label  { color: var(--klear-navy); }
+        section#slide-3 .skip-link        { color: rgba(26, 11, 46, 0.55); }
+        section#slide-3 .skip-link:hover  { color: var(--klear-purple); }
+
+        /* v1.3.0 — diagnostic Q1/Q2 stage chrome on light surface. */
+        section#slide-3 .diag-breadcrumb-step { color: rgba(26, 11, 46, 0.45); }
+        section#slide-3 .diag-breadcrumb-step.done    { color: var(--klear-purple); }
+        section#slide-3 .diag-breadcrumb-step.current { color: var(--klear-navy); font-weight: 600; }
+        section#slide-3 .diag-q-eyebrow { color: var(--klear-purple); }
+        section#slide-3 .diag-back-link { color: rgba(26, 11, 46, 0.55); }
+        section#slide-3 .diag-back-link:hover { color: var(--klear-purple); }
+
+        /* v1.3.0 — slide 5 (booking) restyled for light surface. The .glass
+           cards (booking-form + calendar-frame) flip from translucent dark
+           to clean white. Form labels, inputs, textarea, calendar chrome,
+           privacy line, and required-mark all re-tinted for light. */
+        section#slide-4 .glass {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            box-shadow: 0 4px 16px -6px rgba(99, 14, 212, 0.10);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        section#slide-4 .form-row label { color: var(--klear-navy); font-weight: 600; }
+        section#slide-4 .form-row input,
+        section#slide-4 .form-textarea {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .form-row input::placeholder,
+        section#slide-4 .form-textarea::placeholder { color: rgba(26, 11, 46, 0.4); }
+        section#slide-4 .form-row input:focus,
+        section#slide-4 .form-textarea:focus {
+            background: var(--surface-container-lowest);
+            border-color: var(--klear-purple);
+        }
+        section#slide-4 .next-steps-hint { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .required-mark   { color: var(--klear-purple); }
+        section#slide-4 .privacy-line    { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .privacy-line a  { color: var(--klear-purple); }
+        section#slide-4 .privacy-line a:hover { color: var(--cta-bg-hover); }
+        section#slide-4 .calendar-label  { color: var(--klear-navy); }
+        section#slide-4 .calendar-sub    { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .calendar-mini .day-head { color: rgba(26, 11, 46, 0.5); }
+        section#slide-4 .calendar-mini .day      { color: rgba(26, 11, 46, 0.72); }
+
+        /* v1.3.0 — date strip, slot pills, and request-confirm chip
+           re-tinted for the light-surface booking card. Previously
+           inherited white-on-dark from the legacy dark-glass design,
+           which rendered as white-on-white (invisible) here. */
+        section#slide-4 .date-strip { scrollbar-color: rgba(99, 14, 212, 0.3) transparent; }
+        section#slide-4 .date-strip::-webkit-scrollbar-thumb { background: rgba(99, 14, 212, 0.25); }
+        section#slide-4 .date-card {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .date-card-dow { color: rgba(26, 11, 46, 0.6); }
+        section#slide-4 .date-card-day { color: var(--klear-navy); }
+        section#slide-4 .date-card-mon { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .date-card:hover {
+            background: var(--surface-container-lowest);
+            border-color: rgba(99, 14, 212, 0.4);
+        }
+        section#slide-4 .date-card.selected {
+            background: var(--klear-purple);
+            border-color: var(--klear-purple);
+            box-shadow: 0 8px 22px -8px rgba(99, 14, 212, 0.45);
+        }
+        section#slide-4 .date-card.selected .date-card-dow,
+        section#slide-4 .date-card.selected .date-card-day,
+        section#slide-4 .date-card.selected .date-card-mon { color: #FFFFFF; }
+
+        section#slide-4 .slot-pill {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .slot-pill .slot-window { color: rgba(26, 11, 46, 0.6); }
+        section#slide-4 .slot-pill:hover {
+            background: var(--surface-container-lowest);
+            border-color: rgba(99, 14, 212, 0.4);
+        }
+        section#slide-4 .slot-pill.selected {
+            background: var(--klear-purple);
+            border-color: var(--klear-purple);
+            color: #FFFFFF;
+        }
+        section#slide-4 .slot-pill.selected .slot-window { color: rgba(255, 255, 255, 0.82); }
+
+        section#slide-4 .request-confirm {
+            background: rgba(99, 14, 212, 0.08);
+            border: 1px solid rgba(99, 14, 212, 0.28);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .request-confirm strong { color: var(--klear-purple); }
+        section#slide-4 .request-confirm .tz-tag {
+            color: rgba(26, 11, 46, 0.6);
+            background: rgba(99, 14, 212, 0.10);
+        }
+
+        .award-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: var(--space-md);
             width: 100%;
-            max-width: min(1100px, 92vw);
+            max-width: min(680px, 92vw);
         }
 
         .award-text {
             display: flex;
             flex-direction: column;
-            gap: var(--space-md);
+            align-items: center;
+            text-align: center;
+            gap: var(--space-sm);
         }
 
         .award-eyebrow {
             font-weight: 500;
             font-size: var(--size-small);
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            text-transform: none;
+            color: rgba(26, 11, 46, 0.55);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         .award-text h2 {
-            font-size: clamp(2rem, 4.8vw, 4rem);
+            font-size: clamp(2rem, 4.8vw, 3.75rem);
             font-weight: 700;
             line-height: 1.02;
-            max-width: 12ch;
+            color: var(--klear-purple);
+            letter-spacing: -0.02em;
         }
 
         .award-text .subhead {
-            text-align: left;
-            max-width: 44ch;
-            color: var(--text-secondary);
+            text-align: center;
+            max-width: 52ch;
+            color: rgba(26, 11, 46, 0.78);
             font-size: clamp(0.9375rem, 1.25vw, 1.0625rem);
         }
+        .award-text .subhead strong { color: var(--klear-navy); }
+        .award-text .subhead .brand { color: var(--klear-purple); font-style: italic; }
+
+        /* v1.3.0 retires the medal + growth-chart watermark from slide 2
+           in favor of the cleaner light-surface awards-stack treatment. */
+        section#slide-1 .award-medal-wrap { display: none; }
+        section#slide-1 .growth-chart-bg { display: none; }
 
         .award-medal-wrap {
             position: relative;
@@ -1267,70 +1704,72 @@
         }
 
         /* ---------- Compact award strip (backgrounder under the hero copy) ---------- */
+        /* ===========================================
+           v1.3.0 AWARDS STACK (Slide 2)
+           Vertical single-column stack on light surface, brand-purple
+           icon strokes, dark heading + muted body text. Replaces the
+           legacy 5-column dark glass chip strip.
+           =========================================== */
         .awards-strip {
             width: 100%;
-            max-width: min(1100px, 92vw);
+            max-width: min(640px, 92vw);
             margin-top: var(--space-lg);
-            display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .award-chip {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 6px;
-            padding: 12px 14px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            gap: 4px;
+            padding: 18px 22px;
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            border-radius: 18px;
+            box-shadow: 0 2px 6px -2px rgba(99, 14, 212, 0.08);
             transition: transform var(--dur-fast) var(--ease-out-soft),
-                        background var(--dur-fast),
+                        box-shadow var(--dur-fast),
                         border-color var(--dur-fast);
-            min-height: 84px;
         }
         .award-chip:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(251, 207, 232, 0.45);
+            border-color: rgba(99, 14, 212, 0.3);
+            box-shadow: 0 8px 24px -8px rgba(99, 14, 212, 0.18);
             transform: translateY(-2px);
         }
         .award-chip-head {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             width: 100%;
         }
         .award-chip-icon {
-            width: 18px;
-            height: 18px;
+            width: 28px;
+            height: 28px;
             flex-shrink: 0;
-            stroke: rgba(251, 207, 232, 0.92);
+            stroke: var(--klear-purple);
             fill: none;
             stroke-width: 1.8;
         }
         .award-chip-title {
-            font-size: 0.82rem;
+            font-size: 1.0625rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--klear-navy);
             line-height: 1.2;
-            letter-spacing: -0.005em;
+            letter-spacing: -0.01em;
         }
         .award-chip-meta {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            letter-spacing: 0.02em;
-            line-height: 1.35;
-        }
-        @media (max-width: 920px) {
-            .awards-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            font-size: 0.875rem;
+            color: rgba(26, 11, 46, 0.62);
+            letter-spacing: 0.01em;
+            line-height: 1.4;
+            padding-left: 40px;
         }
         @media (max-width: 560px) {
-            .awards-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-            .award-chip { padding: 10px 12px; min-height: 76px; }
-            .award-chip-title { font-size: 0.76rem; }
-            .award-chip-meta { font-size: 0.66rem; }
+            .award-chip { padding: 16px 18px; }
+            .award-chip-title { font-size: 1rem; }
+            .award-chip-meta { font-size: 0.8125rem; padding-left: 0; }
+            .award-chip-icon { width: 24px; height: 24px; }
         }
 
         /* ===========================================
@@ -1430,36 +1869,42 @@
             gap: 7px;
         }
 
+        /* v1.3.0 — icp-tile (pill) restyled for light surfaces. Default
+           hover lifts subtly; selected state goes brand purple with
+           white text per D1. Legacy dark-surface fallback is preserved
+           for any context still on a dark background. */
         .icp-tile {
-            padding: 8px 13px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 10px;
-            color: var(--text-primary);
+            padding: 9px 16px;
+            background: var(--surface-container-lowest);
+            border: 1.5px solid var(--surface-dim);
+            border-radius: 12px;
+            color: var(--klear-navy);
             font-size: var(--size-small);
             font-family: var(--font);
             font-weight: 500;
-            min-height: 36px;
+            min-height: 40px;
             cursor: pointer;
             transition: background var(--dur-fast),
                         border-color var(--dur-fast),
+                        color var(--dur-fast),
                         transform var(--dur-fast) var(--ease-out-soft),
                         box-shadow var(--dur-fast);
         }
         .icp-tile:hover {
-            background: rgba(255, 255, 255, 0.16);
-            border-color: rgba(255, 255, 255, 0.34);
+            background: var(--surface-container-low);
+            border-color: rgba(99, 14, 212, 0.32);
             transform: translateY(-1px);
         }
         .icp-tile.selected {
-            background: rgba(251, 207, 232, 0.38);
-            border-color: rgba(251, 207, 232, 0.7);
-            color: var(--text-primary);
-            box-shadow: 0 0 0 1px rgba(251, 207, 232, 0.45) inset,
-                        0 6px 18px -8px rgba(251, 207, 232, 0.45);
+            background: var(--klear-purple);
+            border-color: var(--klear-purple);
+            color: #FFFFFF;
+            box-shadow: 0 6px 18px -8px rgba(99, 14, 212, 0.45);
         }
         .icp-tile.selected:hover {
-            background: rgba(251, 207, 232, 0.5);
+            background: var(--cta-bg-hover);
+            border-color: var(--cta-bg-hover);
+            color: #FFFFFF;
         }
 
         /* Legacy .slide.gate rule kept in case anything still references it. */
@@ -2581,22 +3026,24 @@
             .icp-boxes  { grid-template-columns: 1fr; }
             .icp-box    { min-height: auto; }
 
-            /* MOBILE SLIDE SIZING — the desktop layout locks each slide to
-               100dvh + overflow:hidden + justify-content:center, which clips
-               tall slides (use-case result, booking form + date picker, ICP
-               with 3 stacked boxes) at the bottom on phones. Switch to a
-               flex-start min-height layout so slides can grow with their
-               content, and soften the scroll-snap so a tall slide doesn't
-               trap the user between snap points. */
+            /* v1.3.0 D3 — hide top tour-tracker on mobile; bottom tab
+               bar handles mobile navigation. Desktop keeps the tracker. */
+            .tour-tracker { display: none; }
+
+            /* MOBILE SLIDE SIZING (v1.3.0) — sections size to their
+               content for a natural mobile scroll, no fullscreen-padding
+               bloat, no scroll-snap jerk between sections. Desktop's
+               cinematic 100vh-per-slide is preserved untouched (see the
+               default `.slide` rule at the top of this file). */
             .slide {
                 height: auto;
-                min-height: 100vh;
-                min-height: 100dvh;
+                min-height: auto;
                 overflow-y: visible;
                 justify-content: flex-start;
-                padding-block: clamp(64px, 12vh, 96px);
+                padding-block: clamp(48px, 9vh, 80px);
+                scroll-snap-align: none;
             }
-            html { scroll-snap-type: y proximity; }
+            html { scroll-snap-type: none; }
             section#slide-3 .slide-content { overflow-y: visible; }
             .slide-content { gap: var(--space-md); }
 
@@ -2646,6 +3093,19 @@
     </style>
 </head>
 <body>
+
+    <!-- ===========================================
+         v1.3.0 TOP NAV BAR
+         Fixed white-translucent bar with Klear.ai wordmark (left) and
+         Contact link (right). Scroll-anchor to slide-4 (booking).
+         =========================================== -->
+    <nav class="top-nav" aria-label="Site navigation">
+        <a href="#slide-0" class="top-nav-brand" aria-label="Klear.ai home">
+            <img class="top-nav-logo" src="./assets/klearai-logo-circle.png" alt="Klear.ai">
+            <span class="top-nav-chevron" aria-hidden="true">⌄</span>
+        </a>
+        <a href="#slide-4" class="top-nav-contact">Contact</a>
+    </nav>
 
     <!-- ===========================================
          Persistent overlays
@@ -2817,7 +3277,7 @@
             <h1 class="reveal" data-delay="1">Discover Klear.ai</h1>
             <p class="landing-context reveal" data-delay="2">Klear.ai Claims Administration</p>
             <p class="subhead reveal" data-delay="3">
-                AI-native software for claims, risk, audit, and policy.
+                Native AI software for claims, risk, audit, and policy.
             </p>
 
             <div class="video-poster reveal" data-delay="4" role="button" tabindex="0" aria-label="Play Klear.ai Claims intro video">
@@ -2830,7 +3290,15 @@
                 <span class="video-duration">1:42</span>
             </div>
 
-            <p class="video-caption reveal" data-delay="5">Less than 2 minutes.</p>
+            <!-- v1.3.0 D2 — slide-1 CTA. Scrolls to slide-1 (Awards / About)
+                 to continue the funnel naturally, preserving ICP + BANT
+                 capture in the slides between here and the diagnostic. -->
+            <a href="#slide-1" class="pill large reveal" data-delay="5" aria-label="Build my Claims use case — continue the tour">
+                Build my Claims use case
+                <span class="pill-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <p class="video-caption reveal" data-delay="6">Less than 2 minutes.</p>
         </div>
     </section>
 
@@ -2888,7 +3356,6 @@
                     <p class="subhead reveal" data-delay="2">
                         Built for <strong>Property &amp; Casualty</strong> insurance and <strong>Workers' Compensation</strong> programs. <em class="brand">Klear.ai</em> brings claims, risk, audit, and policy into one Native AI platform — recognized for innovation, growth, and industry leadership.
                     </p>
-                    <p class="award-eyebrow reveal" data-delay="3">Award-Winning Claims Administration Software</p>
                 </div>
 
                 <div class="award-medal-wrap reveal" data-delay="4">
@@ -2919,7 +3386,7 @@
                         </svg>
                         <span class="award-chip-title">Most Innovative AI Firm</span>
                     </div>
-                    <span class="award-chip-meta">Claims &amp; risk management software</span>
+                    <span class="award-chip-meta">Software &amp; risk management software</span>
                 </div>
 
                 <div class="award-chip" role="listitem">
@@ -2936,18 +3403,6 @@
                 <div class="award-chip" role="listitem">
                     <div class="award-chip-head">
                         <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M3 5h14M3 10h14M3 15h9" stroke-linecap="round"/>
-                            <circle cx="17.5" cy="17" r="3" />
-                            <path d="M19.7 19.2L22 21.5" stroke-linecap="round"/>
-                        </svg>
-                        <span class="award-chip-title">Top 10 Audit Award</span>
-                    </div>
-                    <span class="award-chip-meta">Excellence in auditing practices</span>
-                </div>
-
-                <div class="award-chip" role="listitem">
-                    <div class="award-chip-head">
-                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M3 17l6-6 4 4 8-8" stroke-linejoin="round" stroke-linecap="round"/>
                             <path d="M14 7h7v7" stroke-linejoin="round" stroke-linecap="round"/>
                         </svg>
@@ -2956,6 +3411,10 @@
                     <span class="award-chip-meta">Private software co. · Inc. 5000 2025</span>
                 </div>
             </div>
+
+            <!-- v1.3.0 — eyebrow moved below the awards stack per Darrel's
+                 request. Capitalization preserved. -->
+            <p class="award-eyebrow reveal" data-delay="6">Award-Winning Claims Administration Software</p>
         </div>
     </section>
 
@@ -2976,9 +3435,10 @@
         </div>
 
         <div class="slide-content">
-            <h2 class="reveal" data-delay="1">How can we help you today!</h2>
-            <p class="subhead reveal" data-delay="2">
-                select type &mdash; select role &mdash; select responsibilities.
+            <p class="solutions-eyebrow reveal" data-delay="1">SOLUTIONS.</p>
+            <h2 class="reveal" data-delay="2">How can we help you today?</h2>
+            <p class="subhead reveal" data-delay="3">
+                Tell us about your organization, your role, and what you do day-to-day. We'll tailor the rest of the tour to your environment.
             </p>
 
             <!-- Three-box layout mirroring the original engagement-gate pattern:
@@ -3059,32 +3519,33 @@
 
                 <!-- STAGE 1 — challenge select (the existing landing for this slide) -->
                 <div class="diagnostic-stage" data-stage-target="select">
-                    <h2 class="reveal" data-delay="1">What's holding your program back?</h2>
-                    <p class="subhead reveal" data-delay="2">
+                    <p class="solutions-eyebrow reveal" data-delay="1">SOLUTIONS.</p>
+                    <h2 class="reveal" data-delay="2">What's holding your program back?</h2>
+                    <p class="subhead reveal" data-delay="3">
                         Many claims programs are held back by legacy software — creating delays, inconsistent decisions, and data gaps. Select the challenge that best reflects your environment, and <em class="brand">Klear.ai</em> will tailor a use case.
                     </p>
 
                     <div class="challenge-cards">
-                        <button class="challenge-card reveal" data-delay="3" data-challenge="slow_manual">
+                        <button class="challenge-card reveal" data-delay="4" data-challenge="slow_manual">
                             <span class="challenge-number">01</span>
                             <span class="challenge-label">Slow, manual claims handling</span>
                             <span class="pill">Choose</span>
                         </button>
 
-                        <button class="challenge-card reveal" data-delay="4" data-challenge="limited_visibility">
+                        <button class="challenge-card reveal" data-delay="5" data-challenge="limited_visibility">
                             <span class="challenge-number">02</span>
                             <span class="challenge-label">Limited visibility into claim status and trends</span>
                             <span class="pill">Choose</span>
                         </button>
 
-                        <button class="challenge-card reveal" data-delay="5" data-challenge="fragmented_systems">
+                        <button class="challenge-card reveal" data-delay="6" data-challenge="fragmented_systems">
                             <span class="challenge-number">03</span>
                             <span class="challenge-label">Fragmented systems and data silos</span>
                             <span class="pill">Choose</span>
                         </button>
                     </div>
 
-                    <a href="#" class="skip-link" data-action="skip-diagnostic">Skip this question</a>
+                    <a href="#" class="skip-link" data-action="skip-diagnostic">Move to next section</a>
                 </div>
 
                 <!-- STAGE 2 — first follow-up (question contents filled by JS) -->
@@ -3201,13 +3662,14 @@
         </div>
 
         <div class="slide-content">
-            <h2 class="reveal" data-delay="1">Let's get a call on the books.</h2>
-            <p class="subhead reveal" data-delay="2">
-                Darrel (CMO) will spend 20 minutes walking you through what <em class="brand">Klear.ai</em> looks like in your environment.
+            <p class="solutions-eyebrow reveal" data-delay="1">NEXT STEPS.</p>
+            <h2 class="reveal" data-delay="2">Let's get a call on the books.</h2>
+            <p class="subhead reveal" data-delay="3">
+                Our Subject Matter Expert (SME) will spend 20 minutes walking you through what <em class="brand">Klear.ai</em> looks like in your environment.
             </p>
 
             <div class="booking-grid">
-                <form class="booking-form glass reveal" data-delay="3" onsubmit="return false;">
+                <form class="booking-form glass reveal" data-delay="4" onsubmit="return false;">
                     <div class="form-row">
                         <label for="email">Your work email</label>
                         <input type="email" id="email" placeholder="you@company.com" autocomplete="email">
@@ -3222,7 +3684,7 @@
                          Autosaved to localStorage and emailed via Formsubmit
                          when "Book my time" is clicked. -->
                     <div class="form-row">
-                        <label>When are you hoping to have something in place?</label>
+                        <label>Implementation timeline</label>
                         <div class="icp-tiles" data-field="timeline" data-multi="false">
                             <button type="button" class="icp-tile" data-value="this-quarter">This quarter</button>
                             <button type="button" class="icp-tile" data-value="6-months">Next 6 months</button>
@@ -3232,7 +3694,7 @@
                     </div>
 
                     <div class="form-row">
-                        <label>Where are you on budget?</label>
+                        <label>Budget status</label>
                         <div class="icp-tiles" data-field="budget" data-multi="false">
                             <button type="button" class="icp-tile" data-value="allocated">Allocated</button>
                             <button type="button" class="icp-tile" data-value="in-planning">In planning</button>
@@ -3256,10 +3718,10 @@
 
                 </form>
 
-                <div class="calendar-frame glass reveal" data-delay="4">
+                <div class="calendar-frame glass reveal" data-delay="5">
                     <div>
                         <div class="calendar-label">Request a time</div>
-                        <div class="calendar-sub">Darrel (CMO) replies within one business day · times shown in <span data-slot="visitor-tz-label">your timezone</span></div>
+                        <div class="calendar-sub">Our Subject Matter Expert (SME) replies within one business day · times shown in <span data-slot="visitor-tz-label">your timezone</span></div>
                     </div>
 
                     <!-- Date strip: horizontal row of the next 10 weekdays. Click
@@ -3289,13 +3751,16 @@
                     <!-- Send-state container — swaps between "Send my request"
                          CTA and a confirmation message after submit. -->
                     <div id="sendContainer">
-                        <button type="button" class="pill large" id="sendRequest">Send my request</button>
+                        <button type="button" class="pill large" id="sendRequest">
+                            Request a time
+                            <span class="pill-arrow" aria-hidden="true">→</span>
+                        </button>
                         <p class="send-error" id="sendError" hidden></p>
                     </div>
                 </div>
             </div>
 
-            <a href="#" class="nurture-link reveal" data-delay="5">Send me a summary instead</a>
+            <a href="#" class="nurture-link reveal" data-delay="6">Send me a summary instead</a>
         </div>
     </section>
 
@@ -4315,7 +4780,7 @@
                 sendContainerEl.innerHTML =
                     '<div class="send-success">' +
                         '<strong>Request sent.</strong><br>' +
-                        'We received your request for ' + when + '. Darrel will reply within one business day to confirm or suggest a nearby slot.' +
+                        'We received your request for ' + when + '. Our Subject Matter Expert (SME) will reply within one business day to confirm or suggest a nearby slot.' +
                         '<div class="gamma-takeaway" id="gammaTakeaway" data-state="' + initialStatus + '">' +
                             '<div class="gamma-takeaway-pending">' +
                                 '<span class="gamma-spinner" aria-hidden="true"></span>' +
@@ -4402,6 +4867,21 @@
                     tourToggle.setAttribute('aria-expanded', String(tourExpanded));
                     localStorage.setItem(TOUR_EXPANDED_KEY, String(tourExpanded));
                 });
+            }
+
+            // v1.3.0 — top-nav Circle K drives the (now-hidden) tour-toggle.
+            // Clicking the nav K pops out the tour-rail of slide stops; the
+            // chevron rotates to mirror the original toggle behavior. The
+            // home-scroll behavior on the brand link is intentionally
+            // dropped — the bottom-tab Home button covers that.
+            const navBrand = document.querySelector('.top-nav-brand');
+            if (navBrand && tourToggle && tourTracker) {
+                navBrand.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    tourToggle.click();
+                    navBrand.classList.toggle('tour-open', tourTracker.classList.contains('expanded'));
+                });
+                navBrand.classList.toggle('tour-open', tourTracker.classList.contains('expanded'));
             }
 
             tourStops.forEach(stop => {
@@ -5252,6 +5732,69 @@
                     clamp(christinaFloat);
                 });
             });
+        })();
+    </script>
+
+    <!-- ===========================================
+         v1.3.0 BOTTOM TAB BAR
+         Fixed bottom nav with 4 anchors. Active state synced by the
+         IntersectionObserver below.
+         =========================================== -->
+    <nav class="bottom-tabs" aria-label="Page sections">
+        <a class="bottom-tab" data-target="slide-0" href="#slide-0" aria-label="Home">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 11l9-8 9 8M5 9.5V21h14V9.5" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span>Home</span>
+        </a>
+        <a class="bottom-tab" data-target="slide-1" href="#slide-1" aria-label="Features">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l2.6 5.6L20 9.5l-4 4 1 5.8L12 16.5l-5 2.8 1-5.8-4-4 5.4-.9L12 3z" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span>Features</span>
+        </a>
+        <a class="bottom-tab" data-target="slide-2" href="#slide-2" aria-label="Solutions">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 18h6M10 21h4M12 3a6 6 0 016 6c0 3-2 4.5-2.5 6h-7C8 13.5 6 12 6 9a6 6 0 016-6z" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span>Solutions</span>
+        </a>
+        <a class="bottom-tab" data-target="slide-4" href="#slide-4" aria-label="Demo">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="15" rx="2" stroke-linejoin="round"/>
+                <path d="M3 9h18M8 3v4M16 3v4" stroke-linecap="round"/>
+            </svg>
+            <span>Demo</span>
+        </a>
+    </nav>
+
+    <!-- Active-tab tracker: hooks into the slide-change pattern used by
+         the top tour-tracker. Tabs map to slide ids (slide-0, slide-1,
+         slide-2, slide-4); slide-3 (diagnostic) inherits the Solutions
+         active state since it's part of the solution-discovery flow. -->
+    <script>
+        (function () {
+            const tabs = Array.from(document.querySelectorAll('.bottom-tab'));
+            if (!tabs.length) return;
+            const slideEls = Array.from(document.querySelectorAll('section.slide'));
+            if (!slideEls.length) return;
+            // Map each slide id to which tab should be "active" while in view.
+            const SLIDE_TO_TAB = {
+                'slide-0': 'slide-0',
+                'slide-1': 'slide-1',
+                'slide-2': 'slide-2',
+                'slide-3': 'slide-2',   // diagnostic shares the Solutions tab
+                'slide-4': 'slide-4'
+            };
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach((e) => {
+                    if (e.intersectionRatio > 0.5) {
+                        const activeTabId = SLIDE_TO_TAB[e.target.id];
+                        tabs.forEach(t => t.classList.toggle('active', t.dataset.target === activeTabId));
+                    }
+                });
+            }, { threshold: [0.5] });
+            slideEls.forEach(s => obs.observe(s));
         })();
     </script>
 </body>
