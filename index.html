@@ -1290,15 +1290,99 @@
            dark, growth-chart watermark + medallion + side-by-side layout
            are retired in favor of a centered heading + body + vertical
            awards stack. */
-        section#slide-1 {
+        section#slide-1,
+        section#slide-2,
+        section#slide-3,
+        section#slide-4 {
             background: var(--surface);
         }
-        section#slide-1 .gradient-bg { display: none; }
+        section#slide-1 .gradient-bg,
+        section#slide-2 .gradient-bg,
+        section#slide-3 .gradient-bg,
+        section#slide-4 .gradient-bg { display: none; }
         section#slide-1 .slide-content {
             align-items: center;
             text-align: center;
             gap: var(--space-md);
         }
+
+        /* v1.3.0 — text colors flip for light-surface slides 1-4. The
+           hero on slide 0 keeps white-on-purple defaults. */
+        section#slide-2 h2,
+        section#slide-3 h2,
+        section#slide-4 h2 {
+            color: var(--klear-navy);
+        }
+        section#slide-2 .subhead,
+        section#slide-3 .subhead,
+        section#slide-4 .subhead {
+            color: rgba(26, 11, 46, 0.72);
+        }
+        section#slide-2 .subhead .brand,
+        section#slide-3 .subhead .brand,
+        section#slide-4 .subhead .brand {
+            color: var(--klear-purple);
+            font-style: italic;
+        }
+
+        /* v1.3.0 — SOLUTIONS eyebrow above slide-2 heading per reference. */
+        .solutions-eyebrow {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--klear-purple);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: -0.5rem;
+        }
+
+        /* v1.3.0 — ICP-box (slide 2 / ICP capture) restyled for light surface. */
+        section#slide-2 .icp-box {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            box-shadow: 0 2px 6px -2px rgba(99, 14, 212, 0.06);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        section#slide-2 .icp-box-title { color: var(--klear-navy); }
+        section#slide-2 .icp-label { color: rgba(26, 11, 46, 0.62); }
+        section#slide-2 .icp-hint { color: rgba(26, 11, 46, 0.5); }
+        section#slide-2 .icp-input {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-2 .icp-input::placeholder { color: rgba(26, 11, 46, 0.4); }
+        section#slide-2 .icp-input:focus {
+            background: var(--surface-container-lowest);
+            border-color: var(--klear-purple);
+        }
+
+        /* v1.3.0 — challenge cards (slide 3 / diagnostic) restyled for
+           light surface. The numbered 01 / 02 / 03 treatment + "Choose"
+           pill structure is preserved; only the chrome flips light. */
+        section#slide-3 .challenge-card {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            box-shadow: 0 2px 6px -2px rgba(99, 14, 212, 0.08);
+        }
+        section#slide-3 .challenge-card::before { display: none; }
+        section#slide-3 .challenge-card:hover {
+            background: var(--surface-container-low);
+            border-color: rgba(99, 14, 212, 0.32);
+            box-shadow: 0 12px 32px -10px rgba(99, 14, 212, 0.2);
+        }
+        section#slide-3 .challenge-number { color: var(--klear-purple); }
+        section#slide-3 .challenge-label  { color: var(--klear-navy); }
+        section#slide-3 .skip-link        { color: rgba(26, 11, 46, 0.55); }
+        section#slide-3 .skip-link:hover  { color: var(--klear-purple); }
+
+        /* v1.3.0 — diagnostic Q1/Q2 stage chrome on light surface. */
+        section#slide-3 .diag-breadcrumb-step { color: rgba(26, 11, 46, 0.45); }
+        section#slide-3 .diag-breadcrumb-step.done    { color: var(--klear-purple); }
+        section#slide-3 .diag-breadcrumb-step.current { color: var(--klear-navy); font-weight: 600; }
+        section#slide-3 .diag-q-eyebrow { color: var(--klear-purple); }
+        section#slide-3 .diag-back-link { color: rgba(26, 11, 46, 0.55); }
+        section#slide-3 .diag-back-link:hover { color: var(--klear-purple); }
 
         .award-layout {
             display: flex;
@@ -1538,36 +1622,42 @@
             gap: 7px;
         }
 
+        /* v1.3.0 — icp-tile (pill) restyled for light surfaces. Default
+           hover lifts subtly; selected state goes brand purple with
+           white text per D1. Legacy dark-surface fallback is preserved
+           for any context still on a dark background. */
         .icp-tile {
-            padding: 8px 13px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 10px;
-            color: var(--text-primary);
+            padding: 9px 16px;
+            background: var(--surface-container-lowest);
+            border: 1.5px solid var(--surface-dim);
+            border-radius: 12px;
+            color: var(--klear-navy);
             font-size: var(--size-small);
             font-family: var(--font);
             font-weight: 500;
-            min-height: 36px;
+            min-height: 40px;
             cursor: pointer;
             transition: background var(--dur-fast),
                         border-color var(--dur-fast),
+                        color var(--dur-fast),
                         transform var(--dur-fast) var(--ease-out-soft),
                         box-shadow var(--dur-fast);
         }
         .icp-tile:hover {
-            background: rgba(255, 255, 255, 0.16);
-            border-color: rgba(255, 255, 255, 0.34);
+            background: var(--surface-container-low);
+            border-color: rgba(99, 14, 212, 0.32);
             transform: translateY(-1px);
         }
         .icp-tile.selected {
-            background: rgba(251, 207, 232, 0.38);
-            border-color: rgba(251, 207, 232, 0.7);
-            color: var(--text-primary);
-            box-shadow: 0 0 0 1px rgba(251, 207, 232, 0.45) inset,
-                        0 6px 18px -8px rgba(251, 207, 232, 0.45);
+            background: var(--klear-purple);
+            border-color: var(--klear-purple);
+            color: #FFFFFF;
+            box-shadow: 0 6px 18px -8px rgba(99, 14, 212, 0.45);
         }
         .icp-tile.selected:hover {
-            background: rgba(251, 207, 232, 0.5);
+            background: var(--cta-bg-hover);
+            border-color: var(--cta-bg-hover);
+            color: #FFFFFF;
         }
 
         /* Legacy .slide.gate rule kept in case anything still references it. */
@@ -3092,9 +3182,10 @@
         </div>
 
         <div class="slide-content">
-            <h2 class="reveal" data-delay="1">How can we help you today!</h2>
-            <p class="subhead reveal" data-delay="2">
-                select type &mdash; select role &mdash; select responsibilities.
+            <p class="solutions-eyebrow reveal" data-delay="1">SOLUTIONS</p>
+            <h2 class="reveal" data-delay="2">How can we help you today?</h2>
+            <p class="subhead reveal" data-delay="3">
+                Tell us about your organization, your role, and what you do day-to-day. We'll tailor the rest of the tour to your environment.
             </p>
 
             <!-- Three-box layout mirroring the original engagement-gate pattern:
