@@ -1576,6 +1576,61 @@
         section#slide-4 .calendar-mini .day-head { color: rgba(26, 11, 46, 0.5); }
         section#slide-4 .calendar-mini .day      { color: rgba(26, 11, 46, 0.72); }
 
+        /* v1.3.0 — date strip, slot pills, and request-confirm chip
+           re-tinted for the light-surface booking card. Previously
+           inherited white-on-dark from the legacy dark-glass design,
+           which rendered as white-on-white (invisible) here. */
+        section#slide-4 .date-strip { scrollbar-color: rgba(99, 14, 212, 0.3) transparent; }
+        section#slide-4 .date-strip::-webkit-scrollbar-thumb { background: rgba(99, 14, 212, 0.25); }
+        section#slide-4 .date-card {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .date-card-dow { color: rgba(26, 11, 46, 0.6); }
+        section#slide-4 .date-card-day { color: var(--klear-navy); }
+        section#slide-4 .date-card-mon { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .date-card:hover {
+            background: var(--surface-container-lowest);
+            border-color: rgba(99, 14, 212, 0.4);
+        }
+        section#slide-4 .date-card.selected {
+            background: var(--klear-purple);
+            border-color: var(--klear-purple);
+            box-shadow: 0 8px 22px -8px rgba(99, 14, 212, 0.45);
+        }
+        section#slide-4 .date-card.selected .date-card-dow,
+        section#slide-4 .date-card.selected .date-card-day,
+        section#slide-4 .date-card.selected .date-card-mon { color: #FFFFFF; }
+
+        section#slide-4 .slot-pill {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .slot-pill .slot-window { color: rgba(26, 11, 46, 0.6); }
+        section#slide-4 .slot-pill:hover {
+            background: var(--surface-container-lowest);
+            border-color: rgba(99, 14, 212, 0.4);
+        }
+        section#slide-4 .slot-pill.selected {
+            background: var(--klear-purple);
+            border-color: var(--klear-purple);
+            color: #FFFFFF;
+        }
+        section#slide-4 .slot-pill.selected .slot-window { color: rgba(255, 255, 255, 0.82); }
+
+        section#slide-4 .request-confirm {
+            background: rgba(99, 14, 212, 0.08);
+            border: 1px solid rgba(99, 14, 212, 0.28);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .request-confirm strong { color: var(--klear-purple); }
+        section#slide-4 .request-confirm .tz-tag {
+            color: rgba(26, 11, 46, 0.6);
+            background: rgba(99, 14, 212, 0.10);
+        }
+
         .award-layout {
             display: flex;
             flex-direction: column;
