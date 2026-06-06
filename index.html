@@ -1119,16 +1119,15 @@
             border-radius: clamp(20px, 2.5vw, 28px);
             position: relative;
             overflow: hidden;
-            /* v1.3.0 — lavender frame is now a TRUE OVERLAY via inset
-               box-shadow, not a CSS border. The video fills the entire
-               box (no offset); the inset shadow paints the lavender
-               frame ON TOP of the video edges, covering any dark
-               letterbox / content bleed at the seam. Outer box-shadow
-               supplies the brand-purple drop for depth. */
+            /* v1.3.0 — lavender frame is painted by .video-poster::before
+               as a dedicated overlay (z-index 3, above both the video
+               element at z-index 1 and the radial highlights ::after at
+               z-index 2). This guarantees the frame stays visible during
+               playback regardless of how the video element repaints its
+               native controls / surface. Outer box-shadow supplies the
+               brand-purple drop for depth. */
             border: none;
-            box-shadow:
-                inset 0 0 0 clamp(10px, 1.4vw, 16px) var(--surface-container-low),
-                0 30px 70px -24px rgba(99, 14, 212, 0.45);
+            box-shadow: 0 30px 70px -24px rgba(99, 14, 212, 0.45);
             transition: transform var(--dur-med) var(--ease-out-soft),
                         box-shadow var(--dur-med) var(--ease-out-soft);
             cursor: pointer;
@@ -1139,11 +1138,24 @@
             min-height: 44px;
         }
 
+        /* v1.3.0 — dedicated frame overlay. Sits ABOVE the video element
+           (z-index 1) and above the radial highlight ::after (z-index 2)
+           so the lavender mat always paints last, edge-aligned to the
+           container's rounded corners. pointer-events: none so the play
+           click still reaches the underlying poster. */
+        .video-poster::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 clamp(10px, 1.4vw, 16px) var(--surface-container-low);
+            z-index: 3;
+            pointer-events: none;
+        }
+
         .video-poster:hover {
             transform: translateY(-3px);
-            box-shadow:
-                inset 0 0 0 clamp(10px, 1.4vw, 16px) var(--surface-container-low),
-                0 40px 90px -24px rgba(99, 14, 212, 0.55);
+            box-shadow: 0 40px 90px -24px rgba(99, 14, 212, 0.55);
         }
 
         .video-poster::after {
@@ -1154,6 +1166,7 @@
                 radial-gradient(ellipse 30% 50% at 30% 40%, rgba(254, 215, 170, 0.1) 0%, transparent 60%),
                 radial-gradient(ellipse 40% 60% at 70% 60%, rgba(251, 207, 232, 0.08) 0%, transparent 60%);
             pointer-events: none;
+            z-index: 2;
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
 
