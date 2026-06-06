@@ -594,7 +594,9 @@
         /* Each stop = dot on top, label below (column layout, horizontal text). */
         .tour-stop {
             /* v1.3.0 — compact bulb-over-label stop fitted to the 56px
-               nav height. Vertically centered. */
+               nav height. Vertically centered. Label color is a softer
+               lavender (~2 shades lighter than dark navy) so the rail
+               reads as light, airy navigation. */
             pointer-events: auto;
             background: none;
             border: none;
@@ -607,7 +609,7 @@
             padding: 8px 6px;
             width: clamp(56px, 7vw, 78px);
             height: 100%;
-            color: rgba(26, 11, 46, 0.62);
+            color: rgba(99, 14, 212, 0.48);
             font-family: var(--font);
             font-size: 0.65rem;
             font-weight: 500;
@@ -655,10 +657,13 @@
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
 
+        /* v1.3.0 — past / current / future label colors lightened by
+           ~2 shades for the in-nav tour-rail. Bulb saturation kept
+           strong enough to read as the slide-position indicator. */
         /* Past = clearly visible glow inside the full circle */
         .tour-stop.past .tour-stop-dot { border-color: rgba(99, 14, 212, 0.85); }
         .tour-stop.past .tour-stop-dot::before { opacity: 0.78; }
-        .tour-stop.past { color: var(--klear-navy); }
+        .tour-stop.past { color: rgba(99, 14, 212, 0.62); }
 
         /* Current = brightest interior glow + breathing animation */
         .tour-stop.current .tour-stop-dot {
@@ -670,7 +675,7 @@
             animation: tour-bulb-interior 2.8s ease-in-out infinite;
         }
         .tour-stop.current {
-            color: var(--klear-purple);
+            color: #8B49E2;
             font-weight: 600;
         }
         @keyframes tour-bulb-breathe {
@@ -685,9 +690,9 @@
         /* Future = empty bulb, only outline */
         .tour-stop.future .tour-stop-dot { border-color: rgba(99, 14, 212, 0.22); }
         .tour-stop.future .tour-stop-dot::before { opacity: 0; }
-        .tour-stop.future { color: rgba(26, 11, 46, 0.4); }
+        .tour-stop.future { color: rgba(99, 14, 212, 0.32); }
 
-        .tour-stop:hover { color: var(--klear-navy); }
+        .tour-stop:hover { color: #8B49E2; }
         .tour-stop:hover .tour-stop-dot { border-color: var(--klear-purple); }
         .tour-stop:hover .tour-stop-dot { border-color: rgba(255, 255, 255, 0.85); }
 
