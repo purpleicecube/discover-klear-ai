@@ -112,6 +112,10 @@
             --radius-dark-card: 28px;
             --radius-tile: 18px;
             --radius-pill: 999px;
+
+            /* v1.3.0 — top nav bar height (referenced by tour-tracker offset
+               and by the nav itself). */
+            --nav-height: 56px;
         }
 
         /* ===========================================
@@ -323,9 +327,54 @@
            Active stop tracks the slide currently in viewport. Visitors
            can also click any stop to jump directly there.
            =========================================== */
+        /* ===========================================
+           v1.3.0 TOP NAV BAR
+           Fixed, translucent white with backdrop blur so the hero
+           gradient shows through. Klear.ai wordmark left, Contact right.
+           Hides automatically below the orb (z-index lower) and above
+           slide content (z-index higher).
+           =========================================== */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--nav-height);
+            z-index: 70;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(99, 14, 212, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-inline: clamp(1rem, 3vw, 2.25rem);
+            font-family: var(--font);
+        }
+        .top-nav-brand {
+            font-weight: 600;
+            font-size: 1.125rem;
+            letter-spacing: -0.01em;
+            color: var(--klear-navy);
+            text-decoration: none;
+        }
+        .top-nav-brand-mark { font-style: italic; }
+        .top-nav-contact {
+            font-weight: 500;
+            font-size: 0.9375rem;
+            color: var(--klear-purple);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            transition: background var(--dur-fast);
+        }
+        .top-nav-contact:hover {
+            background: rgba(99, 14, 212, 0.08);
+        }
+
         .tour-tracker {
             position: fixed;
-            top: clamp(1rem, 2.5vw, 1.75rem);
+            top: calc(var(--nav-height) + clamp(0.5rem, 1.5vw, 1rem));
             left: clamp(1rem, 3vw, 2.25rem);
             z-index: 60;
             display: flex;
@@ -2604,6 +2653,10 @@
             .icp-boxes  { grid-template-columns: 1fr; }
             .icp-box    { min-height: auto; }
 
+            /* v1.3.0 D3 — hide top tour-tracker on mobile; bottom tab
+               bar handles mobile navigation. Desktop keeps the tracker. */
+            .tour-tracker { display: none; }
+
             /* MOBILE SLIDE SIZING (v1.3.0) — sections size to their
                content for a natural mobile scroll, no fullscreen-padding
                bloat, no scroll-snap jerk between sections. Desktop's
@@ -2667,6 +2720,16 @@
     </style>
 </head>
 <body>
+
+    <!-- ===========================================
+         v1.3.0 TOP NAV BAR
+         Fixed white-translucent bar with Klear.ai wordmark (left) and
+         Contact link (right). Scroll-anchor to slide-4 (booking).
+         =========================================== -->
+    <nav class="top-nav" aria-label="Site navigation">
+        <a href="#slide-0" class="top-nav-brand"><em class="top-nav-brand-mark">Klear.ai</em></a>
+        <a href="#slide-4" class="top-nav-contact">Contact</a>
+    </nav>
 
     <!-- ===========================================
          Persistent overlays
