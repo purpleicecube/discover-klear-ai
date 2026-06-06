@@ -1384,6 +1384,41 @@
         section#slide-3 .diag-back-link { color: rgba(26, 11, 46, 0.55); }
         section#slide-3 .diag-back-link:hover { color: var(--klear-purple); }
 
+        /* v1.3.0 — slide 5 (booking) restyled for light surface. The .glass
+           cards (booking-form + calendar-frame) flip from translucent dark
+           to clean white. Form labels, inputs, textarea, calendar chrome,
+           privacy line, and required-mark all re-tinted for light. */
+        section#slide-4 .glass {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            box-shadow: 0 4px 16px -6px rgba(99, 14, 212, 0.10);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        section#slide-4 .form-row label { color: var(--klear-navy); font-weight: 600; }
+        section#slide-4 .form-row input,
+        section#slide-4 .form-textarea {
+            background: var(--surface-container-low);
+            border: 1.5px solid var(--surface-dim);
+            color: var(--klear-navy);
+        }
+        section#slide-4 .form-row input::placeholder,
+        section#slide-4 .form-textarea::placeholder { color: rgba(26, 11, 46, 0.4); }
+        section#slide-4 .form-row input:focus,
+        section#slide-4 .form-textarea:focus {
+            background: var(--surface-container-lowest);
+            border-color: var(--klear-purple);
+        }
+        section#slide-4 .next-steps-hint { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .required-mark   { color: var(--klear-purple); }
+        section#slide-4 .privacy-line    { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .privacy-line a  { color: var(--klear-purple); }
+        section#slide-4 .privacy-line a:hover { color: var(--cta-bg-hover); }
+        section#slide-4 .calendar-label  { color: var(--klear-navy); }
+        section#slide-4 .calendar-sub    { color: rgba(26, 11, 46, 0.55); }
+        section#slide-4 .calendar-mini .day-head { color: rgba(26, 11, 46, 0.5); }
+        section#slide-4 .calendar-mini .day      { color: rgba(26, 11, 46, 0.72); }
+
         .award-layout {
             display: flex;
             flex-direction: column;
@@ -3429,7 +3464,7 @@
                          Autosaved to localStorage and emailed via Formsubmit
                          when "Book my time" is clicked. -->
                     <div class="form-row">
-                        <label>When are you hoping to have something in place?</label>
+                        <label>Implementation timeline</label>
                         <div class="icp-tiles" data-field="timeline" data-multi="false">
                             <button type="button" class="icp-tile" data-value="this-quarter">This quarter</button>
                             <button type="button" class="icp-tile" data-value="6-months">Next 6 months</button>
@@ -3439,7 +3474,7 @@
                     </div>
 
                     <div class="form-row">
-                        <label>Where are you on budget?</label>
+                        <label>Budget status</label>
                         <div class="icp-tiles" data-field="budget" data-multi="false">
                             <button type="button" class="icp-tile" data-value="allocated">Allocated</button>
                             <button type="button" class="icp-tile" data-value="in-planning">In planning</button>
@@ -3496,7 +3531,10 @@
                     <!-- Send-state container — swaps between "Send my request"
                          CTA and a confirmation message after submit. -->
                     <div id="sendContainer">
-                        <button type="button" class="pill large" id="sendRequest">Send my request</button>
+                        <button type="button" class="pill large" id="sendRequest">
+                            Request a time
+                            <span class="pill-arrow" aria-hidden="true">→</span>
+                        </button>
                         <p class="send-error" id="sendError" hidden></p>
                     </div>
                 </div>
