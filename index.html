@@ -476,15 +476,13 @@
         html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
 
         .tour-tracker {
-            /* v1.3.0 — tour-tracker now sits INSIDE the top nav, in the
-               white space immediately to the right of the Circle K. The
-               rail's stops appear inline with the nav, not as a panel
-               dropping into the page below. Sits above the nav's z-index
-               so it paints over the nav's white background.
-               left: clears the K (38px) + chevron + nav padding. */
+            /* v1.3.0 — tour-tracker sits INSIDE the top nav, immediately
+               to the right of the Circle K + chevron. left: tightened so
+               the rail's first bulb sits right next to the chevron with
+               only a small breathing gap (~6px). */
             position: fixed;
             top: 0;
-            left: clamp(5.25rem, 9vw, 7.5rem);
+            left: clamp(4.5rem, 7.5vw, 6.5rem);
             height: var(--nav-height);
             z-index: 75;
             display: flex;
@@ -548,10 +546,11 @@
             /* v1.3.0 — rail sits inside the nav bar (no panel chrome).
                Compact horizontal strip with bulb-over-label stops sized
                to fit the 56px nav height. Background is transparent —
-               the nav's own translucent white provides the surface. */
+               the nav's own translucent white provides the surface.
+               Left padding tightened to close the chevron-to-line gap. */
             position: relative;
             margin: 0;
-            padding: 0 16px;
+            padding: 0 12px 0 6px;
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -575,8 +574,8 @@
            centers. Bulb height is 16, so its center sits at top: 7. */
         .tour-line {
             position: absolute;
-            left: 16px;
-            right: 16px;
+            left: 6px;
+            right: 12px;
             /* Centered through bulb center: bulb is 12px tall and the
                stop column starts ~14px from the top of the 56px nav,
                so bulb center sits at ~20px. */
@@ -1120,16 +1119,16 @@
             border-radius: clamp(20px, 2.5vw, 28px);
             position: relative;
             overflow: hidden;
-            /* v1.3.0 — chunky lavender "matte" frame around the video.
-               Light surface color matches the awards / form light surfaces.
-               Inner video sits inside this border so the video's corners
-               nest cleanly behind the lighter frame. Background-clip:
-               padding-box keeps the poster image clipped to the inner
-               (non-border) area so the lavender mat reads as a solid
-               continuous frame. */
-            border: clamp(10px, 1.4vw, 16px) solid var(--surface-container-low);
-            background-clip: padding-box;
-            box-shadow: 0 30px 70px -24px rgba(99, 14, 212, 0.45);
+            /* v1.3.0 — lavender frame is now a TRUE OVERLAY via inset
+               box-shadow, not a CSS border. The video fills the entire
+               box (no offset); the inset shadow paints the lavender
+               frame ON TOP of the video edges, covering any dark
+               letterbox / content bleed at the seam. Outer box-shadow
+               supplies the brand-purple drop for depth. */
+            border: none;
+            box-shadow:
+                inset 0 0 0 clamp(10px, 1.4vw, 16px) var(--surface-container-low),
+                0 30px 70px -24px rgba(99, 14, 212, 0.45);
             transition: transform var(--dur-med) var(--ease-out-soft),
                         box-shadow var(--dur-med) var(--ease-out-soft);
             cursor: pointer;
@@ -1142,7 +1141,9 @@
 
         .video-poster:hover {
             transform: translateY(-3px);
-            box-shadow: 0 40px 90px -24px rgba(99, 14, 212, 0.55);
+            box-shadow:
+                inset 0 0 0 clamp(10px, 1.4vw, 16px) var(--surface-container-low),
+                0 40px 90px -24px rgba(99, 14, 212, 0.55);
         }
 
         .video-poster::after {
@@ -1157,16 +1158,17 @@
         }
 
         /* Real <video> element layered over the poster; revealed on play.
-           v1.3.0 — inner radius set to match the inner curvature of the
-           lavender mat (outer radius minus border width ≈ 12px) so the
-           video edge nests cleanly inside the frame with no seam. */
+           v1.3.0 — video fills the entire .video-poster box (no border
+           offset anymore). Border-radius matches the outer container's
+           radius so the corners align. The inset box-shadow on the
+           parent paints the lavender frame on top of these edges. */
         .video-element {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: clamp(8px, 1.1vw, 12px);
+            border-radius: clamp(20px, 2.5vw, 28px);
             background: var(--surface-container-low);
             opacity: 0;
             transition: opacity var(--dur-med) var(--ease-out-soft);
