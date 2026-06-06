@@ -1285,42 +1285,68 @@
             gap: var(--space-lg);
         }
 
-        .award-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-            gap: clamp(1.5rem, 4vw, 4rem);
+        /* v1.3.0 — slide 2 (award/trust) switches to a light surface
+           per the reference image. Heading goes brand purple, body goes
+           dark, growth-chart watermark + medallion + side-by-side layout
+           are retired in favor of a centered heading + body + vertical
+           awards stack. */
+        section#slide-1 {
+            background: var(--surface);
+        }
+        section#slide-1 .gradient-bg { display: none; }
+        section#slide-1 .slide-content {
             align-items: center;
+            text-align: center;
+            gap: var(--space-md);
+        }
+
+        .award-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: var(--space-md);
             width: 100%;
-            max-width: min(1100px, 92vw);
+            max-width: min(680px, 92vw);
         }
 
         .award-text {
             display: flex;
             flex-direction: column;
-            gap: var(--space-md);
+            align-items: center;
+            text-align: center;
+            gap: var(--space-sm);
         }
 
         .award-eyebrow {
             font-weight: 500;
             font-size: var(--size-small);
-            color: var(--text-secondary);
-            letter-spacing: 0.04em;
-            text-transform: none;
+            color: rgba(26, 11, 46, 0.55);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         .award-text h2 {
-            font-size: clamp(2rem, 4.8vw, 4rem);
+            font-size: clamp(2rem, 4.8vw, 3.75rem);
             font-weight: 700;
             line-height: 1.02;
-            max-width: 12ch;
+            color: var(--klear-purple);
+            letter-spacing: -0.02em;
         }
 
         .award-text .subhead {
-            text-align: left;
-            max-width: 44ch;
-            color: var(--text-secondary);
+            text-align: center;
+            max-width: 52ch;
+            color: rgba(26, 11, 46, 0.78);
             font-size: clamp(0.9375rem, 1.25vw, 1.0625rem);
         }
+        .award-text .subhead strong { color: var(--klear-navy); }
+        .award-text .subhead .brand { color: var(--klear-purple); font-style: italic; }
+
+        /* v1.3.0 retires the medal + growth-chart watermark from slide 2
+           in favor of the cleaner light-surface awards-stack treatment. */
+        section#slide-1 .award-medal-wrap { display: none; }
+        section#slide-1 .growth-chart-bg { display: none; }
 
         .award-medal-wrap {
             position: relative;
@@ -1347,70 +1373,72 @@
         }
 
         /* ---------- Compact award strip (backgrounder under the hero copy) ---------- */
+        /* ===========================================
+           v1.3.0 AWARDS STACK (Slide 2)
+           Vertical single-column stack on light surface, brand-purple
+           icon strokes, dark heading + muted body text. Replaces the
+           legacy 5-column dark glass chip strip.
+           =========================================== */
         .awards-strip {
             width: 100%;
-            max-width: min(1100px, 92vw);
+            max-width: min(640px, 92vw);
             margin-top: var(--space-lg);
-            display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .award-chip {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 6px;
-            padding: 12px 14px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            gap: 4px;
+            padding: 18px 22px;
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--surface-dim);
+            border-radius: 18px;
+            box-shadow: 0 2px 6px -2px rgba(99, 14, 212, 0.08);
             transition: transform var(--dur-fast) var(--ease-out-soft),
-                        background var(--dur-fast),
+                        box-shadow var(--dur-fast),
                         border-color var(--dur-fast);
-            min-height: 84px;
         }
         .award-chip:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(251, 207, 232, 0.45);
+            border-color: rgba(99, 14, 212, 0.3);
+            box-shadow: 0 8px 24px -8px rgba(99, 14, 212, 0.18);
             transform: translateY(-2px);
         }
         .award-chip-head {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             width: 100%;
         }
         .award-chip-icon {
-            width: 18px;
-            height: 18px;
+            width: 28px;
+            height: 28px;
             flex-shrink: 0;
-            stroke: rgba(251, 207, 232, 0.92);
+            stroke: var(--klear-purple);
             fill: none;
             stroke-width: 1.8;
         }
         .award-chip-title {
-            font-size: 0.82rem;
+            font-size: 1.0625rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--klear-navy);
             line-height: 1.2;
-            letter-spacing: -0.005em;
+            letter-spacing: -0.01em;
         }
         .award-chip-meta {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.6);
-            letter-spacing: 0.02em;
-            line-height: 1.35;
-        }
-        @media (max-width: 920px) {
-            .awards-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            font-size: 0.875rem;
+            color: rgba(26, 11, 46, 0.62);
+            letter-spacing: 0.01em;
+            line-height: 1.4;
+            padding-left: 40px;
         }
         @media (max-width: 560px) {
-            .awards-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-            .award-chip { padding: 10px 12px; min-height: 76px; }
-            .award-chip-title { font-size: 0.76rem; }
-            .award-chip-meta { font-size: 0.66rem; }
+            .award-chip { padding: 16px 18px; }
+            .award-chip-title { font-size: 1rem; }
+            .award-chip-meta { font-size: 0.8125rem; padding-left: 0; }
+            .award-chip-icon { width: 24px; height: 24px; }
         }
 
         /* ===========================================
@@ -3019,7 +3047,7 @@
                         </svg>
                         <span class="award-chip-title">Most Innovative AI Firm</span>
                     </div>
-                    <span class="award-chip-meta">Claims &amp; risk management software</span>
+                    <span class="award-chip-meta">Software &amp; risk management software</span>
                 </div>
 
                 <div class="award-chip" role="listitem">
@@ -3031,18 +3059,6 @@
                         <span class="award-chip-title">Redhand Innovation (2X)</span>
                     </div>
                     <span class="award-chip-meta">Industry leadership 2024 &amp; 2025</span>
-                </div>
-
-                <div class="award-chip" role="listitem">
-                    <div class="award-chip-head">
-                        <svg class="award-chip-icon" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M3 5h14M3 10h14M3 15h9" stroke-linecap="round"/>
-                            <circle cx="17.5" cy="17" r="3" />
-                            <path d="M19.7 19.2L22 21.5" stroke-linecap="round"/>
-                        </svg>
-                        <span class="award-chip-title">Top 10 Audit Award</span>
-                    </div>
-                    <span class="award-chip-meta">Excellence in auditing practices</span>
                 </div>
 
                 <div class="award-chip" role="listitem">
