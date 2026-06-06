@@ -4438,13 +4438,56 @@
                     + ' (' + bantStr + ') — ' + (payload.email || '(no email)')
                     + ' — visit #' + payload.visit_number
                     + (payload.is_returnee ? ' (returnee)' : '');
-                const body = JSON.stringify(Object.assign({
+
+                // v1.3.0 — polished use-case-delivery autoresponse to the
+                // visitor when (a) they actually submitted (book_meeting)
+                // (b) we captured an email and (c) a Gamma deck URL is on
+                // hand. Gamma returns the URL as soon as the job starts,
+                // so the link is live even if rendering is still in
+                // progress. Darrel sees the exact delivered message
+                // mirrored into the lead-capture payload as field
+                // `13_visitor_delivery_email`.
+                const ec = state.current;
+                const deckUrl = ec.gammaUrl || '';
+                const companyForEmail = ((ec.org_name || ec.company || '').trim()) || 'your team';
+                const useCaseForEmail = (ec.use_case_title || '').trim() || 'your selected challenge';
+                let polishedDelivery = '';
+                if (terminal === 'book_meeting' && ec.email && deckUrl) {
+                    polishedDelivery =
+                        'Hi there,\n\n' +
+                        'Thank you for taking a look at Klear.ai. As promised, ' +
+                        'here is the personalized documentation we\'ve prepared for ' +
+                        companyForEmail + ' based on the use case you described:\n\n' +
+                        'Open your Klear.ai use case: ' + deckUrl + '\n\n' +
+                        'The deck covers how Klear.ai handles ' + useCaseForEmail +
+                        ' for organizations like yours, with metrics and outcome ' +
+                        'expectations you can share with your team. Open it in any ' +
+                        'browser, or use Gamma\'s "Download as PDF" option if you\'d ' +
+                        'prefer a file.\n\n' +
+                        'If you have questions before our scheduled time, just reply ' +
+                        'to this email — we\'ll loop the right person in.\n\n' +
+                        '— The Klear.ai team';
+                    // Mirror the delivered message into the payload so
+                    // Darrel sees exactly what the visitor received.
+                    payload['13_visitor_delivery_email'] =
+                        'Auto-sent to ' + ec.email + ' on submit:\n\n' + polishedDelivery;
+                }
+
+                const meta = {
                     _subject: subject,
                     _cc: CC_RECIPIENTS,
                     _captcha: 'false',
                     _template: 'table',
                     _honey: ''
-                }, payload));
+                };
+                if (polishedDelivery) {
+                    // Setting _replyto routes the Formsubmit autoresponse to
+                    // the visitor's address. The autoresponse body is the
+                    // polished delivery message above.
+                    meta._replyto = ec.email;
+                    meta._autoresponse = polishedDelivery;
+                }
+                const body = JSON.stringify(Object.assign(meta, payload));
 
                 // eslint-disable-next-line no-console
                 console.log('[Discover Klear.ai] →', terminal, payload);
