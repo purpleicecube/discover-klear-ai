@@ -476,21 +476,21 @@
         html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
 
         .tour-tracker {
-            /* v1.3.0 — tour-tracker visible, but its own K-logo toggle
-               is hidden (the K + chevron in the top nav drive the
-               toggle now). The horizontal rail of slide stops pops out
-               just below the top nav when the nav's K is clicked. */
+            /* v1.3.0 — tour-tracker anchored flush against the bottom
+               of the top nav, aligned with the nav's left padding so it
+               feels like a dropdown panel attached to the nav's Circle
+               K. The drop-shadow filter is removed — the rail's own
+               box-shadow handles separation from page content. */
             position: fixed;
-            top: calc(var(--nav-height) + clamp(0.5rem, 1.5vw, 1rem));
+            top: var(--nav-height);
             left: clamp(1rem, 3vw, 2.25rem);
             z-index: 60;
             display: flex;
             flex-direction: row;
             align-items: flex-start;
-            gap: 16px;
+            gap: 0;
             pointer-events: none;
-            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.18))
-                    drop-shadow(0 0 24px rgba(255, 255, 255, 0.06));
+            filter: none;
         }
         /* Hide the tour-tracker's own K-logo toggle — the nav's Circle K
            drives the toggle now. The rail itself stays. */
@@ -544,9 +544,8 @@
            runs left-to-right through bulb centers. */
         .tour-rail {
             position: relative;
-            margin-top: calc(clamp(80px, 8vw, 120px) / 2 - 8px);
-            padding-left: 18px;
-            padding-right: 22px;
+            margin-top: 0;
+            padding: 14px 22px 16px;
             display: flex;
             flex-direction: row;
             align-items: flex-start;
@@ -554,28 +553,41 @@
             max-width: 0;
             opacity: 0;
             overflow: hidden;
+            background: transparent;
+            border-radius: 0 0 16px 16px;
+            box-shadow: none;
             transition: max-width var(--dur-med) var(--ease-out-soft),
-                        opacity var(--dur-med) var(--ease-out-soft);
+                        opacity var(--dur-med) var(--ease-out-soft),
+                        background var(--dur-med) var(--ease-out-soft),
+                        box-shadow var(--dur-med) var(--ease-out-soft);
         }
+        /* v1.3.0 — when the rail is open, it reads as a light-purple
+           dropdown panel attached to the nav. Translucent purple over
+           white nav gives a clearly-tinted shade that still contrasts
+           strongly enough for the stops + labels to be legible. */
         .tour-tracker.expanded .tour-rail {
-            max-width: min(640px, calc(100vw - clamp(120px, 18vw, 180px)));
+            max-width: min(640px, calc(100vw - clamp(40px, 6vw, 80px)));
             opacity: 1;
             pointer-events: auto;
+            background: rgba(99, 14, 212, 0.14);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 10px 28px -12px rgba(99, 14, 212, 0.28);
         }
         /* The string is a thin horizontal glowing line running through bulb
            centers. Bulb height is 16, so its center sits at top: 7. */
         .tour-line {
             position: absolute;
-            left: 18px;
+            left: 22px;
             right: 22px;
-            top: 7px;
+            top: 21px;
             height: 1.5px;
             background: linear-gradient(90deg,
-                rgba(255, 255, 255, 0.32) 0%,
-                rgba(255, 255, 255, 0.5) 50%,
-                rgba(255, 255, 255, 0.32) 100%);
-            box-shadow: 0 0 6px rgba(255, 255, 255, 0.4),
-                        0 0 12px rgba(255, 255, 255, 0.18);
+                rgba(99, 14, 212, 0.35) 0%,
+                rgba(99, 14, 212, 0.6) 50%,
+                rgba(99, 14, 212, 0.35) 100%);
+            box-shadow: 0 0 6px rgba(99, 14, 212, 0.3),
+                        0 0 12px rgba(99, 14, 212, 0.15);
             border-radius: 2px;
             pointer-events: none;
         }
@@ -591,7 +603,7 @@
             gap: 10px;
             padding: 0 6px;
             width: clamp(64px, 8vw, 88px);
-            color: rgba(255, 255, 255, 0.78);
+            color: rgba(26, 11, 46, 0.62);
             font-family: var(--font);
             font-size: clamp(0.7rem, 0.85vw, 0.82rem);
             font-weight: 500;
@@ -615,7 +627,7 @@
             height: 16px;
             border-radius: 50%;
             background: transparent;
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border: 1.5px solid rgba(99, 14, 212, 0.35);
             flex-shrink: 0;
             z-index: 1;
             transition: border-color var(--dur-med) var(--ease-out-soft);
@@ -629,22 +641,22 @@
             border-radius: 50%;
             background: radial-gradient(
                 circle at 50% 50%,
-                rgba(255, 255, 255, 1) 0%,
-                rgba(255, 255, 255, 0.9) 55%,
-                rgba(255, 255, 255, 0.7) 100%
+                rgba(99, 14, 212, 1) 0%,
+                rgba(99, 14, 212, 0.88) 55%,
+                rgba(99, 14, 212, 0.65) 100%
             );
             opacity: 0;
             transition: opacity var(--dur-med) var(--ease-out-soft);
         }
 
         /* Past = clearly visible glow inside the full circle */
-        .tour-stop.past .tour-stop-dot { border-color: rgba(255, 255, 255, 0.92); }
+        .tour-stop.past .tour-stop-dot { border-color: rgba(99, 14, 212, 0.85); }
         .tour-stop.past .tour-stop-dot::before { opacity: 0.78; }
-        .tour-stop.past { color: rgba(255, 255, 255, 0.85); }
+        .tour-stop.past { color: var(--klear-navy); }
 
         /* Current = brightest interior glow + breathing animation */
         .tour-stop.current .tour-stop-dot {
-            border-color: #FFFFFF;
+            border-color: var(--klear-purple);
             animation: tour-bulb-breathe 2.8s ease-in-out infinite;
         }
         .tour-stop.current .tour-stop-dot::before {
@@ -652,12 +664,12 @@
             animation: tour-bulb-interior 2.8s ease-in-out infinite;
         }
         .tour-stop.current {
-            color: #FFFFFF;
+            color: var(--klear-purple);
             font-weight: 600;
         }
         @keyframes tour-bulb-breathe {
-            0%, 100% { border-color: rgba(255, 255, 255, 0.95); }
-            50%      { border-color: #FFFFFF; }
+            0%, 100% { border-color: rgba(99, 14, 212, 0.95); }
+            50%      { border-color: var(--klear-purple); }
         }
         @keyframes tour-bulb-interior {
             0%, 100% { opacity: 0.92; }
@@ -665,11 +677,12 @@
         }
 
         /* Future = empty bulb, only outline */
-        .tour-stop.future .tour-stop-dot { border-color: rgba(255, 255, 255, 0.32); }
+        .tour-stop.future .tour-stop-dot { border-color: rgba(99, 14, 212, 0.22); }
         .tour-stop.future .tour-stop-dot::before { opacity: 0; }
-        .tour-stop.future { color: rgba(255, 255, 255, 0.5); }
+        .tour-stop.future { color: rgba(26, 11, 46, 0.4); }
 
-        .tour-stop:hover { color: #FFFFFF; }
+        .tour-stop:hover { color: var(--klear-navy); }
+        .tour-stop:hover .tour-stop-dot { border-color: var(--klear-purple); }
         .tour-stop:hover .tour-stop-dot { border-color: rgba(255, 255, 255, 0.85); }
 
         /* Per-stop classes retained as no-op hooks for future tweaks. */
