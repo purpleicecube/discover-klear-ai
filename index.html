@@ -4670,23 +4670,32 @@
             // diverge from whatever we last generated. If so, the in-flight
             // / completed deck is stale and we should clear it so a fresh
             // generation kicks off on next CTA click.
+            //
+            // v1.3.0 stale-deck fix — the previous version early-returned
+            // when gammaHash was empty AND never persisted gammaInputsSig.
+            // That broke detection: on first generation the sig never got
+            // recorded, so subsequent visits with new inputs couldn't
+            // tell anything had changed and the prior deck kept showing.
+            // Now sig is updated + persisted on every call, even before
+            // first generation.
             function gammaCheckStale() {
-                if (!state.current.gammaHash || !gammaTriggerable()) return;
-                // Re-hash via the proxy's exact same logic isn't possible
-                // client-side without crypto.subtle. Approximate: if the
-                // selected challenge changes, or any of the key inputs
-                // change vs what we stored, treat as stale. We keep a
-                // simple inputs-fingerprint alongside gammaHash for this.
+                if (!gammaTriggerable()) return;
                 const sig = [
                     state.current.org_name, state.current.role, state.current.org_type,
                     (Array.isArray(state.current.responsibilities) ? state.current.responsibilities.slice().sort().join(',') : ''),
                     state.current.selected_challenge,
                     state.current.use_case_title
                 ].join('|');
-                if (state.current.gammaInputsSig && state.current.gammaInputsSig !== sig) {
+                // Only clear if we have a prior generation AND the inputs
+                // recorded at that time differ from the inputs in front of
+                // us now.
+                if (state.current.gammaHash &&
+                    state.current.gammaInputsSig &&
+                    state.current.gammaInputsSig !== sig) {
                     gammaClear();
                 }
                 state.current.gammaInputsSig = sig;
+                saveState();
                 saveState();
             }
 
@@ -5549,9 +5558,20 @@
                     saveState();
                     renderNextSteps();
                     // Auto-advance after a brief pause for the visual confirmation.
+                    // v1.3.0 stale-deck fix — when the visitor finishes Q2
+                    // and the result stage is about to render, run the
+                    // stale-deck check FIRST so a previously-stored
+                    // gammaUrl from a different organization / challenge
+                    // is cleared before the preview card paints. Without
+                    // this the result card shows the old prospect's deck.
                     setTimeout(() => {
-                        if (stageName === 'q1') setStage('q2');
-                        else setStage('result');
+                        if (stageName === 'q1') {
+                            setStage('q2');
+                        } else {
+                            gammaCheckStale();
+                            setStage('result');
+                            gammaRenderUI();
+                        }
                     }, 280);
                     return;
                 }
@@ -5605,7 +5625,14 @@
                 });
                 diagShell.dataset.stage = resumeStage;
                 if (resumeStage === 'q1' || resumeStage === 'q2') renderQuestionStage(resumeStage);
-                if (resumeStage === 'result') renderResultStage();
+                if (resumeStage === 'result') {
+                    // v1.3.0 stale-deck fix — if a returnee lands on the
+                    // result stage and their stored inputs (org_name etc.)
+                    // diverge from what we last generated, clear the old
+                    // deck so they don't see the prior prospect's preview.
+                    gammaCheckStale();
+                    renderResultStage();
+                }
             })();
 
             // Resume any in-flight Gamma generation from a prior session.
