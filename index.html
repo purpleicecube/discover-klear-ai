@@ -921,25 +921,33 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
             padding: clamp(0.625rem, 1vw, 0.875rem) clamp(1.25rem, 2.2vw, 1.875rem);
-            background: var(--pill-pink);
-            color: var(--pill-text);
+            background: var(--cta-bg);
+            color: var(--cta-fg);
             border-radius: var(--radius-pill);
             font-family: var(--font);
             font-weight: 600;
             font-size: var(--size-body);
             letter-spacing: 0;
             min-height: 44px;
+            text-decoration: none;
             transition: transform var(--dur-fast) var(--ease-out-soft),
                         background var(--dur-fast),
                         box-shadow var(--dur-fast);
-            box-shadow: 0 8px 20px -8px rgba(244, 180, 216, 0.45);
+            box-shadow: 0 8px 20px -8px rgba(99, 14, 212, 0.45);
         }
+        .pill .pill-arrow {
+            display: inline-block;
+            line-height: 1;
+            transition: transform var(--dur-fast) var(--ease-out-soft);
+        }
+        .pill:hover .pill-arrow { transform: translateX(3px); }
 
         .pill:hover {
             transform: translateY(-2px);
-            background: var(--pill-pink-bright);
-            box-shadow: 0 12px 32px -8px rgba(244, 180, 216, 0.6);
+            background: var(--cta-bg-hover);
+            box-shadow: 0 12px 32px -8px rgba(99, 14, 212, 0.6);
         }
 
         .pill:active { transform: translateY(0); }
@@ -2914,7 +2922,15 @@
                 <span class="video-duration">1:42</span>
             </div>
 
-            <p class="video-caption reveal" data-delay="5">Less than 2 minutes.</p>
+            <!-- v1.3.0 D2 — slide-1 CTA. Scrolls to slide-1 (Awards / About)
+                 to continue the funnel naturally, preserving ICP + BANT
+                 capture in the slides between here and the diagnostic. -->
+            <a href="#slide-1" class="pill large reveal" data-delay="5" aria-label="Build my Claims use case — continue the tour">
+                Build my Claims use case
+                <span class="pill-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <p class="video-caption reveal" data-delay="6">Less than 2 minutes.</p>
         </div>
     </section>
 
