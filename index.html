@@ -1478,14 +1478,18 @@
             font-style: italic;
         }
 
-        /* v1.3.0 — SOLUTIONS eyebrow above slide-2 heading per reference. */
+        /* v1.3.0 — "SOLUTIONS" promoted to match the visual weight of
+           the "Sustainable Growth." heading on the previous slide.
+           Same font size / weight / color so the two slides feel like
+           sibling sections rather than a header + an eyebrow. */
         .solutions-eyebrow {
-            font-weight: 600;
-            font-size: 0.75rem;
+            font-weight: 700;
+            font-size: clamp(2rem, 4.8vw, 3.75rem);
+            line-height: 1.02;
             color: var(--klear-purple);
-            letter-spacing: 0.18em;
+            letter-spacing: -0.02em;
             text-transform: uppercase;
-            margin-bottom: -0.5rem;
+            margin-bottom: 0;
         }
 
         /* v1.3.0 — ICP-box (slide 2 / ICP capture) restyled for light surface. */
