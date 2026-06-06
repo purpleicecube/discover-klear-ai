@@ -476,18 +476,20 @@
         html { scroll-padding-bottom: 64px; scroll-padding-top: var(--nav-height); }
 
         .tour-tracker {
-            /* v1.3.0 — tour-tracker anchored flush against the bottom
-               of the top nav, aligned with the nav's left padding so it
-               feels like a dropdown panel attached to the nav's Circle
-               K. The drop-shadow filter is removed — the rail's own
-               box-shadow handles separation from page content. */
+            /* v1.3.0 — tour-tracker now sits INSIDE the top nav, in the
+               white space immediately to the right of the Circle K. The
+               rail's stops appear inline with the nav, not as a panel
+               dropping into the page below. Sits above the nav's z-index
+               so it paints over the nav's white background.
+               left: clears the K (38px) + chevron + nav padding. */
             position: fixed;
-            top: var(--nav-height);
-            left: clamp(1rem, 3vw, 2.25rem);
-            z-index: 60;
+            top: 0;
+            left: clamp(5.25rem, 9vw, 7.5rem);
+            height: var(--nav-height);
+            z-index: 75;
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: center;
             gap: 0;
             pointer-events: none;
             filter: none;
@@ -543,44 +545,42 @@
            with its label rendered horizontally directly below it. The string
            runs left-to-right through bulb centers. */
         .tour-rail {
+            /* v1.3.0 — rail sits inside the nav bar (no panel chrome).
+               Compact horizontal strip with bulb-over-label stops sized
+               to fit the 56px nav height. Background is transparent —
+               the nav's own translucent white provides the surface. */
             position: relative;
-            margin-top: 0;
-            padding: 14px 22px 16px;
+            margin: 0;
+            padding: 0 16px;
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: center;
             gap: 0;
+            height: 100%;
             max-width: 0;
             opacity: 0;
             overflow: hidden;
             background: transparent;
-            border-radius: 0 0 16px 16px;
+            border-radius: 0;
             box-shadow: none;
             transition: max-width var(--dur-med) var(--ease-out-soft),
-                        opacity var(--dur-med) var(--ease-out-soft),
-                        background var(--dur-med) var(--ease-out-soft),
-                        box-shadow var(--dur-med) var(--ease-out-soft);
+                        opacity var(--dur-med) var(--ease-out-soft);
         }
-        /* v1.3.0 — when the rail is open, it reads as a light-purple
-           dropdown panel attached to the nav. Translucent purple over
-           white nav gives a clearly-tinted shade that still contrasts
-           strongly enough for the stops + labels to be legible. */
         .tour-tracker.expanded .tour-rail {
-            max-width: min(640px, calc(100vw - clamp(40px, 6vw, 80px)));
+            max-width: min(560px, calc(100vw - clamp(180px, 22vw, 240px)));
             opacity: 1;
             pointer-events: auto;
-            background: rgba(99, 14, 212, 0.14);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 10px 28px -12px rgba(99, 14, 212, 0.28);
         }
         /* The string is a thin horizontal glowing line running through bulb
            centers. Bulb height is 16, so its center sits at top: 7. */
         .tour-line {
             position: absolute;
-            left: 22px;
-            right: 22px;
-            top: 21px;
+            left: 16px;
+            right: 16px;
+            /* Centered through bulb center: bulb is 12px tall and the
+               stop column starts ~14px from the top of the 56px nav,
+               so bulb center sits at ~20px. */
+            top: 20px;
             height: 1.5px;
             background: linear-gradient(90deg,
                 rgba(99, 14, 212, 0.35) 0%,
@@ -593,6 +593,8 @@
         }
         /* Each stop = dot on top, label below (column layout, horizontal text). */
         .tour-stop {
+            /* v1.3.0 — compact bulb-over-label stop fitted to the 56px
+               nav height. Vertically centered. */
             pointer-events: auto;
             background: none;
             border: none;
@@ -600,12 +602,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            padding: 0 6px;
-            width: clamp(64px, 8vw, 88px);
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 6px;
+            width: clamp(56px, 7vw, 78px);
+            height: 100%;
             color: rgba(26, 11, 46, 0.62);
             font-family: var(--font);
-            font-size: clamp(0.7rem, 0.85vw, 0.82rem);
+            font-size: 0.65rem;
             font-weight: 500;
             letter-spacing: 0.005em;
             transition: color var(--dur-fast);
@@ -623,8 +627,10 @@
            soft hot-spot at center), so past + current bulbs both look
            like lit globes rather than tiny center highlights. */
         .tour-stop-dot {
-            width: 16px;
-            height: 16px;
+            /* v1.3.0 — bulb shrunk from 16px → 12px so the stop column
+               fits comfortably in the 56px nav with the label below. */
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: transparent;
             border: 1.5px solid rgba(99, 14, 212, 0.35);
