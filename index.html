@@ -803,7 +803,8 @@
         .scroll-hint {
             /* v1.3.0 — scroll-hint chevrons tripled in size + lifted
                above the bottom tab bar (64px tall) so they're a clear
-               "scroll down" signal, not lost in the chrome. */
+               "scroll down" signal, not lost in the chrome. Also
+               clickable — advances to the next slide. */
             position: fixed;
             bottom: clamp(6rem, 9vw, 8rem);
             left: 50%;
@@ -811,10 +812,21 @@
             z-index: 50;
             width: 96px;
             height: 100px;
-            pointer-events: none;
-            transition: opacity var(--dur-med) var(--ease-out-soft);
+            pointer-events: auto;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: opacity var(--dur-med) var(--ease-out-soft),
+                        transform var(--dur-fast) var(--ease-out-soft);
         }
-        .scroll-hint.is-hidden { opacity: 0; }
+        .scroll-hint:hover { transform: translateX(-50%) translateY(3px); }
+        .scroll-hint:focus-visible {
+            outline: 2px solid var(--klear-purple);
+            outline-offset: 6px;
+            border-radius: 50%;
+        }
+        .scroll-hint.is-hidden { opacity: 0; pointer-events: none; }
 
         .scroll-hint .sh-chevron {
             position: absolute;
@@ -3173,11 +3185,11 @@
     <div class="slide-label" id="slideLabel" aria-live="polite">1 / 5 — Landing</div>
     <!-- Concentric down-chevrons hinting "scroll for more". Auto-hides
          on the last slide via JS (slide index === slides.length - 1). -->
-    <div class="scroll-hint" id="scrollHint" aria-hidden="true">
-        <span class="sh-chevron sh-c1"></span>
-        <span class="sh-chevron sh-c2"></span>
-        <span class="sh-chevron sh-c3"></span>
-    </div>
+    <button type="button" class="scroll-hint" id="scrollHint" aria-label="Scroll to next section">
+        <span class="sh-chevron sh-c1" aria-hidden="true"></span>
+        <span class="sh-chevron sh-c2" aria-hidden="true"></span>
+        <span class="sh-chevron sh-c3" aria-hidden="true"></span>
+    </button>
 
     <div class="keyboard-hint">↑↓ or scroll · swipe on mobile</div>
 
@@ -4947,6 +4959,22 @@
             }, { threshold: [0, 0.5, 1] });
 
             slides.forEach((s) => io.observe(s));
+
+            // v1.3.0 — clicking the scroll-down chevron advances to the
+            // next slide. Uses state.current.last_slide (kept current by
+            // the IntersectionObserver above) to find where we are. On
+            // the last slide the chevron is already hidden (.is-hidden
+            // toggled above), so no need to clamp.
+            const scrollHintBtn = document.getElementById('scrollHint');
+            if (scrollHintBtn) {
+                scrollHintBtn.addEventListener('click', () => {
+                    const curIdx = (state.current && Number.isFinite(state.current.last_slide))
+                        ? state.current.last_slide
+                        : 0;
+                    const nextSlide = slides[curIdx + 1];
+                    if (nextSlide) nextSlide.scrollIntoView({ behavior: 'smooth' });
+                });
+            }
 
             // ===========================================
             // RETURNEE — restore previously typed fields,
