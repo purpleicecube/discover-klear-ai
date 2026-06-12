@@ -4439,14 +4439,14 @@
                     + ' — visit #' + payload.visit_number
                     + (payload.is_returnee ? ' (returnee)' : '');
 
-                // v1.3.0 — polished use-case-delivery autoresponse to the
-                // visitor when (a) they actually submitted (book_meeting)
-                // (b) we captured an email and (c) a Gamma deck URL is on
-                // hand. Gamma returns the URL as soon as the job starts,
-                // so the link is live even if rendering is still in
-                // progress. Darrel sees the exact delivered message
-                // mirrored into the lead-capture payload as field
-                // `13_visitor_delivery_email`.
+                // v1.3.x — build the polished use-case delivery email for the
+                // visitor when (a) they actually submitted (book_meeting),
+                // (b) we captured an email, and (c) a Gamma deck URL is on
+                // hand. Gamma returns the URL as soon as the job starts, so the
+                // link is live even if rendering is still in progress. This
+                // email is NOT auto-sent (Formsubmit can't, on AJAX) — it is
+                // surfaced ready-to-send in the lead-capture payload as field
+                // `13_visitor_delivery_email` for Darrel to copy-paste (HITL).
                 const ec = state.current;
                 const deckUrl = ec.gammaUrl || '';
                 const companyForEmail = ((ec.org_name || ec.company || '').trim()) || 'your team';
@@ -4467,10 +4467,17 @@
                         'If you have questions before our scheduled time, just reply ' +
                         'to this email — we\'ll loop the right person in.\n\n' +
                         '— The Klear.ai team';
-                    // Mirror the delivered message into the payload so
-                    // Darrel sees exactly what the visitor received.
+                    // HITL delivery: Formsubmit's _autoresponse does NOT fire on
+                    // AJAX / captcha-disabled submissions, so this message is NOT
+                    // auto-sent. Surface the full, ready-to-send email here in the
+                    // lead notification so it can be copy-pasted to the visitor by
+                    // hand. Reply-To is set to the visitor below, so a plain
+                    // "Reply" on this lead email reaches them directly.
                     payload['13_visitor_delivery_email'] =
-                        'Auto-sent to ' + ec.email + ' on submit:\n\n' + polishedDelivery;
+                        '✋ SEND MANUALLY — this is NOT auto-sent.\n' +
+                        'To: ' + ec.email + '\n' +
+                        'Subject: Your Klear.ai use case — ' + companyForEmail + '\n\n' +
+                        polishedDelivery;
                 }
 
                 const meta = {
@@ -4481,11 +4488,11 @@
                     _honey: ''
                 };
                 if (polishedDelivery) {
-                    // Setting _replyto routes the Formsubmit autoresponse to
-                    // the visitor's address. The autoresponse body is the
-                    // polished delivery message above.
+                    // Reply-To = visitor so Darrel can reply straight to them when
+                    // sending the delivery email above. No _autoresponse: it is
+                    // silently dropped on AJAX / captcha-disabled submissions, so
+                    // delivery to the visitor is a manual (HITL) copy-paste step.
                     meta._replyto = ec.email;
-                    meta._autoresponse = polishedDelivery;
                 }
                 const body = JSON.stringify(Object.assign(meta, payload));
 
