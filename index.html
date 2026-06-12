@@ -4512,18 +4512,32 @@
                 const companyForEmail = ((ec.org_name || ec.company || '').trim()) || 'your team';
                 const useCaseForEmail = (ec.use_case_title || '').trim() || 'your selected challenge';
                 let polishedDelivery = '';
-                if (terminal === 'book_meeting' && ec.email && deckUrl) {
+                // Always build the polished visitor delivery email on a real
+                // submit + captured email — EVEN IF the Gamma deck URL isn't ready
+                // (visitor submitted before generation finished, returnee whose
+                // URL wasn't restored, or the proxy failed). The team must always
+                // get a ready-to-send email for the HITL copy-paste; the deck
+                // paragraph adapts to whether a link is on hand.
+                if (terminal === 'book_meeting' && ec.email) {
+                    const deckParagraph = deckUrl
+                        ? 'As promised, here is the personalized documentation we\'ve ' +
+                          'prepared for ' + companyForEmail + ' based on the use case ' +
+                          'you described:\n\n' +
+                          'Open your Klear.ai use case: ' + deckUrl + '\n\n' +
+                          'The deck covers how Klear.ai handles ' + useCaseForEmail +
+                          ' for organizations like yours, with metrics and outcome ' +
+                          'expectations you can share with your team. Open it in any ' +
+                          'browser, or use Gamma\'s "Download as PDF" option if you\'d ' +
+                          'prefer a file.\n\n'
+                        : 'Based on the use case you described, we\'re putting together ' +
+                          'personalized documentation for ' + companyForEmail + ' — covering ' +
+                          'how Klear.ai handles ' + useCaseForEmail + ' for organizations ' +
+                          'like yours, with metrics and outcome expectations you can share ' +
+                          'with your team. We\'ll get it over to you shortly.\n\n';
                     polishedDelivery =
                         'Hi there,\n\n' +
-                        'Thank you for taking a look at Klear.ai. As promised, ' +
-                        'here is the personalized documentation we\'ve prepared for ' +
-                        companyForEmail + ' based on the use case you described:\n\n' +
-                        'Open your Klear.ai use case: ' + deckUrl + '\n\n' +
-                        'The deck covers how Klear.ai handles ' + useCaseForEmail +
-                        ' for organizations like yours, with metrics and outcome ' +
-                        'expectations you can share with your team. Open it in any ' +
-                        'browser, or use Gamma\'s "Download as PDF" option if you\'d ' +
-                        'prefer a file.\n\n' +
+                        'Thank you for taking a look at Klear.ai. ' +
+                        deckParagraph +
                         'If you have questions before our scheduled time, just reply ' +
                         'to this email — we\'ll loop the right person in.\n\n' +
                         '— The Klear.ai team';
@@ -4532,9 +4546,14 @@
                     // auto-sent. Surface the full, ready-to-send email here in the
                     // lead notification so it can be copy-pasted to the visitor by
                     // hand. Reply-To is set to the visitor below, so a plain
-                    // "Reply" on this lead email reaches them directly.
+                    // "Reply" on this lead email reaches them directly. When the
+                    // deck link wasn't ready at submit, flag it so the team can
+                    // paste the Gamma URL once it finishes.
+                    const deckFlag = deckUrl ? '' :
+                        ' (Deck link was not ready at submit — paste the Gamma URL once ' +
+                        'the deck finishes, or send as-is.)';
                     payload['13_visitor_delivery_email'] =
-                        '✋ SEND MANUALLY — this is NOT auto-sent.\n' +
+                        '✋ SEND MANUALLY — this is NOT auto-sent.' + deckFlag + '\n' +
                         'To: ' + ec.email + '\n' +
                         'Subject: Your Klear.ai use case — ' + companyForEmail + '\n\n' +
                         polishedDelivery;
