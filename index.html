@@ -2961,6 +2961,25 @@
             .completion-seal .seal-check { animation: none; stroke-dashoffset: 0; }
         }
 
+        /* Send button "finalizing" state — white ring spinner that reads on the
+           purple CTA while the submit is held for the Gamma deck link. */
+        .pill.is-waiting { opacity: 0.92; cursor: progress; }
+        .send-spinner {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 0.55rem;
+            vertical-align: -2px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: send-spin 0.7s linear infinite;
+        }
+        @keyframes send-spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) {
+            .send-spinner { animation-duration: 1.8s; }
+        }
+
         /* ===========================================
            GAMMA TAKEAWAY DECK (v1.1.0)
            Inline preview on slide 4 + takeaway block in slide 5
@@ -5081,6 +5100,80 @@
                 gammaRenderUI();
             }
 
+            // ---- Submit, holding for the Gamma deck link when one is on the way ----
+            // Product rule (Darrel): the tailored Gamma link must ride along in
+            // BOTH the lead data and the copy-paste visitor email. The deck is
+            // generated async (triggered on slide 4), so if the visitor submits
+            // before it finishes, briefly hold the submit — showing a
+            // "Finalizing your use case…" state on the button — until the link
+            // lands or a safety timeout elapses. A failed deck, or a path where
+            // no deck was ever triggered, sends immediately (graceful no-deck
+            // email). The timeout guarantees a slow/stuck proxy never traps the
+            // visitor on the button.
+            const GAMMA_SUBMIT_WAIT_MS = 25000; // max hold before sending anyway
+            const GAMMA_SUBMIT_POLL_MS = 2000;  // active re-check cadence while holding
+
+            function deckInHand() {
+                return state.current.gammaStatus === 'completed' && !!state.current.gammaUrl;
+            }
+            function deckStillComing() {
+                return state.current.gammaStatus === 'pending';
+            }
+            function finalizeSubmit() {
+                captureData('book_meeting');
+                showSendSuccess();
+            }
+            function setSendWaiting(on) {
+                if (!sendBtn) return;
+                sendBtn.disabled = on;
+                sendBtn.classList.toggle('is-waiting', on);
+                if (on) {
+                    if (!sendBtn.dataset.label) sendBtn.dataset.label = sendBtn.innerHTML;
+                    sendBtn.innerHTML = '<span class="send-spinner" aria-hidden="true"></span>Finalizing your use case…';
+                } else if (sendBtn.dataset.label) {
+                    sendBtn.innerHTML = sendBtn.dataset.label;
+                }
+            }
+            function submitRequestWaitingForDeck() {
+                // Deck already here, failed, or never triggered → send now.
+                if (deckInHand() || !deckStillComing()) {
+                    finalizeSubmit();
+                    return;
+                }
+                // Deck still rendering — hold the submit so the link rides along.
+                setSendWaiting(true);
+                const startedAt = Date.now();
+                const jobId = state.current.gammaJobId;
+                let waitTimer = null;
+                const done = () => {
+                    if (waitTimer) { clearTimeout(waitTimer); waitTimer = null; }
+                    setSendWaiting(false);
+                    finalizeSubmit();
+                };
+                const tick = async () => {
+                    if (deckInHand() || state.current.gammaStatus === 'failed') return done();
+                    if (Date.now() - startedAt > GAMMA_SUBMIT_WAIT_MS) return done();
+                    // Active check against the proxy for a snappier resolution
+                    // than the 6 s background poller (the background poll also
+                    // updates state.current.gammaUrl, which deckInHand() sees).
+                    if (jobId) {
+                        try {
+                            const res = await fetch(GAMMA_PROXY + '/status/' + encodeURIComponent(jobId),
+                                { method: 'GET', mode: 'cors', headers: { 'Content-Type': 'application/json' } });
+                            const data = await res.json();
+                            if (data.status === 'completed' && data.gammaUrl) {
+                                gammaSetStatus('completed', { gammaUrl: data.gammaUrl });
+                                gammaRenderUI();
+                                return done();
+                            }
+                            if (data.status === 'failed') { gammaSetStatus('failed'); gammaRenderUI(); return done(); }
+                        } catch (_) { /* transient network blip — keep holding */ }
+                    }
+                    waitTimer = setTimeout(tick, GAMMA_SUBMIT_POLL_MS);
+                };
+                tick();
+            }
+
             if (sendBtn) {
                 sendBtn.addEventListener('click', () => {
                     const e = state.current;
@@ -5101,8 +5194,7 @@
                         showSendError('Pick a day and a morning or afternoon slot.');
                         return;
                     }
-                    captureData('book_meeting');
-                    showSendSuccess();
+                    submitRequestWaitingForDeck();
                 });
             }
 
