@@ -5110,7 +5110,7 @@
             // no deck was ever triggered, sends immediately (graceful no-deck
             // email). The timeout guarantees a slow/stuck proxy never traps the
             // visitor on the button.
-            const GAMMA_SUBMIT_WAIT_MS = 25000; // max hold before sending anyway
+            const GAMMA_SUBMIT_WAIT_MS = 45000; // max hold before sending anyway
             const GAMMA_SUBMIT_POLL_MS = 2000;  // active re-check cadence while holding
 
             function deckInHand() {
