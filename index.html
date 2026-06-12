@@ -2890,16 +2890,76 @@
         }
 
         .send-success {
-            background: rgba(76, 217, 100, 0.08);
-            border: 1px solid rgba(76, 217, 100, 0.32);
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
-            color: rgba(255, 255, 255, 0.94);
+            /* v1.3.x — light-surface success card (slide 5 / #slide-4 is light).
+               Was white-on-light (invisible); now dark text on a soft lavender
+               card so the completion seal + copy read cleanly. */
+            background: var(--surface-container-low);
+            border: 1px solid rgba(99, 14, 212, 0.18);
+            border-radius: 16px;
+            padding: 1.5rem 1.25rem 1.25rem;
+            color: var(--klear-navy);
             font-size: 0.95rem;
             line-height: 1.5;
             text-align: center;
         }
-        .send-success strong { color: rgba(196, 247, 207, 0.98); }
+        .send-success strong { color: var(--klear-purple); }
+
+        /* ---- Completion seal (v1.3.x) ----
+           "All steps done" signal shown once on submit: a brand-purple ring
+           with a check that draws itself in, then a one-time soft glow pulse. */
+        .completion-seal {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 0.85rem;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: radial-gradient(circle at 50% 38%, rgba(99, 14, 212, 0.16), rgba(99, 14, 212, 0.05));
+            border: 2px solid var(--klear-purple);
+            animation: seal-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+                       seal-glow 1.8s ease-out 0.45s 1;
+        }
+        .completion-seal svg { width: 34px; height: 34px; display: block; }
+        .completion-seal .seal-check {
+            fill: none;
+            stroke: var(--klear-purple);
+            stroke-width: 3.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 22;
+            stroke-dashoffset: 22;
+            animation: seal-draw 0.5s ease-out 0.34s forwards;
+        }
+        @keyframes seal-pop {
+            0%   { transform: scale(0.4); opacity: 0; }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes seal-draw { to { stroke-dashoffset: 0; } }
+        @keyframes seal-glow {
+            0%   { box-shadow: 0 0 0 0 rgba(99, 14, 212, 0.35); }
+            100% { box-shadow: 0 0 0 16px rgba(99, 14, 212, 0); }
+        }
+        .completion-headline {
+            font-size: 1.18rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--klear-navy);
+            margin-bottom: 0.15rem;
+        }
+        .completion-subline {
+            font-size: 0.86rem;
+            color: rgba(26, 11, 46, 0.6);
+            margin-bottom: 1rem;
+        }
+        .completion-divider {
+            height: 1px;
+            background: rgba(99, 14, 212, 0.14);
+            margin: 0 auto 0.9rem;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .completion-seal { animation: none; }
+            .completion-seal .seal-check { animation: none; stroke-dashoffset: 0; }
+        }
 
         /* ===========================================
            GAMMA TAKEAWAY DECK (v1.1.0)
@@ -4963,7 +5023,13 @@
                 // entirely (used when the visitor never committed on slide 4).
                 const initialStatus = state.current.gammaStatus || 'idle';
                 sendContainerEl.innerHTML =
-                    '<div class="send-success">' +
+                    '<div class="send-success" role="status">' +
+                        '<div class="completion-seal" aria-hidden="true">' +
+                            '<svg viewBox="0 0 24 24"><path class="seal-check" d="M5 12.5 L10 17.5 L19 7"/></svg>' +
+                        '</div>' +
+                        '<div class="completion-headline">You’re all set.</div>' +
+                        '<div class="completion-subline">Information &amp; scheduling complete.</div>' +
+                        '<div class="completion-divider"></div>' +
                         '<strong>Request sent.</strong><br>' +
                         'We received your request for ' + when + '. Darrel (CMO) will reply within one business day to confirm or suggest a nearby slot.' +
                         '<div class="gamma-takeaway" id="gammaTakeaway" data-state="' + initialStatus + '">' +
