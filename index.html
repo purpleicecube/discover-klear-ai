@@ -5095,14 +5095,14 @@
                             stop.classList.toggle('current', i === idx);
                             stop.classList.toggle('future',  i >  idx);
                         });
-                        // Hide the bottom scroll-hint on the last slide;
-                        // show it everywhere else as a "keep scrolling" cue.
-                        // v1.3.0 — also toggle .on-light so the chevron
-                        // color flips brand purple on light-surface slides
-                        // (everything after slide 0).
+                        // Show the bottom scroll-hint only on slide 1 (the hero)
+                        // as the initial "scroll for more" cue; hide it on every
+                        // other slide (2–5) per Darrel's request. The .on-light
+                        // toggle is retained for safety but is moot now that the
+                        // hint only renders on the dark hero (white chevron).
                         const scrollHint = document.getElementById('scrollHint');
                         if (scrollHint) {
-                            scrollHint.classList.toggle('is-hidden', idx === slides.length - 1);
+                            scrollHint.classList.toggle('is-hidden', idx !== 0);
                             scrollHint.classList.toggle('on-light', idx >= 1);
                         }
                         session.slidesVisited.add(idx + 1);
