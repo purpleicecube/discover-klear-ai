@@ -5255,42 +5255,61 @@
                 });
             });
 
-            // IntersectionObserver triggers reveal animations + syncs nav state
-            // + tracks slides visited for the capture record (persisted so
-            // returnees see correct "last slide" in the welcome-back banner).
-            const io = new IntersectionObserver((entries) => {
+            // Reveal-on-enter: fade a slide's content in as soon as ANY part of
+            // it enters the viewport, once. Height-independent.
+            //
+            // This used to be gated (along with all the nav-sync below) behind a
+            // single observer's `intersectionRatio > 0.5`. On mobile that is a
+            // bug: tall slides can never reach 50% coverage of a short viewport
+            // (e.g. the 1793px booking slide tops out at ~0.47 of an 844px
+            // screen), so `.visible` was never added and page 5 rendered BLANK.
+            // Splitting reveal (on enter) from active-slide tracking (center
+            // trip-line) makes both work at any slide height.
+            const revealIO = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
-                    const idx = slides.indexOf(entry.target);
-                    if (entry.intersectionRatio > 0.5) {
+                    if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
-                        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
-                        slideLabel.textContent = `${idx + 1} / ${slides.length} — ${labels[idx]}`;
-                        // Tour-tracker active state: past stops to the left of
-                        // current, current = pulsing pink/purple, future = outline.
-                        tourStops.forEach((stop, i) => {
-                            stop.classList.toggle('past',    i <  idx);
-                            stop.classList.toggle('current', i === idx);
-                            stop.classList.toggle('future',  i >  idx);
-                        });
-                        // Show the bottom scroll-hint only on slide 1 (the hero)
-                        // as the initial "scroll for more" cue; hide it on every
-                        // other slide (2–5) per Darrel's request. The .on-light
-                        // toggle is retained for safety but is moot now that the
-                        // hint only renders on the dark hero (white chevron).
-                        const scrollHint = document.getElementById('scrollHint');
-                        if (scrollHint) {
-                            scrollHint.classList.toggle('is-hidden', idx !== 0);
-                            scrollHint.classList.toggle('on-light', idx >= 1);
-                        }
-                        session.slidesVisited.add(idx + 1);
-                        state.current.slides_visited = Array.from(session.slidesVisited);
-                        state.current.last_slide = idx;
-                        saveState();
+                        revealIO.unobserve(entry.target);
                     }
                 });
-            }, { threshold: [0, 0.5, 1] });
+            }, { threshold: 0.01 });
+            slides.forEach((s) => revealIO.observe(s));
 
-            slides.forEach((s) => io.observe(s));
+            // Active-slide tracking via a center trip-line — a zero-height band
+            // at the vertical middle of the viewport (rootMargin -50%/-50%).
+            // Whichever slide crosses the center is "current", regardless of its
+            // height, so nav dots, the slide label, the tour tracker, the
+            // scroll-hint, and the slides-visited capture all stay correct on
+            // mobile (where the old >0.5 gate silently stopped firing).
+            function setActiveSlide(idx) {
+                if (idx < 0 || idx >= slides.length) return;
+                dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+                slideLabel.textContent = `${idx + 1} / ${slides.length} — ${labels[idx]}`;
+                // Tour-tracker active state: past stops to the left of current,
+                // current = pulsing pink/purple, future = outline.
+                tourStops.forEach((stop, i) => {
+                    stop.classList.toggle('past',    i <  idx);
+                    stop.classList.toggle('current', i === idx);
+                    stop.classList.toggle('future',  i >  idx);
+                });
+                // Show the bottom scroll-hint only on slide 1 (the hero) as the
+                // initial "scroll for more" cue; hide it on every other slide.
+                const scrollHint = document.getElementById('scrollHint');
+                if (scrollHint) {
+                    scrollHint.classList.toggle('is-hidden', idx !== 0);
+                    scrollHint.classList.toggle('on-light', idx >= 1);
+                }
+                session.slidesVisited.add(idx + 1);
+                state.current.slides_visited = Array.from(session.slidesVisited);
+                state.current.last_slide = idx;
+                saveState();
+            }
+            const activeIO = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) setActiveSlide(slides.indexOf(entry.target));
+                });
+            }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+            slides.forEach((s) => activeIO.observe(s));
 
             // v1.3.0 — clicking the scroll-down chevron advances to the
             // next slide. Uses state.current.last_slide (kept current by
@@ -6186,14 +6205,18 @@
                 'slide-3': 'slide-2',   // diagnostic shares the Solutions tab
                 'slide-4': 'slide-4'
             };
+            // Center trip-line (not intersectionRatio > 0.5): a tall mobile
+            // slide can never cover half a short viewport, which left "Demo"
+            // (the 1793px booking slide) never activating. Whichever slide
+            // crosses the viewport middle owns the active tab, at any height.
             const obs = new IntersectionObserver((entries) => {
                 entries.forEach((e) => {
-                    if (e.intersectionRatio > 0.5) {
+                    if (e.isIntersecting) {
                         const activeTabId = SLIDE_TO_TAB[e.target.id];
                         tabs.forEach(t => t.classList.toggle('active', t.dataset.target === activeTabId));
                     }
                 });
-            }, { threshold: [0.5] });
+            }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
             slideEls.forEach(s => obs.observe(s));
         })();
     </script>
