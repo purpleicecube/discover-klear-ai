@@ -277,6 +277,21 @@
             align-items: center;
         }
 
+        /* The booking slide (#slide-4) holds the tallest content (form +
+           calendar). On laptops it exceeds 100vh, and the default fixed
+           height + overflow:hidden + justify-center clipped the "NEXT STEPS."
+           eyebrow and the top of the heading on the way into the slide. Let it
+           grow with its content while still filling at least one screen, and
+           don't clip. justify-content:center is kept from the base rule: when
+           the content fits it stays centered/cinematic; when it overflows,
+           height:auto removes the slack so it fills top-to-bottom uncut. */
+        #slide-4 {
+            height: auto;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: visible;
+        }
+
         .slide-content {
             position: relative;
             z-index: 2;
