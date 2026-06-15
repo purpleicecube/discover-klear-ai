@@ -374,7 +374,11 @@
         .top-nav-chevron {
             display: inline-block;
             font-size: 14px;
-            color: rgba(26, 11, 46, 0.45);
+            /* Brand purple in every state — the old faint gray (rgba 26,11,46,
+               .45) read as near-white on the pale nav, which on mobile (where
+               the tour-rail is hidden and tapping the K toggles it to the
+               collapsed/non-tour-open state) left the chevron looking white. */
+            color: var(--klear-purple);
             line-height: 1;
             margin-top: 2px;
             transition: transform var(--dur-fast);
@@ -403,6 +407,42 @@
         }
         .top-nav-contact:hover {
             background: rgba(99, 14, 212, 0.08);
+        }
+
+        /* ---- Retractable mobile header (v1.3.x) ----
+           On mobile the top nav retracts off-screen by default and drops down
+           only when the visitor taps the thin peek-zone at the very top edge
+           (a subtle grab handle hints at it). Auto-hides after a few seconds
+           and on scroll. Desktop is unaffected — the nav stays pinned and the
+           peek-zone is removed. */
+        .nav-peek-zone { display: none; }
+        @media (max-width: 820px) {
+            .top-nav {
+                transform: translateY(-100%);
+                transition: transform 0.32s ease;
+                will-change: transform;
+            }
+            .top-nav.peek { transform: translateY(0); }
+            .nav-peek-zone {
+                display: block;
+                position: fixed;
+                top: 0; left: 0; right: 0;
+                height: 26px;
+                z-index: 69;          /* just below the nav (70) so the nav covers it when down */
+                background: transparent;
+            }
+            /* subtle centered grab handle so the tap target is discoverable */
+            .nav-peek-zone::after {
+                content: '';
+                position: absolute;
+                top: 6px; left: 50%;
+                transform: translateX(-50%);
+                width: 38px; height: 4px;
+                border-radius: 2px;
+                background: rgba(99, 14, 212, 0.30);
+                transition: opacity 0.3s ease;
+            }
+            .top-nav.peek ~ .nav-peek-zone::after { opacity: 0; }
         }
 
         /* ===========================================
@@ -6258,6 +6298,38 @@
                 });
             }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
             slideEls.forEach(s => obs.observe(s));
+        })();
+
+        // Retractable mobile header — the nav sits off-screen (CSS .top-nav
+        // transform on mobile) and drops down only when the visitor taps the
+        // thin peek-zone at the very top edge. Auto-retracts after a few
+        // seconds and on scroll. Desktop: the zone is display:none and the nav
+        // stays pinned, so this is a no-op there.
+        (function mobileRetractableNav() {
+            const nav = document.querySelector('.top-nav');
+            if (!nav) return;
+            const mq = window.matchMedia('(max-width: 820px)');
+            const zone = document.createElement('div');
+            zone.className = 'nav-peek-zone';
+            zone.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(zone);
+            let hideTimer = null;
+            const HOLD_MS = 3500;
+            function arm() { clearTimeout(hideTimer); hideTimer = setTimeout(hide, HOLD_MS); }
+            function show() { if (!mq.matches) return; nav.classList.add('peek'); arm(); }
+            function hide() { clearTimeout(hideTimer); nav.classList.remove('peek'); }
+            zone.addEventListener('click', show);
+            zone.addEventListener('touchstart', show, { passive: true });
+            // keep the header down while the visitor is actually using it
+            nav.addEventListener('click', arm);
+            nav.addEventListener('touchstart', arm, { passive: true });
+            // retract on scroll so it never sits over content
+            window.addEventListener('scroll', () => {
+                if (mq.matches && nav.classList.contains('peek')) hide();
+            }, { passive: true });
+            // if the viewport grows to desktop, drop the peek state
+            const onMq = () => { if (!mq.matches) hide(); };
+            if (mq.addEventListener) mq.addEventListener('change', onMq); else mq.addListener(onMq);
         })();
     </script>
 </body>
