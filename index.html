@@ -2980,6 +2980,36 @@
             .send-spinner { animation-duration: 1.8s; }
         }
 
+        /* ---- Post-submit "holding" state (v1.3.x) ----
+           Once the request is sent, collapse the booking UI so the receipt card
+           owns the screen as the final resting section. Without this, mobile
+           left the whole filled-in form on screen with the receipt buried at the
+           bottom behind the tab bar. Applies on every breakpoint for a clean,
+           consistent "done" screen. */
+        #slide-4.is-complete .solutions-eyebrow,
+        #slide-4.is-complete .slide-content > h2,
+        #slide-4.is-complete .subhead,
+        #slide-4.is-complete .booking-form,
+        #slide-4.is-complete .nurture-link,
+        #slide-4.is-complete .calendar-frame > *:not(#sendContainer) {
+            display: none !important;
+        }
+        #slide-4.is-complete .booking-grid { grid-template-columns: 1fr; }
+        #slide-4.is-complete .calendar-frame {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+        }
+        /* Center the receipt as a full-height holding view (mobile slides are
+           height:auto by default — pin this one back to a full screen so the
+           receipt sits centered with nothing to scroll past). */
+        #slide-4.is-complete {
+            justify-content: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
         /* ===========================================
            GAMMA TAKEAWAY DECK (v1.1.0)
            Inline preview on slide 4 + takeaway block in slide 5
@@ -5098,6 +5128,16 @@
                     });
                 }
                 gammaRenderUI();
+                // Collapse slide 5 to the receipt and hold there as the final
+                // resting section (esp. on mobile, where the long booking form
+                // would otherwise stay on screen above a buried receipt). The
+                // rAF lets the display:none collapse apply before we settle the
+                // scroll on the now-centered receipt.
+                const slide5 = document.getElementById('slide-4');
+                if (slide5) {
+                    slide5.classList.add('is-complete');
+                    requestAnimationFrame(() => slide5.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+                }
             }
 
             // ---- Submit, holding for the Gamma deck link when one is on the way ----
