@@ -277,17 +277,23 @@
             align-items: center;
         }
 
-        /* The diagnostic result (#slide-3) and the booking slide (#slide-4)
-           hold the tallest content — the use-case card (title + summary + 3
-           tiles + metrics table + solution areas + CTAs) and the booking form
-           + calendar. On laptops both exceed 100vh, and the default fixed
-           height + overflow:hidden + justify-center clipped the top (the
-           use-case title, the "NEXT STEPS." eyebrow/heading) AND the bottom
-           (metrics table) on the way into the slide. Let these two slides grow
-           with their content while still filling at least one screen, and don't
-           clip. justify-content:center is kept from the base rule: when the
-           content fits it stays centered/cinematic; when it overflows,
-           height:auto removes the slack so it fills top-to-bottom uncut. */
+        /* Content slides whose content can exceed the viewport on short/laptop
+           screens: the ICP capture (#slide-2: "SOLUTIONS." header + form), the
+           awards (#slide-1), the diagnostic result (#slide-3: use-case card +
+           metrics table), and the booking slide (#slide-4: form + calendar).
+           The default fixed height:100vh + overflow:hidden + justify-center
+           centered the content and clipped the TOP (the section header /
+           eyebrow, e.g. "SOLUTIONS." or the use-case title) and the BOTTOM on
+           the way into the slide. Let these slides grow with their content while
+           still filling at least one screen, and don't clip. justify-content:
+           center is kept from the base rule: when content fits it stays
+           centered/cinematic; when it overflows, height:auto removes the slack
+           so it fills top-to-bottom uncut. The .gradient-bg is position:absolute
+           inset:0, so it stays pinned to the slide and never spills with
+           overflow:visible. */
+        #slide-0,
+        #slide-1,
+        #slide-2,
         #slide-3,
         #slide-4 {
             height: auto;
