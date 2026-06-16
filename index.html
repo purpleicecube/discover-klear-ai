@@ -1639,6 +1639,14 @@
         section#slide-3 .diag-breadcrumb-step.done    { color: var(--klear-purple); }
         section#slide-3 .diag-breadcrumb-step.current { color: var(--klear-navy); font-weight: 600; }
         section#slide-3 .diag-q-eyebrow { color: var(--klear-purple); }
+        /* Purple-italic cue under the "What's holding your program back?" heading. */
+        section#slide-3 .diag-select-cue {
+            color: var(--klear-purple);
+            font-style: italic;
+            font-weight: 600;
+            font-size: clamp(1rem, 1.4vw, 1.2rem);
+            margin: 0.1rem 0 0;
+        }
         /* "← Adjust answers" — brand purple on light surface so it's
            clearly readable as a secondary action, not a stray label. */
         section#slide-3 .diag-back-link {
@@ -3828,7 +3836,8 @@
                 <div class="diagnostic-stage" data-stage-target="select">
                     <p class="solutions-eyebrow reveal" data-delay="1">SOLUTIONS.</p>
                     <h2 class="reveal" data-delay="2">What's holding your program back?</h2>
-                    <p class="subhead reveal" data-delay="3">
+                    <p class="diag-select-cue reveal" data-delay="3">Select your biggest challenge below.</p>
+                    <p class="subhead reveal" data-delay="4">
                         Many claims programs are held back by legacy software — creating delays, inconsistent decisions, and data gaps. Select the challenge that best reflects your environment, and <em class="brand">Klear.ai</em> will tailor a use case.
                     </p>
 
