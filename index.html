@@ -3758,6 +3758,7 @@
                             <button type="button" class="icp-tile" data-value="pc-carrier">P&amp;C Carrier</button>
                             <button type="button" class="icp-tile" data-value="tpa">TPA</button>
                             <button type="button" class="icp-tile" data-value="public-risk-pool">Public Risk Pool / JPA</button>
+                            <button type="button" class="icp-tile" data-value="public-entity">Public Entity</button>
                             <button type="button" class="icp-tile" data-value="self-insured">Self-insured employer</button>
                             <button type="button" class="icp-tile" data-value="workers-comp">Workers' Comp specialist</button>
                             <button type="button" class="icp-tile" data-value="other">Other</button>
@@ -4210,6 +4211,7 @@
                 'pc-carrier':       'P&C Carrier',
                 'tpa':              'TPA',
                 'public-risk-pool': 'Public Risk Pool / JPA',
+                'public-entity':    'Public Entity',
                 'self-insured':     'Self-insured employer',
                 'workers-comp':     "Workers' Comp specialist",
                 'other':            'Other'
@@ -4391,9 +4393,9 @@
                 {
                     id: 'rfp_input',
                     label: 'Gather input for an RFP / potential RFP',
-                    gate: (c) => ['public-risk-pool','self-insured','workers-comp'].includes(c.org_type)
+                    gate: (c) => ['public-risk-pool','public-entity','self-insured','workers-comp'].includes(c.org_type)
                                   && c.bant.authority >= 2,
-                    score: (c) => 5 + (c.org_type === 'public-risk-pool' ? 3 : 0)
+                    score: (c) => 5 + (c.org_type === 'public-risk-pool' || c.org_type === 'public-entity' ? 3 : 0)
                                     + (c.bant.budget >= 2 ? 1 : 0)
                 },
                 {
