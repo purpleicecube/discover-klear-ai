@@ -1561,6 +1561,12 @@
         section#slide-4 h2 {
             color: var(--klear-navy);
         }
+        /* The use-case title is an <h2> but it sits on the DARK result card,
+           so the light-surface navy above would render it dark-on-dark (dim).
+           Force it back to high-vis pure white. */
+        section#slide-3 .use-case-card .uc-title {
+            color: #FFFFFF;
+        }
         section#slide-2 .subhead,
         section#slide-3 .subhead,
         section#slide-4 .subhead {
