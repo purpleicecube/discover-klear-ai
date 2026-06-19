@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Discover Klear.ai — Visual Prototype v2</title>
+    <title>Klear.ai: claims, policy, risk management, and analytics</title>
     <meta name="description" content="Visual prototype of the Discover Klear.ai guided-discovery web app — 5 screen states demonstrating the user journey from landing through award/trust to qualification and booking.">
 
     <!-- Single font: Barlow (multiple weights). Per the Discover Klear.ai design system, Lexend is not used on this app. -->
@@ -2722,6 +2722,55 @@
         }
         .privacy-line a:hover { color: var(--pill-pink); }
 
+        /* GDPR consent row — point-of-collection checkbox on slide 2. */
+        .consent-row {
+            grid-column: 1 / -1; /* span the full 3-col icp-boxes grid */
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-xs);
+            margin-top: var(--space-sm);
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+        .consent-check {
+            flex: 0 0 auto;
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: var(--klear-purple);
+            cursor: pointer;
+        }
+        .consent-label {
+            font-size: var(--size-small);
+            color: var(--text-muted);
+            line-height: 1.45;
+            cursor: pointer;
+        }
+        .consent-label a {
+            color: rgba(251, 207, 232, 0.85);
+            white-space: nowrap;
+            transition: color var(--dur-fast);
+        }
+        .consent-label a:hover { color: var(--pill-pink); }
+
+        /* Gentle point-of-collection notice at the top of slide 2. */
+        .collection-notice {
+            max-width: 680px;
+            margin: var(--space-xs) auto 0;
+            font-size: var(--size-small);
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+        .collection-notice a {
+            color: rgba(251, 207, 232, 0.85);
+            white-space: nowrap;
+            transition: color var(--dur-fast);
+        }
+        .collection-notice a:hover { color: var(--pill-pink); }
+
         .booking-form .pill,
         .calendar-frame .pill {
             margin-top: var(--space-sm);
@@ -3755,6 +3804,14 @@
                 Tell us about your organization, your role, and what you do day-to-day. We'll tailor the rest of the tour to your environment.
             </p>
 
+            <!-- Point-of-collection notice (GDPR transparency for the
+                 legitimate-interest capture). Gentle, early, non-blocking — it
+                 informs, it does not gate. Capture/send happens regardless. -->
+            <p class="collection-notice reveal" data-delay="3">
+                As you go, we'll save what you share so a Klear.ai specialist can follow up — even if you don't finish. We only use it to help you, and you can ask us to delete it anytime.
+                <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
+            </p>
+
             <!-- Three-box layout mirroring the original engagement-gate pattern:
                  lighter glass cards instead of dark-purple tiles. Each box
                  groups a related set of ICP questions. -->
@@ -3806,6 +3863,19 @@
                             <button type="button" class="icp-tile" data-value="strategy">Strategy &amp; modernization</button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Optional "remember me" opt-in (PECR consent for on-device
+                     storage only). Does NOT gate capture/send — that rests on
+                     legitimate interest + the notice above. Unticked by default;
+                     ticking lets us keep a record on this device so a returning
+                     visitor can pick up where they left off. -->
+                <div class="consent-row">
+                    <input type="checkbox" id="consent" class="consent-check" aria-describedby="consentLabel">
+                    <label for="consent" id="consentLabel" class="consent-label">
+                        Remember me on this device so I can pick up where I left off.
+                        <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
+                    </label>
                 </div>
 
             </form>
@@ -4113,8 +4183,15 @@
             const STATE_KEY = 'dca_v2_state';
             const RETURNEE_TTL_DAYS = 30;
             const PRIMARY_RECIPIENT = 'darrel.vaughn@klearai.com';
-            const CC_RECIPIENTS = 'darrel.vaughn@10touros.com,ldvatughn@protonmail.com';
+            // CC list — company-controlled addresses only. The personal
+            // Protonmail recipient was removed (GDPR governance: EU/UK PII must
+            // not land in a personal, non-company-controlled mailbox).
+            const CC_RECIPIENTS = 'darrel.vaughn@10touros.com';
             const FORM_URL = 'https://formsubmit.co/ajax/' + encodeURIComponent(PRIMARY_RECIPIENT);
+            // Version stamp for the consent wording. Bump this whenever the
+            // checkbox/notice copy changes so each captured lead records exactly
+            // which consent statement the visitor agreed to (record-of-consent).
+            const CONSENT_TEXT_VERSION = 'v1.0-2026-06-19';
 
             function genUUID() {
                 if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -4132,6 +4209,13 @@
                 return null;
             }
             function saveState() {
+                // No device persistence unless the visitor opted into being
+                // remembered. This single guard gates the persistent
+                // visitor_id, returnee tracking, and field recall on the
+                // "remember me" checkbox (PECR / localStorage). While off, the
+                // funnel runs in-memory only; in-session capture still works
+                // and is still sent (legitimate interest).
+                if (!state.current || !state.current.remember_device) return;
                 try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (_) { }
             }
             function freshExplicit() {
@@ -4147,6 +4231,14 @@
                     // offered ids are persisted as a comma list for funnel
                     // analytics ("what would have closed them").
                     next_step: '', next_step_label: '', next_step_options_offered: '',
+                    // Capture itself rests on legitimate interest + the slide-2
+                    // notice, so it needs no flag. This checkbox is a separate,
+                    // optional consent (PECR) for keeping a persistent record on
+                    // the device — returnee recognition + progress restore.
+                    // remember_device is false until the visitor ticks it; while
+                    // false, nothing is written to localStorage. It rides along
+                    // in the lead payload as the record of that opt-in.
+                    remember_device: false, remember_at: '',
                     // Gamma takeaway-deck integration (v1.1.0). The proxy
                     // returns a jobId when generation starts; gammaUrl is
                     // populated once the deck is ready. gammaHash lets us
@@ -4570,6 +4662,15 @@
                     visit_number: state.visit_count,
                     is_returnee: state.visit_count > 1,
                     terminal_reached: terminal,
+                    lead_completeness: terminal === 'book_meeting'
+                        ? 'COMPLETED — visitor finished the funnel and requested a time'
+                        : 'PARTIAL / ABANDONED — visitor left before completing; data below is what we captured',
+                    // Lawful basis for this capture + record of the optional
+                    // "remember me" device-consent.
+                    capture_basis: 'Legitimate interest (notice shown at point of collection, slide 2)',
+                    remember_device: e.remember_device ? 'YES' : 'NO',
+                    remember_at: e.remember_at || '',
+                    consent_text_version: CONSENT_TEXT_VERSION,
                     captured_at: new Date(now).toISOString(),
                     first_seen_at: state.first_seen_at,
                     time_on_site_seconds: sessionTime,
@@ -4614,18 +4715,44 @@
                 };
             }
 
+            // Did the visitor enter ANY meaningful field? Used to decide
+            // whether a page_exit (abandon) is worth sending. We want to know
+            // about partial leads EVEN WHEN no email was captured — anything
+            // they told us (role, org, org type, challenge, timeline, budget,
+            // a chosen next step, a requested time) is signal worth emailing.
+            // The only thing we skip is a pure bounce that typed nothing.
+            function hasAnyCapture(e) {
+                return !!(
+                    e.email || e.org_name || e.company || e.role || e.org_type ||
+                    (Array.isArray(e.responsibilities) && e.responsibilities.length) ||
+                    e.selected_challenge || e.selected_challenge_label ||
+                    e.challenge_subpain || e.challenge_impact || e.use_case_title ||
+                    e.timeline || e.budget || e.extras ||
+                    e.next_step || e.requested_date
+                );
+            }
+
             // ---- Send (full submit = fetch, abandon = sendBeacon) ----
             function captureData(terminal) {
                 if (terminal === 'book_meeting' && session.sent_full) return;
                 if (terminal === 'page_exit' && session.sent_abandon) return;
                 if (terminal === 'page_exit' && session.sent_full) return; // already covered
-                if (terminal === 'page_exit' && !state.current.email) return; // no value in empty abandons
+                // Send partial abandons even with no email — as long as the
+                // visitor actually entered something. Only a pure, empty bounce
+                // (typed nothing at all) is dropped as noise. Capture rests on
+                // legitimate interest + the point-of-collection notice on slide
+                // 2, so it is NOT gated on the "remember me" checkbox — every
+                // visitor who enters something is captured, ticked or not.
+                if (terminal === 'page_exit' && !hasAnyCapture(state.current)) return;
 
                 const payload = buildPayload(terminal);
                 // Include BANT total in the subject so the inbox lands a
                 // quick "9/12" hit alongside the deal-status verdict.
                 const bantStr = (payload['11_BANT_TOTAL'] || '').split(' ')[0]; // "9/12"
-                const subject = '[Discover Klear.ai] ' + payload.deal_status.toUpperCase()
+                // Flag partial/abandoned leads up front so the inbox can tell a
+                // completed booking from someone who left mid-funnel at a glance.
+                const leadTag = terminal === 'book_meeting' ? 'COMPLETED' : 'PARTIAL/ABANDONED';
+                const subject = '[Discover Klear.ai] ' + leadTag + ' — ' + payload.deal_status.toUpperCase()
                     + ' (' + bantStr + ') — ' + (payload.email || '(no email)')
                     + ' — visit #' + payload.visit_number
                     + (payload.is_returnee ? ' (returnee)' : '');
@@ -4994,6 +5121,29 @@
             wireInput('email',   'email');
             wireInput('extras',  'extras');
 
+            // "Remember me on this device" checkbox (slide 2). Optional consent
+            // (PECR) governing ONLY localStorage persistence — persistent
+            // visitor id, returnee recognition, progress restore. It does NOT
+            // gate capture/send (that rests on legitimate interest + the slide-2
+            // notice). Unticked by default; restored as ticked for a returnee
+            // whose prior (remembered) state was loaded. Unticking withdraws it:
+            // we stop persisting and clear the stored record.
+            const consentEl = document.getElementById('consent');
+            if (consentEl) {
+                consentEl.checked = !!state.current.remember_device;
+                consentEl.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        state.current.remember_device = true;
+                        state.current.remember_at = new Date().toISOString();
+                        saveState(); // persistence now permitted
+                    } else {
+                        state.current.remember_device = false;
+                        state.current.remember_at = '';
+                        try { localStorage.removeItem(STATE_KEY); } catch (_) { /* private mode */ }
+                    }
+                });
+            }
+
             // Slide-3 "Name" (#icp-org) and slide-5 "Company" (#company) are
             // two surfaces of the same field — the visitor's organization
             // name. We canonicalize on `org_name`. Typing on either input
@@ -5320,12 +5470,21 @@
                 });
             }
 
-            // Capture once more when the user actually leaves — partial
-            // (abandon-with-email) leads use sendBeacon so they survive the
-            // tab-close. Only sends if visitor entered an email AND got past
-            // slide 1 (otherwise it's noise).
-            window.addEventListener('pagehide', () => {
+            // Capture when the visitor leaves mid-funnel so partial leads are
+            // never lost. captureData('page_exit') uses sendBeacon so the send
+            // survives the tab-close, sends even with NO email (any captured
+            // field is signal), and self-dedupes via session.sent_abandon /
+            // session.sent_full so a visitor produces at most one partial.
+            // We listen on two events because no single one is reliable
+            // everywhere: pagehide covers desktop tab-close/navigation, while
+            // visibilitychange→hidden is the only callback mobile browsers fire
+            // reliably when the tab is backgrounded and later discarded.
+            function captureAbandon() {
                 if (session.slidesVisited.size > 1) captureData('page_exit');
+            }
+            window.addEventListener('pagehide', captureAbandon);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') captureAbandon();
             });
 
             // ===========================================
