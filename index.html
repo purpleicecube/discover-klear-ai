@@ -1705,6 +1705,16 @@
         section#slide-4 .privacy-line    { color: rgba(26, 11, 46, 0.55); }
         section#slide-4 .privacy-line a  { color: var(--klear-purple); }
         section#slide-4 .privacy-line a:hover { color: var(--cta-bg-hover); }
+
+        /* Slide 2 is a light surface too — re-tint the consent notice + the
+           "remember me" row dark (base styles use --text-muted / pale-pink
+           links meant for dark slides, which are invisible here). */
+        section#slide-2 .collection-notice { color: rgba(26, 11, 46, 0.62); }
+        section#slide-2 .consent-label     { color: rgba(26, 11, 46, 0.74); }
+        section#slide-2 .collection-notice a,
+        section#slide-2 .consent-label a   { color: var(--klear-purple); }
+        section#slide-2 .collection-notice a:hover,
+        section#slide-2 .consent-label a:hover { color: var(--cta-bg-hover); }
         section#slide-4 .calendar-label  { color: var(--klear-navy); }
         section#slide-4 .calendar-sub    { color: rgba(26, 11, 46, 0.55); }
         section#slide-4 .calendar-mini .day-head { color: rgba(26, 11, 46, 0.5); }
@@ -3809,7 +3819,7 @@
                  informs, it does not gate. Capture/send happens regardless. -->
             <p class="collection-notice reveal" data-delay="3">
                 As you go, we'll save what you share so a Klear.ai specialist can follow up — even if you don't finish. We only use it to help you, and you can ask us to delete it anytime.
-                <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
+                <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy →</a>
             </p>
 
             <!-- Three-box layout mirroring the original engagement-gate pattern:
@@ -3874,7 +3884,7 @@
                     <input type="checkbox" id="consent" class="consent-check" aria-describedby="consentLabel">
                     <label for="consent" id="consentLabel" class="consent-label">
                         Remember me on this device so I can pick up where I left off.
-                        <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
+                        <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy →</a>
                     </label>
                 </div>
 
@@ -4131,7 +4141,7 @@
 
                     <p class="privacy-line">
                         We use this info to prep your call.
-                        <a href="https://klear.ai/privacy" target="_blank" rel="noopener noreferrer">Privacy →</a>
+                        <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy →</a>
                     </p>
 
                     <!-- Send-state container — swaps between "Send my request"
