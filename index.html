@@ -3020,12 +3020,49 @@
             margin-left: auto;
         }
 
+        /* "Finish these to book" badge — high-contrast amber so it clearly
+           stands out on the light booking surface and tells the visitor
+           exactly what's left. Replaces the old faint-pink one-liner. */
         .send-error {
-            margin-top: var(--space-xs);
-            color: #F8B4D9;
-            font-size: 0.85rem;
-            text-align: center;
+            margin-top: var(--space-sm);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            text-align: left;
+            background: #FFF4E0;
+            border: 1px solid #E6A23C;
+            border-left: 4px solid #C8740C;
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: #5C3300;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            box-shadow: 0 4px 14px -6px rgba(200, 116, 12, 0.45);
         }
+        /* class sets display:flex, which would override the [hidden] attribute —
+           restore the hide so the badge only shows when there's something to do. */
+        .send-error[hidden] { display: none; }
+        .send-error-icon {
+            flex: 0 0 auto;
+            width: 20px;
+            height: 20px;
+            margin-top: 1px;
+            fill: none;
+            stroke: #C8740C;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .send-error-title {
+            margin: 0 0 4px;
+            font-weight: 700;
+            color: #5C3300;
+        }
+        .send-error-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .send-error-list li { margin: 2px 0; }
 
         .send-success {
             /* v1.3.x — light-surface success card (slide 5 / #slide-4 is light).
@@ -5314,10 +5351,31 @@
                 });
             }
 
-            function showSendError(msg) {
+            // Render a "what's left to finish" badge. Accepts an array of the
+            // still-needed items (or a single string for back-compat). Empty
+            // array hides the badge.
+            function showSendError(items) {
                 if (!sendErrEl) return;
-                sendErrEl.textContent = msg;
+                const list = (Array.isArray(items) ? items : [items]).filter(Boolean);
+                if (!list.length) {
+                    sendErrEl.hidden = true;
+                    sendErrEl.removeAttribute('role');
+                    return;
+                }
+                const title = list.length === 1
+                    ? 'One more thing to book your time:'
+                    : 'Almost there — finish these to book your time:';
+                const lis = list.map(t => '<li>' + t + '</li>').join('');
+                sendErrEl.innerHTML =
+                    '<svg class="send-error-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+                      '<path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>' +
+                    '</svg>' +
+                    '<div class="send-error-body">' +
+                      '<p class="send-error-title">' + title + '</p>' +
+                      '<ul class="send-error-list">' + lis + '</ul>' +
+                    '</div>';
                 sendErrEl.hidden = false;
+                sendErrEl.setAttribute('role', 'alert');
             }
             function showSendSuccess() {
                 if (!sendContainerEl) return;
@@ -5459,23 +5517,33 @@
             if (sendBtn) {
                 sendBtn.addEventListener('click', () => {
                     const e = state.current;
-                    if (!e.email) {
-                        showSendError('Please enter your work email so we can confirm.');
-                        const emailEl = document.getElementById('email');
-                        if (emailEl) emailEl.focus();
-                        return;
-                    }
                     const orgVal = (e.org_name || e.company || '').trim();
-                    if (!orgVal) {
-                        showSendError('Please tell us your company name so we know who we are meeting with.');
-                        const companyEl = document.getElementById('company');
-                        if (companyEl) companyEl.focus();
+
+                    // Collect EVERY outstanding mandatory item so the visitor
+                    // sees the full to-do list at once, not one error at a time.
+                    const missing = [];
+                    if (!e.email)  missing.push('Enter your work email');
+                    if (!orgVal)   missing.push('Add your company name');
+                    if (!e.requested_date) {
+                        missing.push('Pick a day');
+                    } else if (!e.requested_daypart) {
+                        missing.push('Choose a morning or afternoon slot');
+                    }
+
+                    if (missing.length) {
+                        showSendError(missing);
+                        // Jump focus to the first thing that needs attention.
+                        if (!e.email) {
+                            const el = document.getElementById('email');
+                            if (el) el.focus();
+                        } else if (!orgVal) {
+                            const el = document.getElementById('company');
+                            if (el) el.focus();
+                        }
                         return;
                     }
-                    if (!e.requested_date || !e.requested_daypart) {
-                        showSendError('Pick a day and a morning or afternoon slot.');
-                        return;
-                    }
+
+                    showSendError([]); // all good — clear the badge
                     submitRequestWaitingForDeck();
                 });
             }
