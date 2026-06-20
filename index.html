@@ -5363,8 +5363,8 @@
                     return;
                 }
                 const title = list.length === 1
-                    ? 'One more thing to book your time:'
-                    : 'Almost there — finish these to book your time:';
+                    ? "You're almost there — just one quick thing:"
+                    : "You're almost there! Just a couple of details and we're set:";
                 const lis = list.map(t => '<li>' + t + '</li>').join('');
                 sendErrEl.innerHTML =
                     '<svg class="send-error-icon" viewBox="0 0 24 24" aria-hidden="true">' +
@@ -5522,12 +5522,12 @@
                     // Collect EVERY outstanding mandatory item so the visitor
                     // sees the full to-do list at once, not one error at a time.
                     const missing = [];
-                    if (!e.email)  missing.push('Enter your work email');
-                    if (!orgVal)   missing.push('Add your company name');
+                    if (!e.email)  missing.push('Pop in your work email so we can confirm');
+                    if (!orgVal)   missing.push('Let us know your company name');
                     if (!e.requested_date) {
-                        missing.push('Pick a day');
+                        missing.push('Pick a day that works for you');
                     } else if (!e.requested_daypart) {
-                        missing.push('Choose a morning or afternoon slot');
+                        missing.push('Choose morning or afternoon');
                     }
 
                     if (missing.length) {
