@@ -242,9 +242,9 @@
     position:relative;aspect-ratio:16/9;border-radius:20px;overflow:hidden;
     background:radial-gradient(600px 400px at 70% 30%,rgba(181,99,204,.4),transparent),var(--indigo-900);
     border:1px solid var(--line);box-shadow:0 30px 60px -30px rgba(23,22,58,.6);
-    display:grid;place-items:center;cursor:pointer;
+    display:grid;place-items:center;
   }
-  .video__frame::after{content:"Placeholder — drop your 3–4 min hero video embed here";position:absolute;bottom:14px;left:0;right:0;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:.68rem;letter-spacing:.1em;color:rgba(255,255,255,.55);text-transform:uppercase;}
+  .video__frame video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:var(--indigo-900);}
   .play{
     width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,.14);
     border:1.5px solid rgba(255,255,255,.4);display:grid;place-items:center;
@@ -346,8 +346,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h1>Intelligent Software  for
 <span class="clear">Smarter Underwriting,
 Claims & Risk Management </span></h1>
-<p class="hero__sub">A Native AI-Powered SaaS Platform Unifying the Insurance Lifecycle Management</p>
-      <p class="hero__sub">Klear.ai delivers a unified , fully integrated core, platform to seamlessly manage your policy and claims administration, loss control, and dynamic reporting within one intelligent system.
+<p class="hero__sub">A Native AI-Powered SaaS Platform that unifies the Insurance Lifecycle</p>
+      <p class="hero__sub">Klear.ai delivers a unified, fully integrated core platform to seamlessly manage your policy and claims administration, loss control, and dynamic reporting within one intelligent system.
 </p>
       <div class="hero__actions">
         <a class="cta" href="https://klear.ai/demo/" target="_blank" rel="noopener">Book a No-Obligation Demo <span class="arrow" aria-hidden="true">&rarr;</span></a>
@@ -480,14 +480,16 @@ business workflow.
 <section class="video">
   <div class="wrap video__grid">
     <div>
-      <p class="eyebrow">See it in three minutes</p>
+      <p class="eyebrow">Watch the Platform Overview</p>
       <h2>Watch how a pool runs on one platform</h2>
       <p>A short walkthrough of the unified core engine, underwriting and policy tooling, member portal, and native AI workflows&nbsp;— built for pool administrators, underwriting, and claims leaders.</p>
       <a class="cta" style="margin-top:26px" href="https://klear.ai/demo/" target="_blank" rel="noopener">Book a No-Obligation Demo <span class="arrow" aria-hidden="true">&rarr;</span></a>
     </div>
-    <!-- Replace this placeholder with your <iframe> hero video embed -->
-    <div class="video__frame reveal" role="button" tabindex="0" aria-label="Play the platform overview video (placeholder)">
-      <div class="play" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z"/></svg></div>
+    <!-- Platform overview video: Ver 4.0, 1080p web encode, self-hosted -->
+    <div class="video__frame reveal">
+      <video controls playsinline preload="metadata" poster="assets/klear-riskpools-v4-poster.jpg" aria-label="Klear.ai platform overview video">
+        <source src="assets/klear-riskpools-v4.mp4" type="video/mp4">
+      </video>
     </div>
   </div>
 </section>
@@ -531,13 +533,6 @@ business workflow.
     els.forEach(function(e){io.observe(e);});
   })();
 
-  (function(){
-    var frame = document.querySelector('.video__frame');
-    if(!frame) return;
-    function go(){ window.open('https://klear.ai/demo/','_blank','noopener'); }
-    frame.addEventListener('click', go);
-    frame.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
-  })();
   (function(){
     var svg = document.querySelector('.hero__pool');
     if(!svg) return;
